@@ -3,6 +3,9 @@ package com.plusitsolution.timesheet.domain;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.plusitsolution.timesheet.entity.EmployeeEntity;
+import com.plusitsolution.timesheet.entity.OrganizeEntity;
+
 public class EmployeeDomain {
 	
 	private String empID ; 
@@ -12,11 +15,39 @@ public class EmployeeDomain {
 	private String lastName;
 	private String nickName ;
 	private Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
-	private String username ;
 	private String password ;
 	private Map<String , String> MEDFEEUSE_MAP = new HashMap<>();
 	
+	public EmployeeDomain() {
+		
+	}
 	
+	public EmployeeDomain(String orgID, String empCode, String firstName, String lastName,
+			String nickName, Map<String, TimesheetsDomain> TIMESHEETS_MAP, String username, String password,
+			Map<String, String> MEDFEEUSE_MAP) {
+		this.orgID = orgID;
+		this.empCode = empCode;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.nickName = nickName;
+		this.TIMESHEETS_MAP = TIMESHEETS_MAP;
+		this.password = password;
+		this.MEDFEEUSE_MAP = MEDFEEUSE_MAP;
+	}
+	
+	public EmployeeEntity toEntity() {
+		EmployeeEntity entity = new EmployeeEntity();
+		entity.setOrgID(this.orgID);
+		entity.setEmpCode(this.empCode);
+		entity.setFirstName(this.firstName);
+		entity.setLastName(this.lastName);
+		entity.setNickName(this.nickName);
+		entity.setTIMESHEETS_MAP(this.TIMESHEETS_MAP);
+		entity.setPassword(this.password);
+		entity.setMEDFEEUSE_MAP(this.MEDFEEUSE_MAP);
+		return entity;
+	}
+
 	public String getEmpID() {
 		return empID;
 	}
@@ -59,12 +90,6 @@ public class EmployeeDomain {
 	public void setTIMESHEETS_MAP(Map<String, TimesheetsDomain> tIMESHEETS_MAP) {
 		TIMESHEETS_MAP = tIMESHEETS_MAP;
 	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
-	}
 	public String getPassword() {
 		return password;
 	}
@@ -78,8 +103,6 @@ public class EmployeeDomain {
 		MEDFEEUSE_MAP = mEDFEEUSE_MAP;
 	}
 
-	
-	
-	
+
 	
 }
