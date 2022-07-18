@@ -4,6 +4,11 @@ public class OrganizeDomain {
 	
 	private String orgID;
 	private String orgID2;
+
 	private String orgID4;
+
+	private String orgID3;
+
+
 
 }
