@@ -3,14 +3,23 @@ package com.plusitsolution.timesheet.entity;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import com.plusitsolution.timesheet.domain.TimesheetsDomain;
 @Document(indexName = "employee-index")
+
 public class EmployeeEntity {
-	
+	@Id
+	@ReadOnlyProperty
 	private String empID ; 
+	
+	@Field(type = FieldType.Keyword)
 	private String orgID ;
+	@Field(type = FieldType.Keyword)
 	private String empCode ;
 	private String firstName;
 	private String lastName;
