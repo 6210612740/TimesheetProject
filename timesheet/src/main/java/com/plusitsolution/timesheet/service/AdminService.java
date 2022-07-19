@@ -70,23 +70,30 @@ public class AdminService {
 	
 
 	public void registerEmployee(RegisterEmployeeWrapper wrapper) {
+		
+		System.out.println("0");
 		AtomicInteger counter = new AtomicInteger(1);
 		String empCode = utilService.generateEmpCode(counter, wrapper.getOrgID());
 		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
 		String hashPass = wrapper.getPassword();
 		Map<String , String> MEDFEEUSE_MAP = new HashMap<>();
+		System.out.println("xxxxx "+MEDFEEUSE_MAP);
 		
-		employeeRepository.save(new EmployeeDomain(orgRepository.findByOrgNameTh(wrapper.getOrgID()).getOrgID(), empCode, 
+		employeeRepository.save(new EmployeeDomain(wrapper.getOrgID(), empCode, 
 				wrapper.getFirstName(), wrapper.getLastName(), wrapper.getNickName(), TIMESHEETS_MAP, hashPass, MEDFEEUSE_MAP).toEntity());
+		System.out.println("1");
 		
 		OrganizeEntity entity = orgRepository.findById(wrapper.getOrgID()).get();
+
 		
 		Map<String, EmpDetailDomain> EMP_MAP =  orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP();
 		EmpDetailDomain domain = new EmpDetailDomain(empCode, wrapper.getHolidayID(), wrapper.getLeaveLimit(), wrapper.getMedFeeLimit(), wrapper.getEmpRole(),
-				LocalDate.parse("9999-01-01"));
+				"9999-01-01");
 		EMP_MAP.put(employeeRepository.findByEmpCode(empCode).getEmpCode(), domain);
 		
 		entity.setEMP_MAP(EMP_MAP);
+		
+		orgRepository.save(entity);
 		
 
 	}

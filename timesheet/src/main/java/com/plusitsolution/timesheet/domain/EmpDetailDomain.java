@@ -11,14 +11,14 @@ public class EmpDetailDomain {
 	private double leaveLimit ;
 	private double medFeeLimit ;
 	private EmpRole empRole ;
-	private LocalDate endContract ;
+	private String endContract ;
 	
 	public EmpDetailDomain() {
 		
 	}
 	
 	public EmpDetailDomain(String empCode, String holidayID, double leaveLimit, double medFeeLimit, EmpRole empRole,
-			LocalDate endContract) {
+			String endContract) {
 		this.empCode = empCode;
 		this.holidayID = holidayID;
 		this.leaveLimit = leaveLimit;
@@ -57,10 +57,10 @@ public class EmpDetailDomain {
 	public void setEmpRole(EmpRole empRole) {
 		this.empRole = empRole;
 	}
-	public LocalDate getEndContract() {
+	public String getEndContract() {
 		return endContract;
 	}
-	public void setEndContract(LocalDate endContract) {
+	public void setEndContract(String endContract) {
 		this.endContract = endContract;
 	}
 	
