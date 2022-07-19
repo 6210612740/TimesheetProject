@@ -14,6 +14,7 @@ import com.plusitsolution.timesheet.domain.OrganizeDomain;
 import com.plusitsolution.timesheet.domain.OverviewDomain;
 import com.plusitsolution.timesheet.domain.wrapper.OrgIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgRegisterWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.RegisterEmployeeWrapper;
 import com.plusitsolution.timesheet.entity.OrganizeEntity;
 import com.plusitsolution.timesheet.repository.EmployeeRepository;
 import com.plusitsolution.timesheet.repository.OrganizeRepository;
@@ -61,7 +62,7 @@ public class AdminService {
 	//---------- Employee ---------------
 	
 	public void registerEmployee() {
-		
+			
 	}
 	
 	public void updateUserProfile() {
