@@ -13,7 +13,20 @@ public class EmpDetailDomain {
 	private EmpRole empRole ;
 	private LocalDate endContract ;
 	
+	public EmpDetailDomain() {
+		
+	}
 	
+	public EmpDetailDomain(String empCode, String holidayID, double leaveLimit, double medFeeLimit, EmpRole empRole,
+			LocalDate endContract) {
+		this.empCode = empCode;
+		this.holidayID = holidayID;
+		this.leaveLimit = leaveLimit;
+		this.medFeeLimit = medFeeLimit;
+		this.empRole = empRole;
+		this.endContract = endContract;
+	}
+
 	public String getEmpCode() {
 		return empCode;
 	}

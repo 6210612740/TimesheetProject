@@ -23,7 +23,7 @@ public class EmployeeDomain {
 	}
 	
 	public EmployeeDomain(String orgID, String empCode, String firstName, String lastName,
-			String nickName, Map<String, TimesheetsDomain> TIMESHEETS_MAP, String username, String password,
+			String nickName, Map<String, TimesheetsDomain> TIMESHEETS_MAP, String password,
 			Map<String, String> MEDFEEUSE_MAP) {
 		this.orgID = orgID;
 		this.empCode = empCode;
