@@ -39,9 +39,10 @@ public class AdminService {
 	public void registerOrg(OrgRegisterWrapper wrapper) {
 		
 		Map<String, EmpDetailDomain> EMP_MAP =  new HashMap<>();
-		orgRepository.save(new OrganizeDomain(wrapper.getOrgNameTh(), wrapper.getOrgNameEng(), 
+		OrganizeEntity orgEntity = orgRepository.save(new OrganizeDomain(wrapper.getOrgNameTh(), wrapper.getOrgNameEng(), 
 				wrapper.getShortName(), wrapper.getOrgAdress(), wrapper.getOrgPic(), EMP_MAP).toEntity());
 		
+		System.out.println(orgEntity.getOrgID());
 		
 	}
 	
