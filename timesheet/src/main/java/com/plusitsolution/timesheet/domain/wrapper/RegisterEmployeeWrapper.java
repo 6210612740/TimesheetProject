@@ -5,7 +5,6 @@ import com.plusitsolution.timesheet.domain.TimesheetsEnum.EmpRole;
 public class RegisterEmployeeWrapper {
 	
 	private String orgID ;
-	private String username ;
 	private String password ;
 	private String firstName;
 	private String lastName;
@@ -15,19 +14,28 @@ public class RegisterEmployeeWrapper {
 	private String holidayID;
 	private EmpRole empRole ;
 	
+	public RegisterEmployeeWrapper() {
+		
+	}
 	
+	public RegisterEmployeeWrapper(String orgID, String password, String firstName, String lastName,
+			String nickName, double leaveLimit, double medFeeLimit, String holidayID, EmpRole empRole) {
+		this.orgID = orgID;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.nickName = nickName;
+		this.leaveLimit = leaveLimit;
+		this.medFeeLimit = medFeeLimit;
+		this.holidayID = holidayID;
+		this.empRole = empRole;
+	}
 	
 	public String getOrgID() {
 		return orgID;
 	}
 	public void setOrgID(String orgID) {
 		this.orgID = orgID;
-	}
-	public String getUsername() {
-		return username;
-	}
-	public void setUsername(String username) {
-		this.username = username;
 	}
 	public String getPassword() {
 		return password;

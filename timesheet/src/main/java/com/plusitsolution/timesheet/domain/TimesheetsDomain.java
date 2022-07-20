@@ -10,8 +10,17 @@ public class TimesheetsDomain {
 	private String activity ;
 	private DateStatus dateStatus ;
 	
+	public TimesheetsDomain() {
+		
+	}
 	
-	
+	public TimesheetsDomain(String timeIn, String timeOut, String project, String activity, DateStatus dateStatus) {
+		this.timeIn = timeIn;
+		this.timeOut = timeOut;
+		this.project = project;
+		this.activity = activity;
+		this.dateStatus = dateStatus;
+	}
 	
 	public String getTimeIn() {
 		return timeIn;

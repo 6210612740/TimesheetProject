@@ -13,6 +13,7 @@ import com.plusitsolution.timesheet.domain.EmpDetailDomain;
 
 @Document(indexName = "organize-index")
 public class OrganizeEntity {
+	
 	@Id
 	@ReadOnlyProperty
 	private String orgID ;

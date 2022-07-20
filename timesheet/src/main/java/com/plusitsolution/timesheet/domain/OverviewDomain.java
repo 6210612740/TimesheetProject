@@ -13,9 +13,26 @@ public class OverviewDomain {
 	private double medFeeUse ;
 	private double leaveRemain ;
 	private double medFeeRemain ;
-	private LocalDate endContract ;
+	private String endContract ;
 	
+	public OverviewDomain() {
+		
+	}
 	
+	public OverviewDomain(String empCode, String firstName, String lastName, double leaveLimit, double medFeeLimit,
+			double leaveUse, double medFeeUse, double leaveRemain, double medFeeRemain, String endContract) {
+		this.empCode = empCode;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.leaveLimit = leaveLimit;
+		this.medFeeLimit = medFeeLimit;
+		this.leaveUse = leaveUse;
+		this.medFeeUse = medFeeUse;
+		this.leaveRemain = leaveRemain;
+		this.medFeeRemain = medFeeRemain;
+		this.endContract = endContract;
+	}
+
 	public String getEmpCode() {
 		return empCode;
 	}
@@ -70,10 +87,10 @@ public class OverviewDomain {
 	public void setMedFeeRemain(double medFeeRemain) {
 		this.medFeeRemain = medFeeRemain;
 	}
-	public LocalDate getEndContract() {
+	public String getEndContract() {
 		return endContract;
 	}
-	public void setEndContract(LocalDate endContract) {
+	public void setEndContract(String endContract) {
 		this.endContract = endContract;
 	}
 	

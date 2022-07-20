@@ -8,6 +8,8 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import com.plusitsolution.timesheet.domain.TimesheetsEnum.MedStatus;
+
 @Document(indexName = "medical-index")
 public class MedicalEntity {
 	
@@ -25,6 +27,8 @@ public class MedicalEntity {
 	private Double amount;
 	private String note;
 	private LocalDate date;
+	private MedStatus medStatus ;
+	
 	public String getMedID() {
 		return medID;
 	}
@@ -67,5 +71,12 @@ public class MedicalEntity {
 	public void setDate(LocalDate date) {
 		this.date = date;
 	}
+	public MedStatus getMedStatus() {
+		return medStatus;
+	}
+	public void setMedStatus(MedStatus medStatus) {
+		this.medStatus = medStatus;
+	}
+	
 
 }
