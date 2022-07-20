@@ -12,4 +12,6 @@ import com.plusitsolution.timesheet.entity.MedicalEntity;
 public interface HolidayRepository extends ElasticsearchRepository<HolidayEntity , String> {
 	
 	public List<HolidayEntity> findAll();
+	
+	public HolidayEntity findByHolidayName(String holidayName);
 }

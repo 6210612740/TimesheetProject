@@ -9,6 +9,17 @@ public class HolidayWrapper {
 	private String orgID;
 	private List<String> holidayList = new ArrayList<String>();
 	
+	public HolidayWrapper() {
+		
+	}
+	
+	public HolidayWrapper(String holidayName, String orgID, List<String> holidayList) {
+		this.holidayName = holidayName;
+		this.orgID = orgID;
+		this.holidayList = holidayList;
+	}
+
+
 	public String getHolidayName() {
 		return holidayName;
 	}

@@ -15,6 +15,7 @@ import com.plusitsolution.timesheet.domain.MedicalDomain;
 import com.plusitsolution.timesheet.domain.TimesheetsDomain;
 import com.plusitsolution.timesheet.domain.TimesheetsEnum.MedStatus;
 import com.plusitsolution.timesheet.domain.wrapper.MedicalRequestWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.UpdateMyTimesheetsWrapper;
 import com.plusitsolution.timesheet.entity.EmployeeEntity;
 import com.plusitsolution.timesheet.entity.MedicalEntity;
 import com.plusitsolution.timesheet.repository.EmployeeRepository;
@@ -68,8 +69,8 @@ public class EmployeeService {
 		return MYTIMESHEETS_MAP;
 	}
 	
-	public Map<String, MedicalEntity> geMyMedRequests(String empCode) {
-		EmployeeEntity employeeEntity = employeeRepository.findByEmpCode(empCode);
+	public Map<String, MedicalEntity> geMyMedRequests(String empID) {
+		EmployeeEntity employeeEntity = employeeRepository.findById(empID).get();
 		if (employeeEntity == null ) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this employee is't exist"); 
 		}
@@ -98,9 +99,14 @@ public class EmployeeService {
 		
 	}
 	
-	public EmployeeDomain updateMyTimesheets() {
-		
-		return null;
-	}
+	public void updateMyTimesheets(UpdateMyTimesheetsWrapper wrapper) {
+        EmployeeEntity employeeEntity = employeeRepository.findById(wrapper.getEmpID()).get();
+        if (employeeEntity == null ) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this employee is't exist"); 
+        }
+
+        employeeEntity.getTIMESHEETS_MAP().putAll(wrapper.getTIMESHEETS_MAP());
+        employeeRepository.save(employeeEntity);
+    }
 	
 }

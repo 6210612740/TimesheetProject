@@ -20,10 +20,13 @@ public class OrganizeEntity {
 	
 	@Field(type = FieldType.Keyword)
 	private String orgNameTh ;
+	
 	@Field(type = FieldType.Keyword)
 	private String orgNameEng ;
+	
 	@Field(type = FieldType.Keyword)
 	private String shortName ;
+	
 	private String orgAdress ;
 	private String orgPic ;
 	
