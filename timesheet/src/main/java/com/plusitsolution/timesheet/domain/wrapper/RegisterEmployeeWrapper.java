@@ -1,6 +1,6 @@
 package com.plusitsolution.timesheet.domain.wrapper;
 
-import com.plusitsolution.timesheet.domain.TimesheetsEnum.EmpRole;
+import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
 
 public class RegisterEmployeeWrapper {
 	

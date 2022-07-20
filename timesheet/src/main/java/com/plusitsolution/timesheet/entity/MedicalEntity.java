@@ -8,7 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
-import com.plusitsolution.timesheet.domain.TimesheetsEnum.MedStatus;
+import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
 
 @Document(indexName = "medical-index")
 public class MedicalEntity {
@@ -26,7 +26,7 @@ public class MedicalEntity {
 	private String slipPic;
 	private Double amount;
 	private String note;
-	private LocalDate date;
+	private String date;
 	private MedStatus medStatus ;
 	
 	public String getMedID() {
@@ -65,10 +65,10 @@ public class MedicalEntity {
 	public void setNote(String note) {
 		this.note = note;
 	}
-	public LocalDate getDate() {
+	public String getDate() {
 		return date;
 	}
-	public void setDate(LocalDate date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 	public MedStatus getMedStatus() {

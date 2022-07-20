@@ -1,8 +1,9 @@
-package com.plusitsolution.timesheet.domain;
+package com.plusitsolution.timesheet.domain.Medical;
 
 import java.time.LocalDate;
 
-import com.plusitsolution.timesheet.domain.TimesheetsEnum.MedStatus;
+import com.plusitsolution.timesheet.domain.EnumDomain;
+import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
 
 public class MedicalRequestDomain {
 	

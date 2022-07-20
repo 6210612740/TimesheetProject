@@ -1,8 +1,9 @@
-package com.plusitsolution.timesheet.domain;
+package com.plusitsolution.timesheet.domain.Employee;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 import com.plusitsolution.timesheet.entity.EmployeeEntity;
 import com.plusitsolution.timesheet.entity.OrganizeEntity;
 

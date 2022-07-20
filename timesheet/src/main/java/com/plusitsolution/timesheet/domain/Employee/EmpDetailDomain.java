@@ -1,8 +1,9 @@
-package com.plusitsolution.timesheet.domain;
+package com.plusitsolution.timesheet.domain.Employee;
 
 import java.time.LocalDate;
 
-import com.plusitsolution.timesheet.domain.TimesheetsEnum.EmpRole;
+import com.plusitsolution.timesheet.domain.EnumDomain;
+import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
 
 public class EmpDetailDomain {
 	

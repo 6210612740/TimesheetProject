@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.plusitsolution.timesheet.domain.OverviewDomain;
+import com.plusitsolution.timesheet.domain.Display.OverviewDomain;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayUpdateWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgIDWrapper;

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.plusitsolution.timesheet.domain.TimesheetsDomain;
+import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 
 public class HolidayUpdateWrapper {
 

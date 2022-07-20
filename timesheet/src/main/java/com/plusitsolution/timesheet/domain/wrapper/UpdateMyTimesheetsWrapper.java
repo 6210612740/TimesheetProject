@@ -3,7 +3,7 @@ package com.plusitsolution.timesheet.domain.wrapper;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.plusitsolution.timesheet.domain.TimesheetsDomain;
+import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 
 public class UpdateMyTimesheetsWrapper {
 	

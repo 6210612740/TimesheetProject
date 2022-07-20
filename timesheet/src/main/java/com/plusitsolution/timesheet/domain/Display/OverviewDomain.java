@@ -1,4 +1,4 @@
-package com.plusitsolution.timesheet.domain;
+package com.plusitsolution.timesheet.domain.Display;
 
 import java.time.LocalDate;
 

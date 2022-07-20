@@ -6,6 +6,7 @@ import java.util.Map;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import com.plusitsolution.timesheet.domain.Employee.EmpDetailDomain;
 import com.plusitsolution.timesheet.entity.OrganizeEntity;
 
 public class OrganizeDomain {

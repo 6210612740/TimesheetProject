@@ -1,6 +1,7 @@
-package com.plusitsolution.timesheet.domain;
+package com.plusitsolution.timesheet.domain.Timesheet;
 
-import com.plusitsolution.timesheet.domain.TimesheetsEnum.DateStatus;
+import com.plusitsolution.timesheet.domain.EnumDomain;
+import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
 
 public class TimesheetsDomain {
 	

@@ -1,6 +1,6 @@
 package com.plusitsolution.timesheet.domain.wrapper;
 
-import com.plusitsolution.timesheet.domain.TimesheetsEnum.MedStatus;
+import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
 
 public class UpdateMedicalRequestsStatusWrapper {
 	

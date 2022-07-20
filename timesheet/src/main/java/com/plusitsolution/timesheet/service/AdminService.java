@@ -15,18 +15,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.plusitsolution.common.toolkit.PlusJsonUtils;
-import com.plusitsolution.timesheet.domain.EmpDetailDomain;
-import com.plusitsolution.timesheet.domain.EmployeeDomain;
 import com.plusitsolution.timesheet.domain.HolidayDomain;
-import com.plusitsolution.timesheet.domain.MedicalDomain;
+import com.plusitsolution.timesheet.domain.Display.OverviewDomain;
+import com.plusitsolution.timesheet.domain.Display.SummaryLeaveByMonthDomain;
+import com.plusitsolution.timesheet.domain.Display.SummaryMedfeeByMonthDomain;
 import com.plusitsolution.timesheet.domain.OrganizeDomain;
-import com.plusitsolution.timesheet.domain.OverviewDomain;
-import com.plusitsolution.timesheet.domain.TimesheetsDomain;
-import com.plusitsolution.timesheet.domain.TimesheetsEnum.DateStatus;
-import com.plusitsolution.timesheet.domain.TimesheetsEnum.EmpRole;
+import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
+import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
+import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
+import com.plusitsolution.timesheet.domain.Medical.MedicalDomain;
+import com.plusitsolution.timesheet.domain.Employee.EmpDetailDomain;
+import com.plusitsolution.timesheet.domain.Employee.EmployeeDomain;
+import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
+import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsSummaryDomain;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayUpdateWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.MedicalIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgRegisterWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.RegisterEmployeeWrapper;
@@ -97,18 +102,58 @@ public class AdminService {
 		
 		return OVERVIEW_MAP;
 	}
-	
-	public Map<String,EmpDetailDomain> getEveryOneTimesheetsSummary(OrgIDWrapper wrapper) {
+	//*******
+	public Map<String,TimesheetsSummaryDomain> getEveryOneTimesheetsSummary(OrgIDWrapper wrapper) {
 		
-		return null;
+		Map<String , EmpDetailDomain> EMP_MAP = new HashMap<>();
+		EMP_MAP.putAll(orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP());
+		
+		Map<String , TimesheetsSummaryDomain> EveryOneTimesheetsSummary_MAP = new HashMap<>();
+		
+		for (String i : EMP_MAP.keySet()) {
+			EmployeeEntity entity = employeeRepository.findById(i).get() ;
+//			String empCode, String firstName, String lastName, TimesheetsStatus timesheetsStatus,
+//			double leaveUse, double totalOT, double totalWork
+			TimesheetsSummaryDomain domain = new TimesheetsSummaryDomain(EMP_MAP.get(i).getEmpCode(), entity.getFirstName(), entity.getLastName(), TimesheetsStatus.INCOMPLETED,
+					0.00, 0.00, 0.00);
+		}
+		
+		return EveryOneTimesheetsSummary_MAP;
 	}
 	
-	public void getEveryOneLeaveDay(OrgIDWrapper wrapper) {
+	public Map<String , SummaryLeaveByMonthDomain> getEveryOneLeaveDay(OrgIDWrapper wrapper) {
 		
+		Map<String , EmpDetailDomain> EMP_MAP = new HashMap<>();
+		EMP_MAP.putAll(orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP());
+		
+		Map<String , SummaryLeaveByMonthDomain> EveryOneSummaryDay_MAP = new HashMap<>();
+		
+		for (String i : EMP_MAP.keySet()) {
+			SummaryLeaveByMonthDomain domain = new SummaryLeaveByMonthDomain(myLeaveDayThisMonth(i, 1, wrapper.getYear()), myLeaveDayThisMonth(i, 2, wrapper.getYear()), myLeaveDayThisMonth(i, 3, wrapper.getYear()),
+					myLeaveDayThisMonth(i, 4, wrapper.getYear()), myLeaveDayThisMonth(i, 5, wrapper.getYear()), myLeaveDayThisMonth(i, 6, wrapper.getYear()),
+					myLeaveDayThisMonth(i, 7, wrapper.getYear()), myLeaveDayThisMonth(i, 8, wrapper.getYear()), myLeaveDayThisMonth(i, 9, wrapper.getYear()),
+					myLeaveDayThisMonth(i, 10, wrapper.getYear()), myLeaveDayThisMonth(i, 11, wrapper.getYear()), myLeaveDayThisMonth(i, 12, wrapper.getYear()));
+			EveryOneSummaryDay_MAP.put(i, domain);
+		}
+		
+		return EveryOneSummaryDay_MAP;
 	}
 	
-	public void getEveryOneMedicalFees(OrgIDWrapper wrapper) {
+	public Map<String , SummaryMedfeeByMonthDomain> getEveryOneMedicalFees(OrgIDWrapper wrapper) {
 		
+		Map<String , EmpDetailDomain> EMP_MAP = new HashMap<>();
+		EMP_MAP.putAll(orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP());
+		
+		Map<String , SummaryMedfeeByMonthDomain> EveryOneSummaryDay_MAP = new HashMap<>();
+		
+		for (String i : EMP_MAP.keySet()) {
+			SummaryMedfeeByMonthDomain domain = new SummaryMedfeeByMonthDomain(myMedfeeThisMonth(i, 1, wrapper.getYear()), myMedfeeThisMonth(i, 2, wrapper.getYear()), myMedfeeThisMonth(i, 3, wrapper.getYear()),
+					myMedfeeThisMonth(i, 4, wrapper.getYear()), myMedfeeThisMonth(i, 5, wrapper.getYear()), myMedfeeThisMonth(i, 6, wrapper.getYear()),
+					myMedfeeThisMonth(i, 7, wrapper.getYear()), myMedfeeThisMonth(i, 8, wrapper.getYear()), myMedfeeThisMonth(i, 9, wrapper.getYear()),
+					myMedfeeThisMonth(i, 10, wrapper.getYear()), myMedfeeThisMonth(i, 11, wrapper.getYear()), myMedfeeThisMonth(i, 12, wrapper.getYear()));
+			EveryOneSummaryDay_MAP.put(i, domain);
+		}
+		return EveryOneSummaryDay_MAP;
 	}
 	
 	//---------- Employee ---------------
@@ -163,6 +208,7 @@ public class AdminService {
 	//---------- medical --------------------
 	
     public void updateMedicalRequestsStatus(UpdateMedicalRequestsStatusWrapper wrapper) {
+    	
         MedicalEntity entity = medicalRepository.findById(wrapper.getEmpID()).get();
         if (entity == null ) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this employee is't exist"); 
@@ -172,9 +218,10 @@ public class AdminService {
         medicalRepository.save(entity);
     }
 	
-	public MedicalDomain getMedicalRequestsDetails() {
+	public MedicalEntity getMedicalRequestsDetails(MedicalIDWrapper wrapper) {
 		
-		return null;
+		MedicalEntity entity = medicalRepository.findById(wrapper.getMedID()).get();
+		return entity;
 	}
 	
 	//-------- holiday -------------------
@@ -229,8 +276,6 @@ public class AdminService {
 				updateEmpHoliday(i, holidayID);
 			}
 		}
-		  
-		
 	}
 	
 	//-------- count leave medFee use

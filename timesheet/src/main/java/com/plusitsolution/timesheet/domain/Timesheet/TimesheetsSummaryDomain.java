@@ -1,6 +1,7 @@
-package com.plusitsolution.timesheet.domain;
+package com.plusitsolution.timesheet.domain.Timesheet;
 
-import com.plusitsolution.timesheet.domain.TimesheetsEnum.TimesheetsStatus;
+import com.plusitsolution.timesheet.domain.EnumDomain;
+import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
 
 public class TimesheetsSummaryDomain {
 	
@@ -12,8 +13,24 @@ public class TimesheetsSummaryDomain {
 	private double totalOT ;
 	private double totalWork ;
 	
+	public TimesheetsSummaryDomain() {
+		
+	}
 	
 	
+	public TimesheetsSummaryDomain(String empCode, String firstName, String lastName, TimesheetsStatus timesheetsStatus,
+			double leaveUse, double totalOT, double totalWork) {
+		this.empCode = empCode;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.timesheetsStatus = timesheetsStatus;
+		this.leaveUse = leaveUse;
+		this.totalOT = totalOT;
+		this.totalWork = totalWork;
+	}
+
+
+
 	public String getEmpCode() {
 		return empCode;
 	}

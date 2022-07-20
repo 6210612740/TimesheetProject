@@ -10,10 +10,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.plusitsolution.timesheet.domain.EmployeeDomain;
-import com.plusitsolution.timesheet.domain.MedicalDomain;
-import com.plusitsolution.timesheet.domain.TimesheetsDomain;
-import com.plusitsolution.timesheet.domain.TimesheetsEnum.MedStatus;
+import com.plusitsolution.timesheet.domain.Employee.EmployeeDomain;
+import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
+import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
+import com.plusitsolution.timesheet.domain.Medical.MedicalDomain;
 import com.plusitsolution.timesheet.domain.wrapper.MedicalRequestWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.UpdateMyTimesheetsWrapper;
 import com.plusitsolution.timesheet.entity.EmployeeEntity;

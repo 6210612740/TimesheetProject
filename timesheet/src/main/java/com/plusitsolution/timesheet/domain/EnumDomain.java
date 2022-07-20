@@ -1,6 +1,6 @@
 package com.plusitsolution.timesheet.domain;
 
-public class TimesheetsEnum {
+public class EnumDomain {
 	
 	public enum DateStatus {
 		LEAVE ,HALFDAY , WORK , HOLIDAY , OT 
