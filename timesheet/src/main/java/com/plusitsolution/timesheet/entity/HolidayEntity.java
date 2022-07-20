@@ -19,17 +19,25 @@ public class HolidayEntity {
 	@ReadOnlyProperty
 	private String holidayID ;
 	
-	private Map<String, TimesheetsDomain>  HOLIDAY_MAP =  new HashMap<>(); 
+	@Field(type = FieldType.Keyword)
+	private String orgID ;
+	
 	@Field(type = FieldType.Keyword)
 	private String holidayName;
 	
-	
-	
+	private Map<String, TimesheetsDomain>  HOLIDAY_MAP =  new HashMap<>(); 
+
 	public String getHolidayID() {
 		return holidayID;
 	}
 	public void setHolidayID(String holidayID) {
 		this.holidayID = holidayID;
+	}
+	public String getOrgID() {
+		return orgID;
+	}
+	public void setOrgID(String orgID) {
+		this.orgID = orgID;
 	}
 	public Map<String, TimesheetsDomain> getHOLIDAY_MAP() {
 		return HOLIDAY_MAP;

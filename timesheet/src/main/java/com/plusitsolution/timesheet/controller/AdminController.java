@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plusitsolution.timesheet.domain.OverviewDomain;
+import com.plusitsolution.timesheet.domain.wrapper.HolidayUpdateWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgRegisterWrapper;
@@ -44,6 +45,11 @@ public class AdminController {
 	@PostMapping("/createHolidayType")
 	public void createHolidayType(@RequestBody HolidayWrapper wrapper) {
 		service.createHolidayType(wrapper);
+	}
+	
+	@PostMapping("/updateHolidayType")
+	public void updateHolidayType(@RequestBody HolidayUpdateWrapper wrapper) {
+		service.updateHolidayType(wrapper);
 	}
 	
 }

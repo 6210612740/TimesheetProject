@@ -49,8 +49,8 @@ public class EmployeeService {
 		return employeeEntity;
 	}
 	
-	public Map<String, TimesheetsDomain> getMyTimesheetMonth(String empCode , int month , int year) {
-		EmployeeEntity employeeEntity = employeeRepository.findByEmpCode(empCode);
+	public Map<String, TimesheetsDomain> getMyTimesheetMonth(String empID , int month , int year) {
+		EmployeeEntity employeeEntity = employeeRepository.findById(empID).get();
 		if (employeeEntity == null ) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this employee is't exist"); 
 		}

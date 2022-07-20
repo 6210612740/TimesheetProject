@@ -21,10 +21,13 @@ import com.plusitsolution.timesheet.domain.OverviewDomain;
 import com.plusitsolution.timesheet.domain.TimesheetsDomain;
 import com.plusitsolution.timesheet.domain.TimesheetsEnum.DateStatus;
 import com.plusitsolution.timesheet.domain.TimesheetsEnum.EmpRole;
+import com.plusitsolution.timesheet.domain.wrapper.HolidayIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.HolidayUpdateWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgRegisterWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.RegisterEmployeeWrapper;
+import com.plusitsolution.timesheet.entity.HolidayEntity;
 import com.plusitsolution.timesheet.entity.OrganizeEntity;
 import com.plusitsolution.timesheet.repository.EmployeeRepository;
 import com.plusitsolution.timesheet.repository.HolidayRepository;
@@ -144,11 +147,22 @@ public class AdminService {
 			TIMESHEETS_MAP.put(wrapper.getHolidayList().get(i), domain);		
 		}
 		
-		holidayRepository.save(new HolidayDomain(wrapper.getHolidayName(), TIMESHEETS_MAP).toEntity());
+		holidayRepository.save(new HolidayDomain(wrapper.getHolidayName(), wrapper.getOrgID(), TIMESHEETS_MAP).toEntity());
 	}
 	
-	public void updateHolidayType() {
+	public void updateHolidayType(HolidayUpdateWrapper wrapper) {
 		
+		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
+		
+		for(int i=0; i<wrapper.getHolidayList().size(); i++) {
+			TimesheetsDomain domain = new TimesheetsDomain("-", "-", "-", "-", DateStatus.HOLIDAY);
+			TIMESHEETS_MAP.put(wrapper.getHolidayList().get(i), domain);		
+		}
+		
+		HolidayEntity entity = holidayRepository.findById(wrapper.getHolidayID()).get();
+		entity.setHOLIDAY_MAP(TIMESHEETS_MAP);
+		
+		holidayRepository.save(entity);
 	}
 	
 	//-------- count leave medFee use

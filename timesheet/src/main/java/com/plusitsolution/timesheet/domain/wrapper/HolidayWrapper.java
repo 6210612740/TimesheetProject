@@ -6,6 +6,7 @@ import java.util.List;
 public class HolidayWrapper {
 	
 	private String holidayName;
+	private String orgID;
 	private List<String> holidayList = new ArrayList<String>();
 	
 	public String getHolidayName() {
@@ -20,6 +21,13 @@ public class HolidayWrapper {
 	public void setHolidayList(List<String> holidayList) {
 		this.holidayList = holidayList;
 	}
+	public String getOrgID() {
+		return orgID;
+	}
+	public void setOrgID(String orgID) {
+		this.orgID = orgID;
+	}
+	
 	
 	
 
