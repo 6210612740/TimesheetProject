@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.beanutils.WrapDynaBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -22,8 +23,10 @@ import com.plusitsolution.timesheet.domain.Display.SummaryMedfeeByMonthDomain;
 import com.plusitsolution.timesheet.domain.OrganizeDomain;
 import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
+import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
 import com.plusitsolution.timesheet.domain.Medical.MedicalDomain;
+import com.plusitsolution.timesheet.domain.Medical.MedicalRequestDomain;
 import com.plusitsolution.timesheet.domain.Employee.EmpDetailDomain;
 import com.plusitsolution.timesheet.domain.Employee.EmployeeDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
@@ -32,7 +35,9 @@ import com.plusitsolution.timesheet.domain.wrapper.HolidayIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayUpdateWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.MedicalIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.OrgIDMonthWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.OrgIDYearWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgRegisterWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.RegisterEmployeeWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.UpdateMedicalRequestsStatusWrapper;
@@ -83,7 +88,7 @@ public class AdminService {
 	
 	//------------------ Display -----------------
 	
-	public Map<String, OverviewDomain> getOverView(OrgIDWrapper wrapper){
+	public Map<String, OverviewDomain> getOverView(OrgIDYearWrapper wrapper){
 		
 		Map<String , EmpDetailDomain> EMP_MAP = new HashMap<>();
 		EMP_MAP.putAll(orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP());
@@ -102,8 +107,8 @@ public class AdminService {
 		
 		return OVERVIEW_MAP;
 	}
-	//*******
-	public Map<String,TimesheetsSummaryDomain> getEveryOneTimesheetsSummary(OrgIDWrapper wrapper) {
+
+	public Map<String,TimesheetsSummaryDomain> getEveryOneTimesheetsSummary(OrgIDMonthWrapper wrapper) {
 		
 		Map<String , EmpDetailDomain> EMP_MAP = new HashMap<>();
 		EMP_MAP.putAll(orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP());
@@ -115,13 +120,14 @@ public class AdminService {
 //			String empCode, String firstName, String lastName, TimesheetsStatus timesheetsStatus,
 //			double leaveUse, double totalOT, double totalWork
 			TimesheetsSummaryDomain domain = new TimesheetsSummaryDomain(EMP_MAP.get(i).getEmpCode(), entity.getFirstName(), entity.getLastName(), TimesheetsStatus.INCOMPLETED,
-					0.00, 0.00, 0.00);
+					myLeaveDayThisMonth(i, wrapper.getMonth(), wrapper.getYear()), myOTThisMonth(i, wrapper.getMonth(), wrapper.getYear()), myWorkThisMonth(i, wrapper.getMonth(), wrapper.getYear()));
+			EveryOneTimesheetsSummary_MAP.put(i, domain);
 		}
 		
 		return EveryOneTimesheetsSummary_MAP;
 	}
 	
-	public Map<String , SummaryLeaveByMonthDomain> getEveryOneLeaveDay(OrgIDWrapper wrapper) {
+	public Map<String , SummaryLeaveByMonthDomain> getEveryOneLeaveDay(OrgIDYearWrapper wrapper) {
 		
 		Map<String , EmpDetailDomain> EMP_MAP = new HashMap<>();
 		EMP_MAP.putAll(orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP());
@@ -139,7 +145,7 @@ public class AdminService {
 		return EveryOneSummaryDay_MAP;
 	}
 	
-	public Map<String , SummaryMedfeeByMonthDomain> getEveryOneMedicalFees(OrgIDWrapper wrapper) {
+	public Map<String , SummaryMedfeeByMonthDomain> getEveryOneMedicalFees(OrgIDYearWrapper wrapper) {
 		
 		Map<String , EmpDetailDomain> EMP_MAP = new HashMap<>();
 		EMP_MAP.putAll(orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP());
@@ -154,6 +160,30 @@ public class AdminService {
 			EveryOneSummaryDay_MAP.put(i, domain);
 		}
 		return EveryOneSummaryDay_MAP;
+	}
+	
+	public List<MedicalRequestDomain> getEveryOneMedicalFeesRequests(OrgIDYearWrapper wrapper) {
+		
+		List<MedicalEntity> medList = new ArrayList<MedicalEntity>();
+		medList.addAll(medicalRepository.findByOrgID(wrapper.getOrgID())) ;
+		System.out.println(PlusJsonUtils.convertToJsonString(medList));
+		
+		List<MedicalRequestDomain> everyoneList = new ArrayList<MedicalRequestDomain>();
+
+		
+		for(int i=0 ; i<medList.size() ; i++) {
+			if(LocalDate.parse(medList.get(i).getDate()).getYear() == wrapper.getYear()) {
+				
+
+				MedicalRequestDomain domain = new MedicalRequestDomain(employeeRepository.findById(medList.get(i).getEmpID()).get().getEmpCode(),
+						employeeRepository.findById(medList.get(i).getEmpID()).get().getNickName(), medList.get(i).getDate(), medList.get(i).getAmount(),
+						orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP().get(medList.get(i).getEmpID()).getLeaveLimit()- myMedfeeThisYear(medList.get(i).getEmpID(), wrapper.getYear()), medList.get(i).getMedStatus());
+				
+				everyoneList.add(domain); 
+			}
+		}
+		return everyoneList;
+		
 	}
 	
 	//---------- Employee ---------------
@@ -200,16 +230,19 @@ public class AdminService {
         domain.setHolidayID(wrapper.getHolidayID());
         domain.setLeaveLimit(wrapper.getLeaveLimit());
         domain.setMedFeeLimit(wrapper.getMedFeeLimit());
-
+        
         employeeRepository.save(employeeEntity);
+
         orgRepository.save(orgEntity);
+        
+        updateHolidayToEmp(wrapper.getEmpID(), wrapper.getHolidayID());
     }
 	
 	//---------- medical --------------------
 	
     public void updateMedicalRequestsStatus(UpdateMedicalRequestsStatusWrapper wrapper) {
     	
-        MedicalEntity entity = medicalRepository.findById(wrapper.getEmpID()).get();
+        MedicalEntity entity = medicalRepository.findById(wrapper.getMedID()).get();
         if (entity == null ) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this employee is't exist"); 
         }
@@ -255,17 +288,6 @@ public class AdminService {
 		updateHolidayAllEmpInOrg(holidayRepository.findById(wrapper.getHolidayID()).get().getOrgID(), wrapper.getHolidayID());
 	}
 	
-	public void updateEmpHoliday(String empID, String holidayID) {
-		
-		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
-		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP());
-		TIMESHEETS_MAP.putAll(holidayRepository.findById(holidayID).get().getHOLIDAY_MAP());
-		
-		EmployeeEntity entity = employeeRepository.findById(empID).get();
-		entity.setTIMESHEETS_MAP(TIMESHEETS_MAP);
-		employeeRepository.save(entity);
-	}
-	
 	public void updateHolidayAllEmpInOrg(String orgID, String holidayID) {
 		
 		Map<String , EmpDetailDomain> EMP_MAP = new HashMap<>();
@@ -273,19 +295,75 @@ public class AdminService {
 		
 		for (String i : EMP_MAP.keySet()) {
 			if(EMP_MAP.get(i).getHolidayID().equals(holidayID)) {
-				updateEmpHoliday(i, holidayID);
+				updateHolidayToEmp(i, holidayID);
 			}
 		}
 	}
 	
+	public void updateHolidayToEmp(String empID, String holidayID) {
+		
+		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
+		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP());
+
+		List<String> mapKeyList = new ArrayList<String>();
+		
+		for (String i : TIMESHEETS_MAP.keySet()) {
+			System.out.println("1");
+			if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.HOLIDAY)) {
+				mapKeyList.add(i);
+			}
+		}
+		
+		for(int i=0; i<mapKeyList.size() ;i++) {
+			TIMESHEETS_MAP.remove(mapKeyList.get(i));
+		}
+		
+		TIMESHEETS_MAP.putAll(holidayRepository.findById(holidayID).get().getHOLIDAY_MAP());
+		
+		EmployeeEntity entity = employeeRepository.findById(empID).get();
+		entity.setTIMESHEETS_MAP(TIMESHEETS_MAP);
+		employeeRepository.save(entity);
+	}
+	
+	public Map<String , HolidayDomain> getAllHoliday(OrgIDWrapper wrapper){
+		
+		List<HolidayEntity> holidayList = holidayRepository.findByOrgID(wrapper.getOrgID());
+		Map<String , HolidayDomain> HOLIDAY_MAP = new HashMap<>();
+		
+		for(int i=0 ; i<holidayList.size() ; i++) {
+			HolidayDomain domain = new HolidayDomain(holidayList.get(i).getHolidayName(), holidayList.get(i).getOrgID(), holidayList.get(i).getHOLIDAY_MAP(), holidayList.get(i).getHolidayID());
+			
+			HOLIDAY_MAP.put(holidayList.get(i).getHolidayID(), domain);
+		}
+		
+		return HOLIDAY_MAP;
+	}
+	
+//	public void updateEmpHoliday2(String empID, String holidayID) {
+//		
+//		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
+//		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP());
+//		
+//		for (String i : TIMESHEETS_MAP.keySet()) {
+//			if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.HOLIDAY)) {
+//				TIMESHEETS_MAP.remove(i);
+//			}
+//		}
+//		
+//		TIMESHEETS_MAP.putAll(holidayRepository.findById(holidayID).get().getHOLIDAY_MAP());
+//		
+//		EmployeeEntity entity = employeeRepository.findById(empID).get();
+//		entity.setTIMESHEETS_MAP(TIMESHEETS_MAP);
+//	}
+	
 	//-------- count leave medFee use
 	
-	public Integer myLeaveDayThisMonth(String empID, int month, int year) {
+	public Double myLeaveDayThisMonth(String empID, int month, int year) {
 		
 		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
 		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
 		
-		int totalLeaveThisMonth = 0;
+		Double totalLeaveThisMonth = 0.0;
 		for (String i : TIMESHEETS_MAP.keySet()) {
 			LocalDate date = LocalDate.parse(i);
 			if(date.getYear() == year && date.getMonthValue() == month) {
@@ -298,14 +376,50 @@ public class AdminService {
 		return totalLeaveThisMonth;
 	}
 	
-	public Integer myLeaveDayThisYear(String empID, int year) {
+	public Double myLeaveDayThisYear(String empID, int year) {
 		
-		int totalLeave = 0;
+		Double totalLeave = 0.0;
 		for(int i=1; i<13; i++) {
 			totalLeave += myLeaveDayThisMonth(empID, i, year);
 		}
 		
 		return totalLeave;
+	}
+	
+	public Double myOTThisMonth(String empID, int month, int year) {
+		
+		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
+		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
+		
+		Double totalOTThisMonth = 0.0;
+		for (String i : TIMESHEETS_MAP.keySet()) {
+			LocalDate date = LocalDate.parse(i);
+			if(date.getYear() == year && date.getMonthValue() == month) {
+				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.OT)) {
+					totalOTThisMonth += 1;
+				}
+			}
+		}
+		
+		return totalOTThisMonth;
+	}
+	
+	public Double myWorkThisMonth(String empID, int month, int year) {
+		
+		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
+		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
+		
+		Double totalWorkThisMonth = 0.0;
+		for (String i : TIMESHEETS_MAP.keySet()) {
+			LocalDate date = LocalDate.parse(i);
+			if(date.getYear() == year && date.getMonthValue() == month) {
+				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.WORK)) {
+					totalWorkThisMonth += 1;
+				}
+			}
+		}
+		
+		return totalWorkThisMonth;
 	}
 	
 	public Double myMedfeeThisMonth(String empID, int month, int year) {

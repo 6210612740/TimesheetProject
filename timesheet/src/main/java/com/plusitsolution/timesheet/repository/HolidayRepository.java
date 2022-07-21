@@ -14,4 +14,6 @@ public interface HolidayRepository extends ElasticsearchRepository<HolidayEntity
 	public List<HolidayEntity> findAll();
 	
 	public HolidayEntity findByHolidayName(String holidayName);
+
+	public List<HolidayEntity> findByOrgID(String orgID);
 }

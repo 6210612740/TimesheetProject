@@ -14,14 +14,14 @@ public class MedicalDomain {
 	private String slipPic;
 	private Double amount;
 	private String note;
-	private LocalDate date;
+	private String date;
 	private MedStatus medStatus ;
 	
 	
 	
 	
 	public MedicalDomain(String empID, String orgID, String slipPic, Double amount, String note,
-			LocalDate date,MedStatus medStatus ) {
+			String date,MedStatus medStatus ) {
 		
 		this.empID = empID;
 		this.orgID = orgID;
@@ -34,12 +34,13 @@ public class MedicalDomain {
 	
 	public MedicalEntity toEntity() {
 		MedicalEntity entity = new MedicalEntity() ;
-		entity.setEmpID(empID);
-		entity.setOrgID(orgID);
-		entity.setSlipPic(slipPic);
-		entity.setAmount(amount);
-		entity.setNote(note);
-		entity.setMedStatus(medStatus);
+		entity.setEmpID(this.empID);
+		entity.setOrgID(this.orgID);
+		entity.setSlipPic(this.slipPic);
+		entity.setAmount(this.amount);
+		entity.setNote(this.note);
+		entity.setDate(this.date);
+		entity.setMedStatus(this.medStatus);
 		
 		return entity ;
 	}
@@ -74,10 +75,10 @@ public class MedicalDomain {
 	public void setNote(String note) {
 		this.note = note;
 	}
-	public LocalDate getDate() {
+	public String getDate() {
 		return date;
 	}
-	public void setDate(LocalDate date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 

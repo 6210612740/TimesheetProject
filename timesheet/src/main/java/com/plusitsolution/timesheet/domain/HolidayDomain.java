@@ -27,11 +27,19 @@ public class HolidayDomain {
 		this.holidayName = holidayName;
 	}
 	
+	public HolidayDomain(String holidayName, String orgID,Map<String, TimesheetsDomain> hOLIDAY_MAP, String holidayID) {
+		this.HOLIDAY_MAP = hOLIDAY_MAP;
+		this.orgID = orgID;
+		this.holidayName = holidayName;
+		this.holidayID = holidayID;
+	}
+	
 	public HolidayEntity toEntity() {
 		HolidayEntity entity = new HolidayEntity();
 		entity.setHOLIDAY_MAP(this.HOLIDAY_MAP);
 		entity.setOrgID(this.orgID);
 		entity.setHolidayName(this.holidayName);
+		entity.setHolidayID(this.holidayID);
 		return entity;
 	}
 	

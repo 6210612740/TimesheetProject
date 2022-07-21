@@ -2,25 +2,25 @@ package com.plusitsolution.timesheet.domain.Display;
 
 public class SummaryLeaveByMonthDomain {
 	
-	private int jan;
-	private int feb;
-	private int mar;
-	private int apr;
-	private int may;
-	private int jun;
-	private int jul;
-	private int aug;
-	private int sep;
-	private int oct;
-	private int nov;
-	private int dec;
+	private Double jan;
+	private Double feb;
+	private Double mar;
+	private Double apr;
+	private Double may;
+	private Double jun;
+	private Double jul;
+	private Double aug;
+	private Double sep;
+	private Double oct;
+	private Double nov;
+	private Double dec;
 	
 	public SummaryLeaveByMonthDomain() {
 		
 	}
 
-	public SummaryLeaveByMonthDomain(int jan, int feb, int mar, int apr, int may, int jun, int jul,
-			int aug, int sep, int oct, int nov, int dec) {
+	public SummaryLeaveByMonthDomain(Double jan, Double feb, Double mar, Double apr, Double may, Double jun, Double jul,
+			Double aug, Double sep, Double oct, Double nov, Double dec) {
 		this.jan = jan;
 		this.feb = feb;
 		this.mar = mar;
@@ -35,99 +35,99 @@ public class SummaryLeaveByMonthDomain {
 		this.dec = dec;
 	}
 
-	public int getJan() {
+	public Double getJan() {
 		return jan;
 	}
 
-	public void setJan(int jan) {
+	public void setJan(Double jan) {
 		this.jan = jan;
 	}
 
-	public int getFeb() {
+	public Double getFeb() {
 		return feb;
 	}
 
-	public void setFeb(int feb) {
+	public void setFeb(Double feb) {
 		this.feb = feb;
 	}
 
-	public int getMar() {
+	public Double getMar() {
 		return mar;
 	}
 
-	public void setMar(int mar) {
+	public void setMar(Double mar) {
 		this.mar = mar;
 	}
 
-	public int getApr() {
+	public Double getApr() {
 		return apr;
 	}
 
-	public void setApr(int apr) {
+	public void setApr(Double apr) {
 		this.apr = apr;
 	}
 
-	public int getMay() {
+	public Double getMay() {
 		return may;
 	}
 
-	public void setMay(int may) {
+	public void setMay(Double may) {
 		this.may = may;
 	}
 
-	public int getJun() {
+	public Double getJun() {
 		return jun;
 	}
 
-	public void setJun(int jun) {
+	public void setJun(Double jun) {
 		this.jun = jun;
 	}
 
-	public int getJul() {
+	public Double getJul() {
 		return jul;
 	}
 
-	public void setJul(int jul) {
+	public void setJul(Double jul) {
 		this.jul = jul;
 	}
 
-	public int getAug() {
+	public Double getAug() {
 		return aug;
 	}
 
-	public void setAug(int aug) {
+	public void setAug(Double aug) {
 		this.aug = aug;
 	}
 
-	public int getSep() {
+	public Double getSep() {
 		return sep;
 	}
 
-	public void setSep(int sep) {
+	public void setSep(Double sep) {
 		this.sep = sep;
 	}
 
-	public int getOct() {
+	public Double getOct() {
 		return oct;
 	}
 
-	public void setOct(int oct) {
+	public void setOct(Double oct) {
 		this.oct = oct;
 	}
 
-	public int getNov() {
+	public Double getNov() {
 		return nov;
 	}
 
-	public void setNov(int nov) {
+	public void setNov(Double nov) {
 		this.nov = nov;
 	}
 
-	public int getDec() {
+	public Double getDec() {
 		return dec;
 	}
 
-	public void setDec(int dec) {
+	public void setDec(Double dec) {
 		this.dec = dec;
 	}
 	

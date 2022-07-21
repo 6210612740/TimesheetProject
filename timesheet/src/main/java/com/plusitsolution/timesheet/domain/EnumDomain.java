@@ -3,7 +3,7 @@ package com.plusitsolution.timesheet.domain;
 public class EnumDomain {
 	
 	public enum DateStatus {
-		LEAVE ,HALFDAY , WORK , HOLIDAY , OT 
+		LEAVE ,HALFDAY , WORK , HOLIDAY , OT, RECORD
 	}
 	
 	public enum EmpRole {

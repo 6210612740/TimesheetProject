@@ -9,13 +9,27 @@ public class MedicalRequestDomain {
 	
 	private String empCode ;
 	private String nickName ;
-	private LocalDate date;
+	private String date;
 	private double requestMedicalFee ;
 	private double currentMedicalFee ;
 	private MedStatus medStatus ;
 	
+	public MedicalRequestDomain() {
+		
+	}
 	
-	
+	public MedicalRequestDomain(String empCode, String nickName, String date, double requestMedicalFee,
+			double currentMedicalFee, MedStatus medStatus) {
+		this.empCode = empCode;
+		this.nickName = nickName;
+		this.date = date;
+		this.requestMedicalFee = requestMedicalFee;
+		this.currentMedicalFee = currentMedicalFee;
+		this.medStatus = medStatus;
+	}
+
+
+
 	public String getEmpCode() {
 		return empCode;
 	}
@@ -28,10 +42,10 @@ public class MedicalRequestDomain {
 	public void setNickName(String nickName) {
 		this.nickName = nickName;
 	}
-	public LocalDate getDate() {
+	public String getDate() {
 		return date;
 	}
-	public void setDate(LocalDate date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 	public double getRequestMedicalFee() {

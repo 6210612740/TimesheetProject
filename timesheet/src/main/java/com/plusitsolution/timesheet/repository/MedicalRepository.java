@@ -7,6 +7,7 @@ import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 import org.springframework.stereotype.Repository;
 
 import com.plusitsolution.timesheet.entity.MedicalEntity;
+import com.plusitsolution.timesheet.entity.OrganizeEntity;
 
 
 
@@ -14,6 +15,8 @@ import com.plusitsolution.timesheet.entity.MedicalEntity;
 public interface MedicalRepository extends ElasticsearchRepository<MedicalEntity, String>{
 	
 	public List<MedicalEntity> findAll();
+	
+	public List<MedicalEntity> findByOrgID(String orgID);
 	
 
 }

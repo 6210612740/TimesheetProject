@@ -14,5 +14,7 @@ public interface EmployeeRepository extends ElasticsearchRepository<EmployeeEnti
 	public List<EmployeeEntity> findAll();
 	
 	public EmployeeEntity findByEmpCode(String empCode);
+	
+	
 
 }

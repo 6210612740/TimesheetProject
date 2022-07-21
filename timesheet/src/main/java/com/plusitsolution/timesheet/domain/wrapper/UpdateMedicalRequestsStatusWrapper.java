@@ -4,15 +4,14 @@ import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
 
 public class UpdateMedicalRequestsStatusWrapper {
 	
-	private String empID ;
+	private String medID ;
 	private MedStatus medStatus ;
 	
-	
-	public String getEmpID() {
-		return empID;
+	public String getMedID() {
+		return medID;
 	}
-	public void setEmpID(String empID) {
-		this.empID = empID;
+	public void setMedID(String medID) {
+		this.medID = medID;
 	}
 	public MedStatus getMedStatus() {
 		return medStatus;
@@ -20,6 +19,9 @@ public class UpdateMedicalRequestsStatusWrapper {
 	public void setMedStatus(MedStatus medStatus) {
 		this.medStatus = medStatus;
 	}
+	
+	
+
 	
 	
 
