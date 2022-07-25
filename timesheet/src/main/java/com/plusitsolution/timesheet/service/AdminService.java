@@ -285,10 +285,19 @@ public class AdminService {
 	public void updateHolidayType(HolidayUpdateWrapper wrapper) {
 		
 		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
+		TIMESHEETS_MAP.putAll(holidayRepository.findById(wrapper.getHolidayID()).get().getHOLIDAY_MAP());
 		
 		for(int i=0; i<wrapper.getHolidayList().size(); i++) {
-			TimesheetsDomain domain = new TimesheetsDomain("-", "-", "-", "-", DateStatus.HOLIDAY);
-			TIMESHEETS_MAP.put(wrapper.getHolidayList().get(i), domain);		
+			if(TIMESHEETS_MAP.containsKey(wrapper.getHolidayList().get(i))) {
+				if(TIMESHEETS_MAP.get(wrapper.getHolidayList().get(i)).getDateStatus().equals(DateStatus.HOLIDAY)) {
+					TIMESHEETS_MAP.remove(wrapper.getHolidayList().get(i));
+				}
+			
+	
+			} else {
+					TimesheetsDomain domain = new TimesheetsDomain("-", "-", "-", "-", DateStatus.HOLIDAY);
+					TIMESHEETS_MAP.put(wrapper.getHolidayList().get(i), domain);
+			}	
 		}
 		
 		HolidayEntity entity = holidayRepository.findById(wrapper.getHolidayID()).get();
