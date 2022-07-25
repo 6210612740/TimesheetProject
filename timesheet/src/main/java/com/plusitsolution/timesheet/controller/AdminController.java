@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plusitsolution.timesheet.domain.HolidayDomain;
@@ -106,5 +107,26 @@ public class AdminController {
 	@PostMapping("/getAllHoliday")
 	public Map<String , HolidayDomain> getAllHoliday(@RequestBody OrgIDWrapper wrapper) {
 		return service.getAllHoliday(wrapper);
+	}
+	
+	//-----------------excel
+	@PostMapping("/createMyExcel")
+	public void createMyExcel(@RequestParam String empID, @RequestParam String month, @RequestParam String year) throws Exception {
+		service.createMyExcel(empID, month, year);
+	}
+	
+	@PostMapping("/createSummaryExcel")
+	public void createSummaryExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
+		service.createSummaryExcel(orgID, year);
+	}
+	
+	@PostMapping("/createLeaveExcel")
+	public void createLeaveExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
+		service.createLeaveExcel(orgID, year);
+	}
+	
+	@PostMapping("/createMedExcel")
+	public void createMedExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
+		service.createMedExcel(orgID, year);
 	}
 }

@@ -54,6 +54,12 @@
             <artifactId>vault-filter-mvc</artifactId>
             <version>0.0.1</version>
         </dependency>
+        
+        <dependency>
+            <groupId>com.plusitsolution</groupId>
+            <artifactId>zeen-common</artifactId>
+            <version>0.0.2</version>
+        </dependency>
 
 	</dependencies>
 	

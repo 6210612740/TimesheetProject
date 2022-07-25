@@ -14,13 +14,14 @@ public class OverviewDomain {
 	private double leaveRemain ;
 	private double medFeeRemain ;
 	private String endContract ;
+	private String nickName;
 	
 	public OverviewDomain() {
 		
 	}
 	
 	public OverviewDomain(String empCode, String firstName, String lastName, double leaveLimit, double medFeeLimit,
-			double leaveUse, double medFeeUse, double leaveRemain, double medFeeRemain, String endContract) {
+			double leaveUse, double medFeeUse, double leaveRemain, double medFeeRemain, String endContract, String nickName) {
 		this.empCode = empCode;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -31,6 +32,7 @@ public class OverviewDomain {
 		this.leaveRemain = leaveRemain;
 		this.medFeeRemain = medFeeRemain;
 		this.endContract = endContract;
+		this.nickName = nickName;
 	}
 
 	public String getEmpCode() {
@@ -92,6 +94,14 @@ public class OverviewDomain {
 	}
 	public void setEndContract(String endContract) {
 		this.endContract = endContract;
+	}
+
+	public String getNickName() {
+		return nickName;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
 	}
 	
 

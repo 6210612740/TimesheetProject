@@ -64,6 +64,11 @@ public class UtilsService {
 		 return orgEntity.getShortName()+padZeroLeft(String.valueOf(counter.getAndAdd(1)), 4);
 	 }
 	 
+	 public String paddding(int counter) {
+
+		 return padZeroLeft(String.valueOf(counter), 2);
+	 }
+	 
 //	 public String generateBasketID(AtomicInteger counter) {
 //		 return "B"+padZeroLeft(String.valueOf(counter.getAndAdd(1)), 3);
 //	 }

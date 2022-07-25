@@ -12,6 +12,8 @@ public class TimesheetsSummaryDomain {
 	private double leaveUse ;
 	private double totalOT ;
 	private double totalWork ;
+	private String nickName;
+	private String holidayName;
 	
 	public TimesheetsSummaryDomain() {
 		
@@ -19,7 +21,7 @@ public class TimesheetsSummaryDomain {
 	
 	
 	public TimesheetsSummaryDomain(String empCode, String firstName, String lastName, TimesheetsStatus timesheetsStatus,
-			double leaveUse, double totalOT, double totalWork) {
+			double leaveUse, double totalOT, double totalWork, String nickName, String holidayName) {
 		this.empCode = empCode;
 		this.firstName = firstName;
 		this.lastName = lastName;
@@ -27,6 +29,8 @@ public class TimesheetsSummaryDomain {
 		this.leaveUse = leaveUse;
 		this.totalOT = totalOT;
 		this.totalWork = totalWork;
+		this.nickName = nickName;
+		this.holidayName = holidayName;
 	}
 
 
@@ -73,6 +77,27 @@ public class TimesheetsSummaryDomain {
 	public void setTotalWork(double totalWork) {
 		this.totalWork = totalWork;
 	}
+
+
+	public String getNickName() {
+		return nickName;
+	}
+
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
+
+
+	public String getHolidayName() {
+		return holidayName;
+	}
+
+
+	public void setHolidayName(String holidayName) {
+		this.holidayName = holidayName;
+	}
+	
 	
 	
 	

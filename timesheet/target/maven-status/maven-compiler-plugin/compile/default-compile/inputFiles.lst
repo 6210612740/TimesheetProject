@@ -29,6 +29,7 @@
 /home/itim/git/TimesheetProject/timesheet/src/main/java/com/plusitsolution/timesheet/domain/Employee/EmployeeDomain.java
 /home/itim/git/TimesheetProject/timesheet/src/main/java/com/plusitsolution/timesheet/config/ElasticsearchConfiguration.java
 /home/itim/git/TimesheetProject/timesheet/src/main/java/com/plusitsolution/timesheet/service/UtilsService.java
+/home/itim/git/TimesheetProject/timesheet/src/main/java/com/plusitsolution/timesheet/domain/MyTimesheetExcelDomain.java
 /home/itim/git/TimesheetProject/timesheet/src/main/java/com/plusitsolution/timesheet/domain/EnumDomain.java
 /home/itim/git/TimesheetProject/timesheet/src/main/java/com/plusitsolution/timesheet/domain/OrganizeDomain.java
 /home/itim/git/TimesheetProject/timesheet/src/main/java/com/plusitsolution/timesheet/domain/Display/OverviewDomain.java

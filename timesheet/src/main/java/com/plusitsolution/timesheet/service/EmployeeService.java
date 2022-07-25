@@ -1,10 +1,14 @@
 package com.plusitsolution.timesheet.service;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +22,8 @@ import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
 import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
+import com.plusitsolution.common.toolkit.PlusExcelUtils;
+import com.plusitsolution.timesheet.domain.MyTimesheetExcelDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalDomain;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDWrapper;
@@ -30,6 +36,8 @@ import com.plusitsolution.timesheet.entity.MedicalEntity;
 import com.plusitsolution.timesheet.repository.EmployeeRepository;
 import com.plusitsolution.timesheet.repository.MedicalRepository;
 import com.plusitsolution.timesheet.repository.OrganizeRepository;
+import com.plusitsolution.zeencommon.helper.ExcelBuilder;
+import com.plusitsolution.zeencommon.helper.ExcelUtils;
 
 @Service
 @EnableScheduling
@@ -230,5 +238,35 @@ public class EmployeeService {
 		
 		return totalMedfee;
 	}
+	
+	//------------ Excel create
+	
+	public static void main(String[] args) throws Exception {
+		System.out.println("ddd");
+
+//        ExcelBuilder builder = ExcelUtils.excel("test");
+//
+//        builder.line("tharm" ,"test1");
+//        builder.line("ninja","test2");
+//        
+//
+//
+//       byte[] content = builder.writeBytes();
+////       HttpHeaders header = new HttpHeaders();
+////       header.set("charset", "UTF-8");
+////       header.set(HttpHeaders.CONTENT_ENCODING, "UTF-8");
+////       header.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+////       header.set(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8;");
+////       header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; charset=UTF-8; filename="+ "test" +".xlsx");
+////       header.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+////       header.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
+//       File file = new File("/home/itim/Desktop/test.xlsx");
+//       new FileOutputStream(file).write(content);
+//       System.out.println("completed");
+
+   }
+	
+	
+
 	
 }

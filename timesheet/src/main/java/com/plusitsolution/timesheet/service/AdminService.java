@@ -1,6 +1,8 @@
 package com.plusitsolution.timesheet.service;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.annotation.PostConstruct;
 
 import org.apache.commons.beanutils.WrapDynaBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,7 @@ import com.plusitsolution.common.toolkit.PlusCSVBuilder;
 import com.plusitsolution.common.toolkit.PlusExcelUtils;
 import com.plusitsolution.common.toolkit.PlusJsonUtils;
 import com.plusitsolution.timesheet.domain.HolidayDomain;
+import com.plusitsolution.timesheet.domain.MyTimesheetExcelDomain;
 import com.plusitsolution.timesheet.domain.Display.OverviewDomain;
 import com.plusitsolution.timesheet.domain.Display.SummaryLeaveByMonthDomain;
 import com.plusitsolution.timesheet.domain.Display.SummaryMedfeeByMonthDomain;
@@ -54,6 +59,8 @@ import com.plusitsolution.timesheet.repository.EmployeeRepository;
 import com.plusitsolution.timesheet.repository.HolidayRepository;
 import com.plusitsolution.timesheet.repository.MedicalRepository;
 import com.plusitsolution.timesheet.repository.OrganizeRepository;
+import com.plusitsolution.zeencommon.helper.ExcelBuilder;
+import com.plusitsolution.zeencommon.helper.ExcelUtils;
 
 @Service
 @EnableScheduling
@@ -69,6 +76,24 @@ public class AdminService {
 	private MedicalRepository medicalRepository;
 	@Autowired
 	private UtilsService utilService;
+	
+	Map<String, Integer> MONTH_MAP = new HashMap<String, Integer>();
+	
+	@PostConstruct
+	public void monthMap() {
+		MONTH_MAP.put("01", 31);
+		MONTH_MAP.put("02", 28);
+		MONTH_MAP.put("03", 31);
+		MONTH_MAP.put("04", 30);
+		MONTH_MAP.put("05", 31);
+		MONTH_MAP.put("06", 30);
+		MONTH_MAP.put("07", 31);
+		MONTH_MAP.put("08", 31);
+		MONTH_MAP.put("09", 30);
+		MONTH_MAP.put("10", 31);
+		MONTH_MAP.put("11", 30);
+		MONTH_MAP.put("12", 31);	
+	}
 	
 	//----------- Organization ----------------------
 
@@ -107,7 +132,7 @@ public class AdminService {
 					EMP_MAP.get(i).getLeaveLimit(), EMP_MAP.get(i).getMedFeeLimit(), 
 					myLeaveDayThisYear(i, wrapper.getYear()), myMedfeeThisYear(i, wrapper.getYear()),
 					EMP_MAP.get(i).getLeaveLimit()-myLeaveDayThisYear(i, wrapper.getYear()), EMP_MAP.get(i).getMedFeeLimit()-myMedfeeThisYear(i, wrapper.getYear()),
-					EMP_MAP.get(i).getEndContract());
+					EMP_MAP.get(i).getEndContract(), employeeRepository.findByEmpCode(empCode).getNickName());
 			OVERVIEW_MAP.put(i, domain);
 		}
 		
@@ -126,7 +151,8 @@ public class AdminService {
 //			String empCode, String firstName, String lastName, TimesheetsStatus timesheetsStatus,
 //			double leaveUse, double totalOT, double totalWork
 			TimesheetsSummaryDomain domain = new TimesheetsSummaryDomain(EMP_MAP.get(i).getEmpCode(), entity.getFirstName(), entity.getLastName(), TimesheetsStatus.INCOMPLETED,
-					myLeaveDayThisMonth(i, wrapper.getMonth(), wrapper.getYear()), myOTThisMonth(i, wrapper.getMonth(), wrapper.getYear()), myWorkThisMonth(i, wrapper.getMonth(), wrapper.getYear()));
+					myLeaveDayThisMonth(i, wrapper.getMonth(), wrapper.getYear()), myOTThisMonth(i, wrapper.getMonth(), wrapper.getYear()), myWorkThisMonth(i, wrapper.getMonth(), wrapper.getYear()), 
+					entity.getNickName() ,holidayRepository.findById(EMP_MAP.get(i).getHolidayID()).get().getHolidayName());
 			EveryOneTimesheetsSummary_MAP.put(i, domain);
 		}
 		
@@ -328,7 +354,6 @@ public class AdminService {
 		List<String> mapKeyList = new ArrayList<String>();
 		
 		for (String i : TIMESHEETS_MAP.keySet()) {
-			System.out.println("1");
 			if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.HOLIDAY)) {
 				mapKeyList.add(i);
 			}
@@ -389,6 +414,9 @@ public class AdminService {
 			if(date.getYear() == year && date.getMonthValue() == month) {
 				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.LEAVE)) {
 					totalLeaveThisMonth += 1;
+				}
+				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.HALFDAY)) {
+					totalLeaveThisMonth += 0.5;
 				}
 			}
 		}
@@ -546,6 +574,129 @@ public class AdminService {
 //        return new HttpEntity<byte[]>(content, header);
 //
 //    }
+	
+	//------------Create excel
+	public void createMyExcel(String empID, String month, String year) throws Exception{
+		
+		EmployeeEntity entity = employeeRepository.findById(empID).get();
+		Map<String , TimesheetsDomain> TIMESHEETS_MAP = entity.getTIMESHEETS_MAP();
 
+		
+		ExcelBuilder builder = ExcelUtils.excel(""+year+"TS"+month+""+entity.getEmpCode());
+//		builder.line("", "", "", "", "", ""+orgRepository.findById(employeeRepository.findById(empID).get().getOrgID()).get().getOrgNameEng());
+//		builder.line("", "", "", "", "", ""+orgRepository.findById(employeeRepository.findById(empID).get().getOrgID()).get().getOrgNameTh());
+		builder.line("", "Employee Name", ""+entity.getFirstName()+" "+entity.getLastName(), "", "Ref No", year+"TS"+month+""+entity.getEmpCode(),"");
+		builder.line("", "Employee Code", ""+entity.getEmpCode(), "", "", "");
+		builder.line("", "", "", "", "", "");
+		builder.line("Index", "Date", "TimeIn", "TimeOut", "Project", "Activity");
+		
+		int x = MONTH_MAP.get(month);
+		if(Integer.parseInt(year)%4==0 && Integer.parseInt(month)==2) {
+			x += 1;
+		}
+		
+		for(int i=1; i<x+1; i++) {
+
+			if(TIMESHEETS_MAP.get(year+"-"+month+"-"+utilService.paddding(i)) == null) {
+//				int index, String date, String timeIn, String timeOut, String project,
+//				String activity
+				MyTimesheetExcelDomain domain = new MyTimesheetExcelDomain(i,year+"-"+month+"-"+utilService.paddding(i), "", 
+						"", "", "");
+				builder.line(domain.getIndex(), domain.getDate(), domain.getTimeIn(), domain.getTimeOut(), domain.getProject(), domain.getActivity());
+			}
+			else {
+			String key = year+"-"+month+"-"+utilService.paddding(i);
+			
+			MyTimesheetExcelDomain domain = new MyTimesheetExcelDomain(i, key, 
+					TIMESHEETS_MAP.get(key).getTimeIn(), TIMESHEETS_MAP.get(key).getTimeOut(),
+					TIMESHEETS_MAP.get(key).getProject(), TIMESHEETS_MAP.get(key).getActivity());
+
+			builder.line(domain.getIndex(), domain.getDate(), domain.getTimeIn(), domain.getTimeOut(), domain.getProject(), domain.getActivity());
+			}
+		}
+		
+	  byte[] content = builder.writeBytes();	
+      File file = new File("/home/itim/Desktop/"+year+"TS"+month+""+entity.getEmpCode()+".xlsx");
+      new FileOutputStream(file).write(content);
+      System.out.println("completed");
+	}
+	
+	public void createSummaryExcel(String orgID, String year) throws Exception{
+		
+		OrganizeEntity entity = orgRepository.findById(orgID).get();
+		Map<String , EmpDetailDomain> EMP_MAP = entity.getEMP_MAP();
+		
+		ExcelBuilder builder = ExcelUtils.excel(year+"SUMARY"+entity.getShortName());
+		builder.line("EmpID", "Nickname", "Leave Limited", "Medical Fee Limited", "Total Leave", "Total Medical", "Remaining Leave",
+				"Remaining Medical Fee", "End Contract");
+		
+		for (String i : EMP_MAP.keySet()) {
+			String empCode = EMP_MAP.get(i).getEmpCode();
+			OverviewDomain domain = new OverviewDomain(empCode, employeeRepository.findByEmpCode(empCode).getFirstName(), employeeRepository.findByEmpCode(empCode).getLastName(), 
+					EMP_MAP.get(i).getLeaveLimit(), EMP_MAP.get(i).getMedFeeLimit(), 
+					myLeaveDayThisYear(i, Integer.parseInt(year)), myMedfeeThisYear(i, Integer.parseInt(year)),
+					EMP_MAP.get(i).getLeaveLimit()-myLeaveDayThisYear(i, Integer.parseInt(year)), EMP_MAP.get(i).getMedFeeLimit()-myMedfeeThisYear(i, Integer.parseInt(year)),
+					EMP_MAP.get(i).getEndContract(), employeeRepository.findByEmpCode(empCode).getNickName());
+			
+			builder.line(domain.getEmpCode(), domain.getNickName(), domain.getLeaveLimit(), domain.getMedFeeLimit(), domain.getLeaveUse(), domain.getMedFeeUse(), domain.getLeaveRemain(),
+					domain.getMedFeeRemain(), domain.getEndContract());
+		}
+		
+		  byte[] content = builder.writeBytes();	
+	      File file = new File("/home/itim/Desktop/"+year+"SUMARY"+entity.getShortName()+".xlsx");
+	      new FileOutputStream(file).write(content);
+	      System.out.println("completed");
+	}
+	
+	public void createLeaveExcel(String orgID, String year) throws Exception{
+		
+		OrganizeEntity entity = orgRepository.findById(orgID).get();
+		Map<String , EmpDetailDomain> EMP_MAP = entity.getEMP_MAP();
+		
+		ExcelBuilder builder = ExcelUtils.excel(year+"LEAVE"+entity.getShortName());
+		builder.line("EmpID", "Nickname", "Total Leave", "Jan "+year, "Feb "+year, "Mar "+year, "Apr "+year,
+				"May "+year, "Jun "+year, "Jul "+year, "Aug "+year, "Sep "+year, "Oct "+year, "Nov "+year, "Dec "+year);
+		
+		for (String i : EMP_MAP.keySet()) {
+			SummaryLeaveByMonthDomain domain = new SummaryLeaveByMonthDomain(myLeaveDayThisMonth(i, 1, Integer.parseInt(year)), myLeaveDayThisMonth(i, 2, Integer.parseInt(year)), myLeaveDayThisMonth(i, 3, Integer.parseInt(year)),
+					myLeaveDayThisMonth(i, 4, Integer.parseInt(year)), myLeaveDayThisMonth(i, 5,Integer.parseInt(year)), myLeaveDayThisMonth(i, 6, Integer.parseInt(year)),
+					myLeaveDayThisMonth(i, 7, Integer.parseInt(year)), myLeaveDayThisMonth(i, 8, Integer.parseInt(year)), myLeaveDayThisMonth(i, 9, Integer.parseInt(year)),
+					myLeaveDayThisMonth(i, 10, Integer.parseInt(year)), myLeaveDayThisMonth(i, 11, Integer.parseInt(year)), myLeaveDayThisMonth(i, 12, Integer.parseInt(year)));
+			
+			builder.line(EMP_MAP.get(i).getEmpCode(), employeeRepository.findById(i).get().getNickName(), myLeaveDayThisYear(i, Integer.parseInt(year)), domain.getJan(), domain.getFeb(), domain.getMar(), domain.getApr(),
+					domain.getMay(), domain.getJun(), domain.getJul(), domain.getAug(), domain.getSep(), domain.getOct(), domain.getNov(), domain.getDec());
+		}
+		
+		  byte[] content = builder.writeBytes();	
+	      File file = new File("/home/itim/Desktop/"+year+"LEAVE"+entity.getShortName()+".xlsx");
+	      new FileOutputStream(file).write(content);
+	      System.out.println("completed");
+		
+	}
+
+	public void createMedExcel(String orgID, String year) throws Exception{
+		
+		OrganizeEntity entity = orgRepository.findById(orgID).get();
+		Map<String , EmpDetailDomain> EMP_MAP = entity.getEMP_MAP();
+		
+		ExcelBuilder builder = ExcelUtils.excel(year+"MEDICAL"+entity.getShortName());
+		builder.line("EmpID", "Nickname", "Total Leave", "Jan "+year, "Feb "+year, "Mar "+year, "Apr "+year,
+				"May "+year, "Jun "+year, "Jul "+year, "Aug "+year, "Sep "+year, "Oct "+year, "Nov "+year, "Dec "+year);
+		
+		for (String i : EMP_MAP.keySet()) {
+			SummaryMedfeeByMonthDomain domain = new SummaryMedfeeByMonthDomain(myMedfeeThisMonth(i, 1, Integer.parseInt(year)), myMedfeeThisMonth(i, 2, Integer.parseInt(year)), myMedfeeThisMonth(i, 3, Integer.parseInt(year)),
+					myMedfeeThisMonth(i, 4, Integer.parseInt(year)), myMedfeeThisMonth(i, 5,Integer.parseInt(year)), myMedfeeThisMonth(i, 6, Integer.parseInt(year)),
+					myMedfeeThisMonth(i, 7, Integer.parseInt(year)), myMedfeeThisMonth(i, 8, Integer.parseInt(year)), myMedfeeThisMonth(i, 9, Integer.parseInt(year)),
+					myMedfeeThisMonth(i, 10, Integer.parseInt(year)), myMedfeeThisMonth(i, 11, Integer.parseInt(year)), myMedfeeThisMonth(i, 12, Integer.parseInt(year)));
+			
+			builder.line(EMP_MAP.get(i).getEmpCode(), employeeRepository.findById(i).get().getNickName(), myMedfeeThisYear(i, Integer.parseInt(year)), domain.getJan(), domain.getFeb(), domain.getMar(), domain.getApr(),
+					domain.getMay(), domain.getJun(), domain.getJul(), domain.getAug(), domain.getSep(), domain.getOct(), domain.getNov(), domain.getDec());
+		}
+		
+		  byte[] content = builder.writeBytes();	
+	      File file = new File("/home/itim/Desktop/"+year+"MEDICAL"+entity.getShortName()+".xlsx");
+	      new FileOutputStream(file).write(content);
+	      System.out.println("completed");
+	}
 	
 }
