@@ -13,13 +13,14 @@ public class RegisterEmployeeWrapper {
 	private double medFeeLimit;
 	private String holidayID;
 	private EmpRole empRole ;
+	private String username ;
 	
 	public RegisterEmployeeWrapper() {
 		
 	}
 	
 	public RegisterEmployeeWrapper(String orgID, String password, String firstName, String lastName,
-			String nickName, double leaveLimit, double medFeeLimit, String holidayID, EmpRole empRole) {
+			String nickName, double leaveLimit, double medFeeLimit, String holidayID, EmpRole empRole, String username) {
 		this.orgID = orgID;
 		this.password = password;
 		this.firstName = firstName;
@@ -29,6 +30,7 @@ public class RegisterEmployeeWrapper {
 		this.medFeeLimit = medFeeLimit;
 		this.holidayID = holidayID;
 		this.empRole = empRole;
+		this.username = username;
 	}
 	
 	public String getOrgID() {
@@ -84,6 +86,14 @@ public class RegisterEmployeeWrapper {
 	}
 	public void setEmpRole(EmpRole empRole) {
 		this.empRole = empRole;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	} 
 	
 	

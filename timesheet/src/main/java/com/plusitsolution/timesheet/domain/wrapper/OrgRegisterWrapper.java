@@ -12,6 +12,7 @@ public class OrgRegisterWrapper {
 	private String lastName;
 	private String nickName ;
 	private String password ;
+	private String username;
 	
 	public String getOrgNameTh() {
 		return orgNameTh;
@@ -67,5 +68,12 @@ public class OrgRegisterWrapper {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
 
 }

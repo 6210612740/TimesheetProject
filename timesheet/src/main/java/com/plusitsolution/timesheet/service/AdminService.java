@@ -1,5 +1,6 @@
 package com.plusitsolution.timesheet.service;
 
+import java.io.ByteArrayInputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,11 +11,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.beanutils.WrapDynaBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.plusitsolution.common.toolkit.PlusCSVBuilder;
+import com.plusitsolution.common.toolkit.PlusExcelUtils;
 import com.plusitsolution.common.toolkit.PlusJsonUtils;
 import com.plusitsolution.timesheet.domain.HolidayDomain;
 import com.plusitsolution.timesheet.domain.Display.OverviewDomain;
@@ -69,7 +73,9 @@ public class AdminService {
 	//----------- Organization ----------------------
 
 	public void registerOrg(OrgRegisterWrapper wrapper) {
-		
+		if (employeeRepository.findByUsername(wrapper.getUsername()) != null ) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this username is already use ");
+		}
 		//save on org DB
 		OrganizeEntity orgEntity = orgRepository.save(new OrganizeDomain(wrapper.getOrgNameTh(), wrapper.getOrgNameEng(), 
 				wrapper.getShortName(), wrapper.getOrgAdress(), wrapper.getOrgPic(), new HashMap<String, EmpDetailDomain>()).toEntity());
@@ -81,7 +87,7 @@ public class AdminService {
 
 		//go regis first admin
 		RegisterEmployeeWrapper domain = new RegisterEmployeeWrapper(orgEntity.getOrgID(), wrapper.getPassword(), wrapper.getFirstName(), wrapper.getLastName(), wrapper.getNickName(),
-				370, 10000000, holidayRepository.findByHolidayName("DEFAULT "+wrapper.getShortName()).getHolidayID(), EmpRole.ADMIN);
+				370, 10000000, holidayRepository.findByHolidayName("DEFAULT "+wrapper.getShortName()).getHolidayID(), EmpRole.ADMIN, wrapper.getUsername());
 		registerEmployee(domain);
 		
 	}
@@ -189,7 +195,12 @@ public class AdminService {
 	//---------- Employee ---------------
 	
 
-	public void registerEmployee(RegisterEmployeeWrapper wrapper) {
+	public void registerEmployee(RegisterEmployeeWrapper wrapper) {	
+		if (employeeRepository.findByUsername(wrapper.getUsername()) != null ) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this username is already use ");
+		}
+		
+		
 		// save to employee DB
 		AtomicInteger counter = new AtomicInteger(1+orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP().size());
 		String empCode = utilService.generateEmpCode(counter, wrapper.getOrgID());
@@ -198,7 +209,7 @@ public class AdminService {
 		TIMESHEETS_MAP.putAll(holidayRepository.findById(wrapper.getHolidayID()).get().getHOLIDAY_MAP());
 		
 		EmployeeDomain empDomain = new EmployeeDomain(wrapper.getOrgID(), empCode, 
-				wrapper.getFirstName(), wrapper.getLastName(), wrapper.getNickName(), TIMESHEETS_MAP, hashPass,new HashMap<String , String>());
+				wrapper.getFirstName(), wrapper.getLastName(), wrapper.getNickName(), TIMESHEETS_MAP, hashPass,new HashMap<String , String>(), wrapper.getUsername());
 		
 		employeeRepository.save(empDomain.toEntity());
 		
@@ -448,5 +459,84 @@ public class AdminService {
 		return totalMedfee;
 	}
 	
+	
+	public static void main(String[] args) {
+		
+//		private static final String[] REPORT_HEADER = new String[]{"timestamp", "appID", "userID", "user", "organization", "actionGroup", "action", "transactionID", "message", "locationID"};
+
+//		private HttpEntity<byte[]> generateReport(List<HIEntity> entityList, String date) throws Exception {
+//	        HIEntity entity;
+//	        PlusCSVBuilder builder = PlusCSVUtils.csv(new ByteArrayInputStream(new byte[128])).headers(REPORT_HEADER);
+//	        if (entityList.size() > 0) {
+//	            for (int i = 0; i < entityList.size(); i++) {
+//	                entity = entityList.get(i);
+//	                checkNull(entity);
+//	                builder.line(entity.getTimestamp()
+//	                        , entity.getAppID()
+//	                        , entity.getUserID()
+//	                        , entity.getUser()
+//	                        , entity.getOrg()
+//	                        , entity.getActionGroup()
+//	                        , entity.getAction()
+//	                        , entity.getTransactionID()
+//	                        , entity.getMessage()
+//	                        , entity.getLocationID()
+//	                );
+//	            }
+//	        }
+//	        byte[] content = builder.writeBytes();
+//	        HttpHeaders header = new HttpHeaders();
+//	        header.set("charset", "UTF-8");
+//	        header.set(HttpHeaders.CONTENT_ENCODING, "UTF-8");
+//	        header.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+//	        header.set(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8;");
+//	        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; charset=UTF-8; filename="+date+".csv");
+//	        header.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+//	        header.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
+//	        return new HttpEntity<byte[]>(content, header);
+//
+//	    }
+		
+		
+		
+		
+	}
+	
+	
+//	private static final String[] REPORT_HEADER = new String[]{"timestamp", "appID", "userID", "user", "organization", "actionGroup", "action", "transactionID", "message", "locationID"};
+//	
+//	private HttpEntity<byte[]> generateReport(List<HIEntity> entityList, String date) throws Exception {
+////        HIEntity entity;
+//        PlusCSVBuilder builder = PlusExcelUtils.createOrInitWorkbook(new ByteArrayInputStream(new byte[128])).headers(REPORT_HEADER);
+//        if (entityList.size() > 0) {
+//            for (int i = 0; i < entityList.size(); i++) {
+//                entity = entityList.get(i);
+//                checkNull(entity);
+//                builder.line(entity.getTimestamp()
+//                        , entity.getAppID()
+//                        , entity.getUserID()
+//                        , entity.getUser()
+//                        , entity.getOrg()
+//                        , entity.getActionGroup()
+//                        , entity.getAction()
+//                        , entity.getTransactionID()
+//                        , entity.getMessage()
+//                        , entity.getLocationID()
+//                );
+//            }
+//        }
+//        byte[] content = builder.writeBytes();
+//        HttpHeaders header = new HttpHeaders();
+//        header.set("charset", "UTF-8");
+//        header.set(HttpHeaders.CONTENT_ENCODING, "UTF-8");
+//        header.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+//        header.set(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8;");
+//        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; charset=UTF-8; filename="+date+".csv");
+//        header.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+//        header.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
+//        return new HttpEntity<byte[]>(content, header);
+//
+//    }
+
 	
 }

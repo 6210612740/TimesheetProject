@@ -18,6 +18,8 @@ public class EmployeeDomain {
 	private Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
 	private String password ;
 	private Map<String , String> MEDFEEUSE_MAP = new HashMap<>();
+	private String username;
+	
 	
 	public EmployeeDomain() {
 		
@@ -25,7 +27,7 @@ public class EmployeeDomain {
 	
 	public EmployeeDomain(String orgID, String empCode, String firstName, String lastName,
 			String nickName, Map<String, TimesheetsDomain> TIMESHEETS_MAP, String password,
-			Map<String, String> MEDFEEUSE_MAP) {
+			Map<String, String> MEDFEEUSE_MAP, String username) {
 		this.orgID = orgID;
 		this.empCode = empCode;
 		this.firstName = firstName;
@@ -34,6 +36,7 @@ public class EmployeeDomain {
 		this.TIMESHEETS_MAP = TIMESHEETS_MAP;
 		this.password = password;
 		this.MEDFEEUSE_MAP = MEDFEEUSE_MAP;
+		this.username = username;
 	}
 	
 	public EmployeeEntity toEntity() {
@@ -46,6 +49,7 @@ public class EmployeeDomain {
 		entity.setTIMESHEETS_MAP(this.TIMESHEETS_MAP);
 		entity.setPassword(this.password);
 		entity.setMEDFEEUSE_MAP(this.MEDFEEUSE_MAP);
+		entity.setUsername(this.username);
 		return entity;
 	}
 
@@ -104,6 +108,14 @@ public class EmployeeDomain {
 		MEDFEEUSE_MAP = mEDFEEUSE_MAP;
 	}
 
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	
 
 	
 }

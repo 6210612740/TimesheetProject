@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
+import com.plusitsolution.timesheet.entity.OrganizeEntity;
 
 public class EmployeeProfileDomain {
 
@@ -25,6 +26,10 @@ public class EmployeeProfileDomain {
 	private Double leaveRemain;
 	private Double medFeeRemain;
 	
+	private String orgNameEng;
+	private String orgNameTh;
+	
+	
 	public EmployeeProfileDomain() {
 		
 	}
@@ -32,7 +37,7 @@ public class EmployeeProfileDomain {
 	public EmployeeProfileDomain(String empID, String orgID, String empCode, String firstName, String lastName,
 			String nickName, String holidayID, double leaveLimit, double medFeeLimit,
 			EmpRole empRole, String endContract, Double leaveUse, Double medFeeUse, Double leaveRemain,
-			Double medFeeRemain) {
+			Double medFeeRemain, String orgNameEng, String orgNameTh) {
 		this.empID = empID;
 		this.orgID = orgID;
 		this.empCode = empCode;
@@ -48,6 +53,8 @@ public class EmployeeProfileDomain {
 		this.medFeeUse = medFeeUse;
 		this.leaveRemain = leaveRemain;
 		this.medFeeRemain = medFeeRemain;
+		this.orgNameEng = orgNameEng;
+		this.orgNameTh = orgNameTh;
 	}
 
 	public String getEmpID() {
@@ -140,6 +147,23 @@ public class EmployeeProfileDomain {
 	public void setMedFeeRemain(Double medFeeRemain) {
 		this.medFeeRemain = medFeeRemain;
 	}
+
+	public String getOrgNameEng() {
+		return orgNameEng;
+	}
+
+	public void setOrgNameEng(String orgNameEng) {
+		this.orgNameEng = orgNameEng;
+	}
+
+	public String getOrgNameTh() {
+		return orgNameTh;
+	}
+
+	public void setOrgNameTh(String orgNameTh) {
+		this.orgNameTh = orgNameTh;
+	}
+
 	
 	
 	

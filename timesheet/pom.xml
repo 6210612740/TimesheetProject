@@ -48,6 +48,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>com.plusitsolution.common</groupId>
+            <artifactId>vault-filter-mvc</artifactId>
+            <version>0.0.1</version>
+        </dependency>
 
 	</dependencies>
 	

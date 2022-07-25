@@ -21,6 +21,7 @@ import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
 import com.plusitsolution.timesheet.domain.Medical.MedicalDomain;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeLoginWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeProfileDomain;
 import com.plusitsolution.timesheet.domain.wrapper.MedicalRequestWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.UpdateMyTimesheetsWrapper;
@@ -43,9 +44,25 @@ public class EmployeeService {
 	@Autowired
 	private UtilsService utilService;
 	
-	public EmployeeDomain loginEmp() {
+	public EmployeeProfileDomain loginEmp(EmployeeLoginWrapper wrapper) {
 		
-		return null;
+		EmployeeEntity employeeEntity = employeeRepository.findByUsername(wrapper.getUsername());
+		
+		if (employeeEntity == null ) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this username not have ");
+		}
+		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(employeeEntity.getOrgID()).get().getEMP_MAP();
+		
+		EmployeeProfileDomain domain = new EmployeeProfileDomain(employeeEntity.getEmpID(), employeeEntity.getOrgID(), employeeEntity.getEmpCode(), employeeEntity.getFirstName(),
+				employeeEntity.getLastName(), employeeEntity.getNickName(), EMP_MAP.get(employeeEntity.getEmpID()).getHolidayID(), EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit(),
+				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit(), EMP_MAP.get(employeeEntity.getEmpID()).getEmpRole(), EMP_MAP.get(employeeEntity.getEmpID()).getEndContract(),
+				myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
+				EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit()-myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
+				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit()-myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), 
+				orgRepository.findById(employeeEntity.getOrgID()).get().getOrgNameEng(), orgRepository.findById(employeeEntity.getOrgID()).get().getOrgNameTh());
+		
+		
+		return domain;
 	}
 	
 	public EmployeeProfileDomain getUserProfile(EmployeeIDWrapper wrapper) {
@@ -62,12 +79,13 @@ public class EmployeeService {
 		
 		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(employeeEntity.getOrgID()).get().getEMP_MAP();
 		
-		EmployeeProfileDomain domain = new EmployeeProfileDomain(wrapper.getEmpID(), employeeEntity.getOrgID(), employeeEntity.getEmpCode(), employeeEntity.getFirstName(),
-				employeeEntity.getLastName(), employeeEntity.getNickName(), EMP_MAP.get(wrapper.getEmpID()).getHolidayID(), EMP_MAP.get(wrapper.getEmpID()).getLeaveLimit(),
-				EMP_MAP.get(wrapper.getEmpID()).getMedFeeLimit(), EMP_MAP.get(wrapper.getEmpID()).getEmpRole(), EMP_MAP.get(wrapper.getEmpID()).getEndContract(),
-				myLeaveDayThisYear(wrapper.getEmpID(), LocalDate.now().getYear()), myMedfeeThisYear(wrapper.getEmpID(), LocalDate.now().getYear()),
-				EMP_MAP.get(wrapper.getEmpID()).getLeaveLimit()-myLeaveDayThisYear(wrapper.getEmpID(), LocalDate.now().getYear()),
-				EMP_MAP.get(wrapper.getEmpID()).getMedFeeLimit()-myMedfeeThisYear(wrapper.getEmpID(), LocalDate.now().getYear()));
+		EmployeeProfileDomain domain = new EmployeeProfileDomain(employeeEntity.getEmpID(), employeeEntity.getOrgID(), employeeEntity.getEmpCode(), employeeEntity.getFirstName(),
+				employeeEntity.getLastName(), employeeEntity.getNickName(), EMP_MAP.get(employeeEntity.getEmpID()).getHolidayID(), EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit(),
+				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit(), EMP_MAP.get(employeeEntity.getEmpID()).getEmpRole(), EMP_MAP.get(employeeEntity.getEmpID()).getEndContract(),
+				myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
+				EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit()-myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
+				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit()-myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), 
+				orgRepository.findById(employeeEntity.getOrgID()).get().getOrgNameEng(), orgRepository.findById(employeeEntity.getOrgID()).get().getOrgNameTh());
 
 		
 		return domain;

@@ -15,6 +15,7 @@ public interface EmployeeRepository extends ElasticsearchRepository<EmployeeEnti
 	
 	public EmployeeEntity findByEmpCode(String empCode);
 	
+	public EmployeeEntity findByUsername(String username);
 	
 
 }

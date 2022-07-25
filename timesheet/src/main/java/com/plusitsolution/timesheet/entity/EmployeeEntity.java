@@ -25,10 +25,12 @@ public class EmployeeEntity {
 	private String lastName;
 	private String nickName ;
 	private Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
+	
+	@Field(type = FieldType.Keyword)
 	private String username ;
+	
 	private String password ;
 	private Map<String , String> MEDFEEUSE_MAP = new HashMap<>();
-	
 	
 	
 	public String getEmpID() {
