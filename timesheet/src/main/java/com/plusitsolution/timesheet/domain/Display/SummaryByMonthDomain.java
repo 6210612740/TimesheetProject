@@ -1,7 +1,10 @@
 package com.plusitsolution.timesheet.domain.Display;
 
-public class SummaryMedfeeByMonthDomain {
+public class SummaryByMonthDomain {
 	
+	private String empCode;
+	private String nickName;
+	private Double total;
 	private Double jan;
 	private Double feb;
 	private Double mar;
@@ -14,13 +17,17 @@ public class SummaryMedfeeByMonthDomain {
 	private Double oct;
 	private Double nov;
 	private Double dec;
+
 	
-	public SummaryMedfeeByMonthDomain() {
+	public SummaryByMonthDomain() {
 		
 	}
 
-	public SummaryMedfeeByMonthDomain(Double jan, Double feb, Double mar, Double apr, Double may, Double jun, Double jul,
+	public SummaryByMonthDomain(String empCode, String nickName, Double total,Double jan, Double feb, Double mar, Double apr, Double may, Double jun, Double jul,
 			Double aug, Double sep, Double oct, Double nov, Double dec) {
+		this.empCode = empCode;
+		this.nickName = nickName;
+		this.total = total;
 		this.jan = jan;
 		this.feb = feb;
 		this.mar = mar;
@@ -33,6 +40,31 @@ public class SummaryMedfeeByMonthDomain {
 		this.oct = oct;
 		this.nov = nov;
 		this.dec = dec;
+	}
+
+	public String getEmpCode() {
+		return empCode;
+	}
+
+	public void setEmpCode(String empCode) {
+		this.empCode = empCode;
+	}
+
+	public String getNickName() {
+		return nickName;
+	}
+	
+
+	public Double getTotal() {
+		return total;
+	}
+
+	public void setTotal(Double total) {
+		this.total = total;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
 	}
 
 	public Double getJan() {

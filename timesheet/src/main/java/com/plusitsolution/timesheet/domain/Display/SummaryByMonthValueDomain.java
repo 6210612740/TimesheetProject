@@ -1,6 +1,6 @@
 package com.plusitsolution.timesheet.domain.Display;
 
-public class SummaryLeaveByMonthDomain {
+public class SummaryByMonthValueDomain {
 	
 	private Double jan;
 	private Double feb;
@@ -15,11 +15,11 @@ public class SummaryLeaveByMonthDomain {
 	private Double nov;
 	private Double dec;
 	
-	public SummaryLeaveByMonthDomain() {
+	public SummaryByMonthValueDomain() {
 		
 	}
 
-	public SummaryLeaveByMonthDomain(Double jan, Double feb, Double mar, Double apr, Double may, Double jun, Double jul,
+	public SummaryByMonthValueDomain(Double jan, Double feb, Double mar, Double apr, Double may, Double jun, Double jul,
 			Double aug, Double sep, Double oct, Double nov, Double dec) {
 		this.jan = jan;
 		this.feb = feb;

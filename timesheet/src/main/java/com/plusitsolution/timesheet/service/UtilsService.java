@@ -1,19 +1,16 @@
 package com.plusitsolution.timesheet.service;
 
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.server.ResponseStatusException;
 
 import com.plusitsolution.timesheet.entity.OrganizeEntity;
 import com.plusitsolution.timesheet.repository.OrganizeRepository;
 
-
-	
-	
-	
-	
 @Service
 public class UtilsService {
 	@Autowired
@@ -69,6 +66,7 @@ public class UtilsService {
 		 return padZeroLeft(String.valueOf(counter), 2);
 	 }
 	 
+
 //	 public String generateBasketID(AtomicInteger counter) {
 //		 return "B"+padZeroLeft(String.valueOf(counter.getAndAdd(1)), 3);
 //	 }

@@ -23,6 +23,7 @@ import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
 import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
 import com.plusitsolution.common.toolkit.PlusExcelUtils;
+import com.plusitsolution.common.toolkit.PlusHashUtils;
 import com.plusitsolution.timesheet.domain.MyTimesheetExcelDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalDomain;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
@@ -51,13 +52,17 @@ public class EmployeeService {
 	private MedicalRepository medicalRepository ;
 	@Autowired
 	private UtilsService utilService;
-	
+	@Autowired
+	private ThrowService throwService ;
 	public EmployeeProfileDomain loginEmp(EmployeeLoginWrapper wrapper) {
 		
 		EmployeeEntity employeeEntity = employeeRepository.findByUsername(wrapper.getUsername());
 		
 		if (employeeEntity == null ) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this username not have ");
+		}
+		if (PlusHashUtils.hash(wrapper.getPassword()).equals(employeeEntity.getPassword()) ) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong password");
 		}
 		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(employeeEntity.getOrgID()).get().getEMP_MAP();
 		
@@ -79,12 +84,8 @@ public class EmployeeService {
 //		String nickName, String holidayID, double leaveLimit, double medFeeLimit,
 //		EmpRole empRole, String endContract, Double leaveUse, Double medFeeUse, Double leaveRemain,
 //		Double medFeeRemain
-		
+		throwService.checkEmployee(wrapper.getEmpID());
 		EmployeeEntity employeeEntity = employeeRepository.findById(wrapper.getEmpID()).get();
-		if (employeeEntity == null ) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this employee is't exist"); 
-		}
-		
 		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(employeeEntity.getOrgID()).get().getEMP_MAP();
 		
 		EmployeeProfileDomain domain = new EmployeeProfileDomain(employeeEntity.getEmpID(), employeeEntity.getOrgID(), employeeEntity.getEmpCode(), employeeEntity.getFirstName(),
@@ -100,11 +101,11 @@ public class EmployeeService {
 	}
 	
 	public Map<String, TimesheetsDomain> getMyTimesheetMonth(EmployeeIDMonthWrapper wrapper) {
-		EmployeeEntity employeeEntity = employeeRepository.findById(wrapper.getEmpID()).get();
-		if (employeeEntity == null ) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this employee is't exist"); 
-		}
+		throwService.checkEmployee(wrapper.getEmpID());
+		throwService.checkMonth(wrapper.getMonth());
+		throwService.checkYear(wrapper.getYear());
 		
+		EmployeeEntity employeeEntity = employeeRepository.findById(wrapper.getEmpID()).get();
 		Map<String, TimesheetsDomain> MYTIMESHEETS_MAP = new HashMap<>();
 		
 		for (String i : employeeEntity.getTIMESHEETS_MAP().keySet()) {
@@ -119,10 +120,8 @@ public class EmployeeService {
 	}
 	
 	public Map<String, MedicalEntity> geMyMedRequests(EmployeeIDWrapper wrapper) {
+		throwService.checkEmployee(wrapper.getEmpID());
 		EmployeeEntity employeeEntity = employeeRepository.findById(wrapper.getEmpID()).get();
-		if (employeeEntity == null ) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this employee is't exist"); 
-		}
 		Map<String, MedicalEntity> MYMEDFEE_MAP = new HashMap<>();
 		for (String i : employeeEntity.getMEDFEEUSE_MAP().keySet()) {
 			String medID = employeeEntity.getMEDFEEUSE_MAP().get(i);
@@ -137,12 +136,11 @@ public class EmployeeService {
 	//-------------- Medical
 	
 	public void addMedRequests(MedicalRequestWrapper wrapper) {
+		throwService.checkEmployeeByEmpCode(wrapper.getEmpCode());
+		throwService.checkAmount(wrapper.getAmount());
+		
 		
 		EmployeeEntity employeeEntity = employeeRepository.findByEmpCode(wrapper.getEmpCode());
-		if (employeeEntity == null ) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this employee is't exist"); 
-		}
-		
 		MedicalDomain medicalDomain = new MedicalDomain(employeeEntity.getEmpID() , employeeEntity.getOrgID() , wrapper.getSlipPic() , wrapper.getAmount() , 
 				wrapper.getNote() , LocalDate.now().toString() , MedStatus.INPROCESS );
 		
@@ -156,10 +154,9 @@ public class EmployeeService {
 	//------------ Timesheet
 	
 	public void updateMyTimesheets(UpdateMyTimesheetsWrapper wrapper) {
+		throwService.checkEmployee(wrapper.getEmpID());
         EmployeeEntity employeeEntity = employeeRepository.findById(wrapper.getEmpID()).get();
-        if (employeeEntity == null ) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this employee is't exist"); 
-        }
+     
         
         for (String i : wrapper.getTIMESHEETS_MAP().keySet()) {
         	 TimesheetsDomain domain = wrapper.getTIMESHEETS_MAP().get(i);
@@ -186,7 +183,7 @@ public class EmployeeService {
 	}
 	
 	public Double myLeaveDayThisMonth(String empID, int month, int year) {
-		
+			
 		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
 		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
 		

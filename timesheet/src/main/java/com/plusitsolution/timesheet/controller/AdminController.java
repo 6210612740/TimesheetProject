@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.plusitsolution.timesheet.domain.HolidayDomain;
 import com.plusitsolution.timesheet.domain.Display.OverviewDomain;
-import com.plusitsolution.timesheet.domain.Display.SummaryLeaveByMonthDomain;
-import com.plusitsolution.timesheet.domain.Display.SummaryMedfeeByMonthDomain;
+import com.plusitsolution.timesheet.domain.Display.SummaryByMonthDomain;
+import com.plusitsolution.timesheet.domain.Display.SummaryByMonthValueDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalRequestDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsSummaryDomain;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayUpdateWrapper;
@@ -63,12 +63,12 @@ public class AdminController {
 	}
 	
 	@PostMapping("/getEveryOneLeaveDay")
-	public Map<String , SummaryLeaveByMonthDomain> getEveryOneLeaveDay(@RequestBody OrgIDYearWrapper wrapper) {
+	public Map<String , SummaryByMonthDomain> getEveryOneLeaveDay(@RequestBody OrgIDYearWrapper wrapper) {
 		return service.getEveryOneLeaveDay(wrapper);
 	}
 	
 	@PostMapping("/getEveryOneMedicalFees")
-	public Map<String , SummaryMedfeeByMonthDomain> getEveryOneMedicalFees(@RequestBody OrgIDYearWrapper wrapper) {
+	public Map<String , SummaryByMonthDomain> getEveryOneMedicalFees(@RequestBody OrgIDYearWrapper wrapper) {
 		return service.getEveryOneMedicalFees(wrapper);
 	}
 	
@@ -78,7 +78,7 @@ public class AdminController {
 	}
 	
 	@PostMapping("/getEveryOneMedicalFeesRequests")
-	public List<MedicalRequestDomain> getEveryOneMedicalFeesRequests(@RequestBody OrgIDYearWrapper wrapper) {
+	public Map<String , MedicalRequestDomain> getEveryOneMedicalFeesRequests(@RequestBody OrgIDYearWrapper wrapper) {
 		return service.getEveryOneMedicalFeesRequests(wrapper);
 	}
 	
