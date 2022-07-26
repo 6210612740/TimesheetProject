@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.plusitsolution.timesheet.domain.Medical.MedicalMyRequestDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDWrapper;
@@ -63,7 +64,7 @@ public class EmployeeController {
 	}
 	
 	@PostMapping("/geMyMedRequests")
-	public Map<String, MedicalEntity> geMyMedRequests(@RequestBody EmployeeIDWrapper wrapper) {
+	public Map<String, MedicalMyRequestDomain> geMyMedRequests(@RequestBody EmployeeIDWrapper wrapper) {
 		return empService.geMyMedRequests(wrapper);
 	}
 	

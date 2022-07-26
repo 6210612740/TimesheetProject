@@ -26,6 +26,7 @@ import com.plusitsolution.common.toolkit.PlusExcelUtils;
 import com.plusitsolution.common.toolkit.PlusHashUtils;
 import com.plusitsolution.timesheet.domain.MyTimesheetExcelDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalDomain;
+import com.plusitsolution.timesheet.domain.Medical.MedicalMyRequestDomain;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeLoginWrapper;
@@ -67,7 +68,7 @@ public class EmployeeService {
 		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(employeeEntity.getOrgID()).get().getEMP_MAP();
 		
 		EmployeeProfileDomain domain = new EmployeeProfileDomain(employeeEntity.getEmpID(), employeeEntity.getOrgID(), employeeEntity.getEmpCode(), employeeEntity.getFirstName(),
-				employeeEntity.getLastName(), employeeEntity.getNickName(), EMP_MAP.get(employeeEntity.getEmpID()).getHolidayID(), EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit(),
+				employeeEntity.getLastName(), employeeEntity.getNickName(), employeeEntity.getUsername(),EMP_MAP.get(employeeEntity.getEmpID()).getHolidayID(), EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit(),
 				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit(), EMP_MAP.get(employeeEntity.getEmpID()).getEmpRole(), EMP_MAP.get(employeeEntity.getEmpID()).getEndContract(),
 				myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
 				EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit()-myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
@@ -89,7 +90,7 @@ public class EmployeeService {
 		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(employeeEntity.getOrgID()).get().getEMP_MAP();
 		
 		EmployeeProfileDomain domain = new EmployeeProfileDomain(employeeEntity.getEmpID(), employeeEntity.getOrgID(), employeeEntity.getEmpCode(), employeeEntity.getFirstName(),
-				employeeEntity.getLastName(), employeeEntity.getNickName(), EMP_MAP.get(employeeEntity.getEmpID()).getHolidayID(), EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit(),
+				employeeEntity.getLastName(), employeeEntity.getNickName(), employeeEntity.getUsername(), EMP_MAP.get(employeeEntity.getEmpID()).getHolidayID(), EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit(),
 				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit(), EMP_MAP.get(employeeEntity.getEmpID()).getEmpRole(), EMP_MAP.get(employeeEntity.getEmpID()).getEndContract(),
 				myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
 				EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit()-myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
@@ -119,15 +120,20 @@ public class EmployeeService {
 		return MYTIMESHEETS_MAP;
 	}
 	
-	public Map<String, MedicalEntity> geMyMedRequests(EmployeeIDWrapper wrapper) {
+	public Map<String, MedicalMyRequestDomain> geMyMedRequests(EmployeeIDWrapper wrapper) {
 		throwService.checkEmployee(wrapper.getEmpID());
+		
 		EmployeeEntity employeeEntity = employeeRepository.findById(wrapper.getEmpID()).get();
-		Map<String, MedicalEntity> MYMEDFEE_MAP = new HashMap<>();
+		
+		Map<String, MedicalMyRequestDomain> MYMEDFEE_MAP = new HashMap<>();
 		for (String i : employeeEntity.getMEDFEEUSE_MAP().keySet()) {
-			String medID = employeeEntity.getMEDFEEUSE_MAP().get(i);
 			
-			MedicalEntity medicalEntity = medicalRepository.findById(medID).get();
-			MYMEDFEE_MAP.put(i, medicalEntity);
+			MedicalEntity entity = medicalRepository.findById(employeeEntity.getMEDFEEUSE_MAP().get(i)).get();
+
+			MedicalMyRequestDomain domain = new MedicalMyRequestDomain(employeeEntity.getMEDFEEUSE_MAP().get(i), entity.getEmpID(), entity.getOrgID(), entity.getSlipPic(),
+					entity.getAmount(), entity.getNote(), entity.getDate(), entity.getMedStatus(), employeeRepository.findById(entity.getEmpID()).get().getEmpCode(), employeeRepository.findById(entity.getEmpID()).get().getNickName());
+			
+			MYMEDFEE_MAP.put(i, domain);
 		}
 		
 		return MYMEDFEE_MAP;

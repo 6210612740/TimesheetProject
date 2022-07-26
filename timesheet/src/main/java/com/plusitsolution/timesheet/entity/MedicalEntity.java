@@ -22,7 +22,7 @@ public class MedicalEntity {
 	
 	@Field(type = FieldType.Keyword)
 	private String orgID;
-	
+	;
 	private String slipPic;
 	private Double amount;
 	private String note;
@@ -47,6 +47,8 @@ public class MedicalEntity {
 	public void setOrgID(String orgID) {
 		this.orgID = orgID;
 	}
+	
+
 	public String getSlipPic() {
 		return slipPic;
 	}

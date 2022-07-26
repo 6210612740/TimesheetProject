@@ -14,6 +14,7 @@ public class EmployeeProfileDomain {
 	private String firstName;
 	private String lastName;
 	private String nickName ;
+	private String username;
 
 	private String holidayID ;
 	private double leaveLimit ;
@@ -35,7 +36,7 @@ public class EmployeeProfileDomain {
 	}
 	
 	public EmployeeProfileDomain(String empID, String orgID, String empCode, String firstName, String lastName,
-			String nickName, String holidayID, double leaveLimit, double medFeeLimit,
+			String nickName, String username, String holidayID, double leaveLimit, double medFeeLimit,
 			EmpRole empRole, String endContract, Double leaveUse, Double medFeeUse, Double leaveRemain,
 			Double medFeeRemain, String orgNameEng, String orgNameTh) {
 		this.empID = empID;
@@ -44,6 +45,7 @@ public class EmployeeProfileDomain {
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.nickName = nickName;
+		this.username = username;
 		this.holidayID = holidayID;
 		this.leaveLimit = leaveLimit;
 		this.medFeeLimit = medFeeLimit;
@@ -93,6 +95,15 @@ public class EmployeeProfileDomain {
 	public void setNickName(String nickName) {
 		this.nickName = nickName;
 	}
+	
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
 	public String getHolidayID() {
 		return holidayID;
 	}
