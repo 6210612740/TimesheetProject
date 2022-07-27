@@ -17,11 +17,13 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.beanutils.WrapDynaBean;
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -763,7 +765,7 @@ public class AdminService {
 	//------------- New Excel create
 	
 	@PostConstruct
-    public void allSummary() throws IOException{
+    public void createExcelAllSummary() throws IOException{
     	
     	String orgID = "k3xuNoIBa0CUUmxekQBm";
     	String year= "2022";
@@ -897,9 +899,7 @@ public class AdminService {
     	FileOutputStream file = new FileOutputStream("/home/itim/Desktop/wwww.xlsx");
     	workbook.write(file);
     	file.close();
-    	
- 
-    	
+
     	System.out.println("--------------create Summary sucess----------"); 
                    
     }
@@ -911,6 +911,9 @@ public class AdminService {
     	String[] headerArray = {"EmpID","Nickname","Total Leave", "Jan "+year, "Feb "+year, "Mar "+year, "Apr "+year,
     			 "May "+year, "Jun "+year, "Jul "+year, "Aug "+year,
     			 "Sep "+year, "Oct "+year, "Nov "+year, "Dec "+year,};  
+    	
+    	Double[] totalArray = {0.00, 0.00, 0.00, 0.00, 0.00,
+    			0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,};  
 		
 		XSSFSheet sheet = workbook.createSheet("Leave");
     	sheet.setColumnWidth(0, 4000); 
@@ -929,7 +932,7 @@ public class AdminService {
     	sheet.setColumnWidth(13, 3000);
     	sheet.setColumnWidth(14, 3000);
     	sheet.setColumnWidth(15, 3000);
-    	
+    
     	XSSFRow row = sheet.createRow(0);
     	row.setHeight((short)500);
     	
@@ -943,6 +946,20 @@ public class AdminService {
         style.setAlignment(HorizontalAlignment.CENTER);
         style.setVerticalAlignment(VerticalAlignment.CENTER);
         style.setFont(font);
+        
+       	XSSFCellStyle style2 = workbook.createCellStyle();
+        style2.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        style2.setFillPattern(FillPatternType.BIG_SPOTS);
+        style2.setAlignment(HorizontalAlignment.CENTER);
+        style2.setVerticalAlignment(VerticalAlignment.CENTER);
+        style2.setFont(font);
+        
+       	XSSFCellStyle style3 = workbook.createCellStyle();
+        style3.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+//        style3.setFillPattern(FillPatternType.BIG_SPOTS);
+        style3.setAlignment(HorizontalAlignment.RIGHT);
+        style3.setVerticalAlignment(VerticalAlignment.CENTER);
+        style3.setFont(font);
     	
         //---row 0
         XSSFCell cell=row.createCell(0);
@@ -951,9 +968,7 @@ public class AdminService {
     		cell.setCellValue(""+headerArray[i]);
     		cell.setCellStyle(style);
         }
-        
-        //---row 1
-    	
+
         //---row 2-end
   		int count=0;
 
@@ -970,26 +985,216 @@ public class AdminService {
     		cell.setCellStyle(style);
     		
     		cell = row.createCell(2);
-    		cell.setCellValue(""+myLeaveDayThisYear(i, Integer.parseInt(year)));
-    		cell.setCellStyle(style);
+    		if(myLeaveDayThisYear(i, Integer.parseInt(year)) == 0) {
+    			cell.setCellValue("-");
+        		cell.setCellStyle(style);
+    		} else {
+    			cell.setCellValue(myLeaveDayThisYear(i, Integer.parseInt(year)));
+        		cell.setCellStyle(style);
+    		}
+
     		
     		for(int j=0 ; j<12; j++) {
         		cell = row.createCell(j+3);
- 
-        		cell.setCellValue(""+myLeaveDayThisMonth(i, j+1, Integer.parseInt(year)));
-        		cell.setCellStyle(style);
+        		cell.setCellStyle(style2);
+        		
+        		if(myLeaveDayThisMonth(i, j+1, Integer.parseInt(year)) == 0 && LocalDate.now().getMonthValue() >= j+1) {
+        			cell.setCellValue("-");
+        			cell.setCellStyle(style);
+        		} 
+        		else if(LocalDate.now().getMonthValue() >= j+1){
+        			cell.setCellValue(myLeaveDayThisMonth(i, j+1, Integer.parseInt(year)));
+        			cell.setCellStyle(style);
+        			totalArray[0] += myLeaveDayThisMonth(i, j+1, Integer.parseInt(year));
+        			totalArray[j+1] += myLeaveDayThisMonth(i, j+1, Integer.parseInt(year));	
+        		} 
+        		else {
+        			cell.setCellValue("");
+        			cell.setCellStyle(style2);
+        		}
     		}
     		
     		count++;
   		}
+  		
+        //---row 1
+        sheet.addMergedRegion(new CellRangeAddress(1,1,0,1)); 
+        
+        row = sheet.createRow(1);
+        cell=row.createCell(0);
+        cell.setCellValue("SUM");
+        cell.setCellStyle(style3);
+        
+        cell=row.createCell(2);
+        cell.setCellValue(totalArray[0]);
+        cell.setCellStyle(style);
+        
+        for(int i=1; i<totalArray.length; i++) {
+
+        	if(LocalDate.now().getMonthValue() < i) {
+        		cell=row.createCell(i+2);
+        		cell.setCellValue("");
+        		cell.setCellStyle(style2);
+        	} 
+        	else if(totalArray[i] == 0){
+        		cell=row.createCell(i+2);
+        		cell.setCellValue("-");
+        		cell.setCellStyle(style);
+        	} 
+        	else{
+        		cell=row.createCell(i+2);
+        		cell.setCellValue(totalArray[i]);
+        		cell.setCellStyle(style);
+        		} 
+        	} 
+
+		System.out.println("--------------create Leave sucess----------");
+}
 	
-		System.out.println("--------------create Leave sucess----------"); 
-	}
 	
 	public void medicalSummary(String orgID, String year, XSSFWorkbook workbook) {
 		
-		XSSFSheet sheet = workbook.createSheet("Medical");
+		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(orgID).get().getEMP_MAP();
 		
+    	String[] headerArray = {"EmpID","Nickname","Total Medical", "Jan "+year, "Feb "+year, "Mar "+year, "Apr "+year,
+    			 "May "+year, "Jun "+year, "Jul "+year, "Aug "+year,
+    			 "Sep "+year, "Oct "+year, "Nov "+year, "Dec "+year,};  
+    	
+    	Double[] totalArray = {0.00, 0.00, 0.00, 0.00, 0.00,
+    			0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00,};  
+		
+		XSSFSheet sheet = workbook.createSheet("Medical");
+		sheet.setColumnWidth(0, 4000); 
+    	sheet.setColumnWidth(1, 4000); 
+    	sheet.setColumnWidth(2, 4000); 
+    	sheet.setColumnWidth(3, 3000); 
+    	sheet.setColumnWidth(4, 3000); 
+    	sheet.setColumnWidth(5, 3000);
+    	sheet.setColumnWidth(6, 3000);
+    	sheet.setColumnWidth(7, 3000);
+    	sheet.setColumnWidth(8, 3000);
+    	sheet.setColumnWidth(9, 3000);
+    	sheet.setColumnWidth(10, 3000);
+    	sheet.setColumnWidth(11, 3000);
+    	sheet.setColumnWidth(12, 3000);
+    	sheet.setColumnWidth(13, 3000);
+    	sheet.setColumnWidth(14, 3000);
+    	sheet.setColumnWidth(15, 3000);
+    
+    	XSSFRow row = sheet.createRow(0);
+    	row.setHeight((short)500);
+    	
+        Font font = workbook.createFont();  
+        font.setFontHeightInPoints((short)12);
+        font.setFontName("CordiaUPC");
+    	
+    	XSSFCellStyle style = workbook.createCellStyle();
+        style.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+//        style.setFillPattern(FillPatternType.BIG_SPOTS);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setFont(font);
+        
+       	XSSFCellStyle style2 = workbook.createCellStyle();
+        style2.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        style2.setFillPattern(FillPatternType.BIG_SPOTS);
+        style2.setAlignment(HorizontalAlignment.CENTER);
+        style2.setVerticalAlignment(VerticalAlignment.CENTER);
+        style2.setFont(font);
+        
+       	XSSFCellStyle style3 = workbook.createCellStyle();
+        style3.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+//        style3.setFillPattern(FillPatternType.BIG_SPOTS);
+        style3.setAlignment(HorizontalAlignment.RIGHT);
+        style3.setVerticalAlignment(VerticalAlignment.CENTER);
+        style3.setFont(font);
+    	
+        //---row 0
+        XSSFCell cell=row.createCell(0);
+        for(int i=0; i<headerArray.length; i++) {
+        	cell=row.createCell(i);
+    		cell.setCellValue(""+headerArray[i]);
+    		cell.setCellStyle(style);
+        }
+
+        //---row 2-end
+  		int count=0;
+
+  		for (String i : EMP_MAP.keySet()) {
+  			
+  			row = sheet.createRow(count+2);
+    		
+    		cell = row.createCell(0);
+    		cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
+    		cell.setCellStyle(style);
+    		
+    		cell = row.createCell(1);
+    		cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
+    		cell.setCellStyle(style);
+    		
+    		cell = row.createCell(2);
+    		if(myMedfeeThisYear(i, Integer.parseInt(year)) == 0) {
+    			cell.setCellValue("-");
+        		cell.setCellStyle(style);
+    		} else {
+    			cell.setCellValue(myMedfeeThisYear(i, Integer.parseInt(year)));
+        		cell.setCellStyle(style);
+    		}
+
+    		
+    		for(int j=0 ; j<12; j++) {
+        		cell = row.createCell(j+3);
+        		cell.setCellStyle(style2);
+        		
+        		if(myMedfeeThisMonth(i, j+1, Integer.parseInt(year)) == 0 && LocalDate.now().getMonthValue() >= j+1) {
+        			cell.setCellValue("-");
+        			cell.setCellStyle(style);
+        		} 
+        		else if(LocalDate.now().getMonthValue() >= j+1){
+        			cell.setCellValue(myMedfeeThisMonth(i, j+1, Integer.parseInt(year)));
+        			cell.setCellStyle(style);
+        			totalArray[0] += myMedfeeThisMonth(i, j+1, Integer.parseInt(year));
+        			totalArray[j+1] += myMedfeeThisMonth(i, j+1, Integer.parseInt(year));	
+        		} 
+        		else {
+        			cell.setCellValue("");
+        			cell.setCellStyle(style2);
+        		}
+    		}
+    		
+    		count++;
+  		}
+  		
+        //---row 1
+        sheet.addMergedRegion(new CellRangeAddress(1,1,0,1)); 
+        
+        row = sheet.createRow(1);
+        cell=row.createCell(0);
+        cell.setCellValue("SUM");
+        cell.setCellStyle(style3);
+        
+        cell=row.createCell(2);
+        cell.setCellValue(totalArray[0]);
+        cell.setCellStyle(style);
+        
+        for(int i=1; i<totalArray.length; i++) {
+
+        	if(LocalDate.now().getMonthValue() < i) {
+        		cell=row.createCell(i+2);
+        		cell.setCellValue("");
+        		cell.setCellStyle(style2);
+        	} 
+        	else if(totalArray[i] == 0){
+        		cell=row.createCell(i+2);
+        		cell.setCellValue("-");
+        		cell.setCellStyle(style);
+        	} 
+        	else{
+        		cell=row.createCell(i+2);
+        		cell.setCellValue(totalArray[i]);
+        		cell.setCellStyle(style);
+        		}
+        	}
 		
 		System.out.println("--------------create Medical sucess----------"); 
 	}
