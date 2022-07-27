@@ -161,14 +161,21 @@ public class EmployeeService {
 	
 	public void updateMyTimesheets(UpdateMyTimesheetsWrapper wrapper) {
 		throwService.checkEmployee(wrapper.getEmpID());
+		
         EmployeeEntity employeeEntity = employeeRepository.findById(wrapper.getEmpID()).get();
-     
-        
+ 
         for (String i : wrapper.getTIMESHEETS_MAP().keySet()) {
         	 TimesheetsDomain domain = wrapper.getTIMESHEETS_MAP().get(i);
         	if(wrapper.getTIMESHEETS_MAP().get(i).getDateStatus().equals(DateStatus.RECORD)) {
         		domain.setDateStatus(checkdateStatus(domain.getTimeIn(), domain.getTimeOut()));
         	}
+        	if(wrapper.getTIMESHEETS_MAP().get(i).getDateStatus().equals(DateStatus.LEAVE)) {
+        		domain.setActivity("leave");
+        		domain.setTimeIn("-");
+        		domain.setTimeOut("-");
+        		domain.setProject("-");
+        	}
+        	
         }
         
         employeeEntity.getTIMESHEETS_MAP().putAll(wrapper.getTIMESHEETS_MAP());
@@ -244,30 +251,6 @@ public class EmployeeService {
 	
 	//------------ Excel create
 	
-	public static void main(String[] args) throws Exception {
-		System.out.println("ddd");
-
-//        ExcelBuilder builder = ExcelUtils.excel("test");
-//
-//        builder.line("tharm" ,"test1");
-//        builder.line("ninja","test2");
-//        
-//
-//
-//       byte[] content = builder.writeBytes();
-////       HttpHeaders header = new HttpHeaders();
-////       header.set("charset", "UTF-8");
-////       header.set(HttpHeaders.CONTENT_ENCODING, "UTF-8");
-////       header.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-////       header.set(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8;");
-////       header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; charset=UTF-8; filename="+ "test" +".xlsx");
-////       header.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-////       header.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
-//       File file = new File("/home/itim/Desktop/test.xlsx");
-//       new FileOutputStream(file).write(content);
-//       System.out.println("completed");
-
-   }
 	
 	
 

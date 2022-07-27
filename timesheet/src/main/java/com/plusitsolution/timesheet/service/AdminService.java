@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,6 +17,16 @@ import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
 
 import org.apache.commons.beanutils.WrapDynaBean;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFCellStyle;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -119,7 +130,7 @@ public class AdminService {
 
 		//go regis first admin
 		RegisterEmployeeWrapper domain = new RegisterEmployeeWrapper(orgEntity.getOrgID(), wrapper.getPassword(), wrapper.getFirstName(), wrapper.getLastName(), wrapper.getNickName(),
-				370, 10000000, holidayRepository.findByHolidayName("DEFAULT "+wrapper.getShortName()).getHolidayID(), EmpRole.ADMIN, wrapper.getUsername());
+				0, 0, holidayRepository.findByHolidayName("DEFAULT "+wrapper.getShortName()).getHolidayID(), EmpRole.ADMIN, wrapper.getUsername());
 		registerEmployee(domain);
 		
 	}
@@ -748,5 +759,240 @@ public class AdminService {
 	      new FileOutputStream(file).write(content);
 	      System.out.println("completed");
 	}
+	
+	//------------- New Excel create
+	
+	@PostConstruct
+    public void allSummary() throws IOException{
+    	
+    	String orgID = "k3xuNoIBa0CUUmxekQBm";
+    	String year= "2022";
+    	
+    	Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(orgID).get().getEMP_MAP();
+    	
+    	String[] headerArray = {"EmpID","Nickname","Leave Limited","Medical Fee Limited", "Total Leave", "Total Medical", 
+    	"Remaining Leave", "Remaining Medical Fee", "End Contract"};  
+    	
+    	XSSFWorkbook workbook = new XSSFWorkbook();
+    	XSSFSheet sheet = workbook.createSheet("Summary");
+    	sheet.setColumnWidth(0, 4000); 
+    	sheet.setColumnWidth(1, 4000); 
+    	sheet.setColumnWidth(2, 4000); 
+    	sheet.setColumnWidth(3, 5000); 
+    	sheet.setColumnWidth(4, 4000); 
+    	sheet.setColumnWidth(5, 4000);
+    	sheet.setColumnWidth(6, 4000);
+    	sheet.setColumnWidth(7, 6000);
+    	sheet.setColumnWidth(8, 4000);
+
+        Font font = workbook.createFont();  
+        font.setFontHeightInPoints((short)12);
+        font.setFontName("CordiaUPC");
+    	
+    	XSSFCellStyle style = workbook.createCellStyle();
+        style.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+//        style.setFillPattern(FillPatternType.BIG_SPOTS);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setFont(font);
+        
+    	XSSFCellStyle style2 = workbook.createCellStyle();
+        style2.setFillBackgroundColor(IndexedColors.PALE_BLUE.getIndex());
+//        style2.setFillPattern(FillPatternType.BIG_SPOTS);
+        style2.setAlignment(HorizontalAlignment.RIGHT);
+        style2.setVerticalAlignment(VerticalAlignment.CENTER);
+        style2.setFont(font);  
+        
+       	XSSFCellStyle style3 = workbook.createCellStyle();
+        style3.setFillBackgroundColor(IndexedColors.CORAL.getIndex());
+//        style3.setFillPattern(FillPatternType.BIG_SPOTS);
+        style3.setAlignment(HorizontalAlignment.RIGHT);
+        style3.setVerticalAlignment(VerticalAlignment.CENTER);
+        style3.setFont(font);  
+        
+       	XSSFCellStyle style4 = workbook.createCellStyle();
+        style4.setFillBackgroundColor(IndexedColors.LIGHT_GREEN.getIndex());
+//        style4.setFillPattern(FillPatternType.BIG_SPOTS);
+        style4.setAlignment(HorizontalAlignment.RIGHT);
+        style4.setVerticalAlignment(VerticalAlignment.CENTER);
+        style4.setFont(font);
+        
+        XSSFCellStyle style5 = workbook.createCellStyle();
+        style5.setFillBackgroundColor(IndexedColors.ORANGE.getIndex());
+        style5.setFillPattern(FillPatternType.BIG_SPOTS);
+        style5.setAlignment(HorizontalAlignment.RIGHT);
+        style5.setVerticalAlignment(VerticalAlignment.CENTER);
+        style5.setFont(font);
+
+    	XSSFRow row = sheet.createRow(0);
+    	row.setHeight((short)500);
+        
+      //---row 0
+        XSSFCell cell=row.createCell(0);
+        for(int i=0; i<headerArray.length; i++) {
+        	cell=row.createCell(i);
+    		cell.setCellValue(""+headerArray[i]);
+    		cell.setCellStyle(style);
+        }
+      //---row 1	
+		row = sheet.createRow(1);
+		cell=row.createCell(0);
+		cell.setCellValue("COUNT "+EMP_MAP.size()+" EMP");
+		cell.setCellStyle(style5);
+        for(int i=1; i<headerArray.length; i++) {
+        	cell=row.createCell(i);
+    		cell.setCellStyle(style5);
+        }
+      //---row 2-end
+		int count=0;
+
+		for (String i : EMP_MAP.keySet()) {
+			
+        		row = sheet.createRow(count+2);
+        		
+        		cell = row.createCell(0);
+        		cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
+        		cell.setCellStyle(style);
+        		
+        		cell = row.createCell(1);
+        		cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
+        		cell.setCellStyle(style);
+        		
+        		cell = row.createCell(2);
+        		cell.setCellValue(""+EMP_MAP.get(i).getLeaveLimit());
+        		cell.setCellStyle(style2);
+        		
+        		cell = row.createCell(3);
+        		cell.setCellValue(""+EMP_MAP.get(i).getMedFeeLimit());
+        		cell.setCellStyle(style2);
+        		
+        		cell = row.createCell(4);
+        		cell.setCellValue(""+myLeaveDayThisYear(i, Integer.parseInt(year)));
+        		cell.setCellStyle(style3);
+        		
+        		cell = row.createCell(5);
+        		cell.setCellValue(""+myMedfeeThisYear(i, Integer.parseInt(year)));
+        		cell.setCellStyle(style3);
+        		
+        		cell = row.createCell(6);
+        		cell.setCellValue(EMP_MAP.get(i).getLeaveLimit() - myLeaveDayThisYear(i, Integer.parseInt(year)) );
+        		cell.setCellStyle(style4);
+        		
+        		cell = row.createCell(7);
+        		cell.setCellValue( EMP_MAP.get(i).getMedFeeLimit()-myMedfeeThisYear(i, Integer.parseInt(year)));
+        		cell.setCellStyle(style4);
+        		
+        		cell = row.createCell(8);
+        		cell.setCellValue(""+EMP_MAP.get(i).getEndContract());
+        		cell.setCellStyle(style4);
+        
+        		count++;
+        	
+        }
+		
+		leaveSummary(orgID, year, workbook);
+		medicalSummary(orgID, year, workbook);
+
+              
+    	FileOutputStream file = new FileOutputStream("/home/itim/Desktop/wwww.xlsx");
+    	workbook.write(file);
+    	file.close();
+    	
+ 
+    	
+    	System.out.println("--------------create Summary sucess----------"); 
+                   
+    }
+	
+	public void leaveSummary(String orgID, String year, XSSFWorkbook workbook) {
+
+    	Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(orgID).get().getEMP_MAP();
+		
+    	String[] headerArray = {"EmpID","Nickname","Total Leave", "Jan "+year, "Feb "+year, "Mar "+year, "Apr "+year,
+    			 "May "+year, "Jun "+year, "Jul "+year, "Aug "+year,
+    			 "Sep "+year, "Oct "+year, "Nov "+year, "Dec "+year,};  
+		
+		XSSFSheet sheet = workbook.createSheet("Leave");
+    	sheet.setColumnWidth(0, 4000); 
+    	sheet.setColumnWidth(1, 4000); 
+    	sheet.setColumnWidth(2, 4000); 
+    	sheet.setColumnWidth(3, 3000); 
+    	sheet.setColumnWidth(4, 3000); 
+    	sheet.setColumnWidth(5, 3000);
+    	sheet.setColumnWidth(6, 3000);
+    	sheet.setColumnWidth(7, 3000);
+    	sheet.setColumnWidth(8, 3000);
+    	sheet.setColumnWidth(9, 3000);
+    	sheet.setColumnWidth(10, 3000);
+    	sheet.setColumnWidth(11, 3000);
+    	sheet.setColumnWidth(12, 3000);
+    	sheet.setColumnWidth(13, 3000);
+    	sheet.setColumnWidth(14, 3000);
+    	sheet.setColumnWidth(15, 3000);
+    	
+    	XSSFRow row = sheet.createRow(0);
+    	row.setHeight((short)500);
+    	
+        Font font = workbook.createFont();  
+        font.setFontHeightInPoints((short)12);
+        font.setFontName("CordiaUPC");
+    	
+    	XSSFCellStyle style = workbook.createCellStyle();
+        style.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+//        style.setFillPattern(FillPatternType.BIG_SPOTS);
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+        style.setFont(font);
+    	
+        //---row 0
+        XSSFCell cell=row.createCell(0);
+        for(int i=0; i<headerArray.length; i++) {
+        	cell=row.createCell(i);
+    		cell.setCellValue(""+headerArray[i]);
+    		cell.setCellStyle(style);
+        }
+        
+        //---row 1
+    	
+        //---row 2-end
+  		int count=0;
+
+  		for (String i : EMP_MAP.keySet()) {
+  			
+  			row = sheet.createRow(count+2);
+    		
+    		cell = row.createCell(0);
+    		cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
+    		cell.setCellStyle(style);
+    		
+    		cell = row.createCell(1);
+    		cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
+    		cell.setCellStyle(style);
+    		
+    		cell = row.createCell(2);
+    		cell.setCellValue(""+myLeaveDayThisYear(i, Integer.parseInt(year)));
+    		cell.setCellStyle(style);
+    		
+    		for(int j=0 ; j<12; j++) {
+        		cell = row.createCell(j+3);
+ 
+        		cell.setCellValue(""+myLeaveDayThisMonth(i, j+1, Integer.parseInt(year)));
+        		cell.setCellStyle(style);
+    		}
+    		
+    		count++;
+  		}
+	
+		System.out.println("--------------create Leave sucess----------"); 
+	}
+	
+	public void medicalSummary(String orgID, String year, XSSFWorkbook workbook) {
+		
+		XSSFSheet sheet = workbook.createSheet("Medical");
+		
+		
+		System.out.println("--------------create Medical sucess----------"); 
+	}
+
 	
 }
