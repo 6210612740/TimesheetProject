@@ -14,13 +14,15 @@ public class RegisterEmployeeWrapper {
 	private String holidayID;
 	private EmpRole empRole ;
 	private String username ;
+	private String startDate;
 	
 	public RegisterEmployeeWrapper() {
 		
 	}
 	
 	public RegisterEmployeeWrapper(String orgID, String password, String firstName, String lastName,
-			String nickName, double leaveLimit, double medFeeLimit, String holidayID, EmpRole empRole, String username) {
+			String nickName, double leaveLimit, double medFeeLimit, String holidayID, EmpRole empRole, String username,
+			String startDate) {
 		this.orgID = orgID;
 		this.password = password;
 		this.firstName = firstName;
@@ -31,6 +33,7 @@ public class RegisterEmployeeWrapper {
 		this.holidayID = holidayID;
 		this.empRole = empRole;
 		this.username = username;
+		this.startDate = startDate;
 	}
 	
 	public String getOrgID() {
@@ -94,7 +97,17 @@ public class RegisterEmployeeWrapper {
 
 	public void setUsername(String username) {
 		this.username = username;
-	} 
+	}
+
+	public String getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(String startDate) {
+		this.startDate = startDate;
+	}
+
+
 	
 	
 	

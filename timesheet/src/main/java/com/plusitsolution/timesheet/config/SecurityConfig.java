@@ -57,7 +57,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     public CorsConfigurationSource corsConfigurationSource() {
         List<String> origins = new ArrayList<>();
         origins.add("http://localhost:54321");
-        origins.add("https://hec.beta.thaivivat.co.th");
         origins.add("http://localhost:1234");
         origins.add("http://localhost:8081");
         

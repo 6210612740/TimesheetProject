@@ -10,6 +10,10 @@ public class EnumDomain {
 		ADMIN , EMPLOYEE 
 	}
 	
+	public enum EmpStatus {
+		ACTIVE , INACTIVE 
+	}
+	
 	public enum MedStatus {
 		APPROVE , NOTAPPROVE , INPROCESS 
 	}

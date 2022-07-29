@@ -13,11 +13,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.plusitsolution.timesheet.domain.HolidayDomain;
+import com.plusitsolution.timesheet.domain.SumDomain;
 import com.plusitsolution.timesheet.domain.Display.OverviewDomain;
 import com.plusitsolution.timesheet.domain.Display.SummaryByMonthDomain;
 import com.plusitsolution.timesheet.domain.Display.SummaryByMonthValueDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalRequestDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsSummaryDomain;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayUpdateWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.MedicalIDWrapper;
@@ -48,6 +51,11 @@ public class AdminController {
 	@PostMapping("/updateUserProfile")
 	public void updateUserProfile(@RequestBody UpdateUserProfileWrapper wrapper) {
 		service.updateUserProfile(wrapper);
+	}
+	
+	@PostMapping("/disabelEmp")
+	public void disabelEmp(@RequestBody EmployeeIDWrapper wrapper) {
+		service.disabelEmp(wrapper);
 	}
 	
 //----------- Organization ----------------------	
@@ -82,6 +90,11 @@ public class AdminController {
 		return service.getEveryOneMedicalFeesRequests(wrapper);
 	}
 	
+	@PostMapping("/getSumMyMonth")
+	public SumDomain getSumMyMonth(@RequestBody EmployeeIDMonthWrapper wrapper) {
+		return service.getSumMyMonth(wrapper);
+	}
+	
 //-------- holiday -------------------
 	@PostMapping("/createHolidayType")
 	public void createHolidayType(@RequestBody HolidayWrapper wrapper) {
@@ -110,23 +123,23 @@ public class AdminController {
 	}
 	
 	//-----------------excel
-	@PostMapping("/createMyExcel")
-	public void createMyExcel(@RequestParam String empID, @RequestParam String month, @RequestParam String year) throws Exception {
-		service.createMyExcel(empID, month, year);
-	}
-	
-	@PostMapping("/createSummaryExcel")
-	public void createSummaryExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
-		service.createSummaryExcel(orgID, year);
-	}
-	
-	@PostMapping("/createLeaveExcel")
-	public void createLeaveExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
-		service.createLeaveExcel(orgID, year);
-	}
-	
-	@PostMapping("/createMedExcel")
-	public void createMedExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
-		service.createMedExcel(orgID, year);
-	}
+//	@PostMapping("/createMyExcel")
+//	public void createMyExcel(@RequestParam String empID, @RequestParam String month, @RequestParam String year) throws Exception {
+//		service.createMyExcel(empID, month, year);
+//	}
+//	
+//	@PostMapping("/createSummaryExcel")
+//	public void createSummaryExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
+//		service.createSummaryExcel(orgID, year);
+//	}
+//	
+//	@PostMapping("/createLeaveExcel")
+//	public void createLeaveExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
+//		service.createLeaveExcel(orgID, year);
+//	}
+//	
+//	@PostMapping("/createMedExcel")
+//	public void createMedExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
+//		service.createMedExcel(orgID, year);
+//	}
 }

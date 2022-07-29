@@ -62,7 +62,7 @@ public class EmployeeService {
 		if (employeeEntity == null ) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this username not have ");
 		}
-		if (PlusHashUtils.hash(wrapper.getPassword()).equals(employeeEntity.getPassword()) ) {
+		if (!PlusHashUtils.hash(wrapper.getPassword()).equals(employeeEntity.getPassword()) ) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong password");
 		}
 		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(employeeEntity.getOrgID()).get().getEMP_MAP();
