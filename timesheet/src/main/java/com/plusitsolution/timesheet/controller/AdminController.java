@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -123,23 +124,9 @@ public class AdminController {
 	}
 	
 	//-----------------excel
-//	@PostMapping("/createMyExcel")
-//	public void createMyExcel(@RequestParam String empID, @RequestParam String month, @RequestParam String year) throws Exception {
-//		service.createMyExcel(empID, month, year);
-//	}
-//	
-//	@PostMapping("/createSummaryExcel")
-//	public void createSummaryExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
-//		service.createSummaryExcel(orgID, year);
-//	}
-//	
-//	@PostMapping("/createLeaveExcel")
-//	public void createLeaveExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
-//		service.createLeaveExcel(orgID, year);
-//	}
-//	
-//	@PostMapping("/createMedExcel")
-//	public void createMedExcel(@RequestParam String orgID, @RequestParam String year) throws Exception {
-//		service.createMedExcel(orgID, year);
-//	}
+	@PostMapping("/createExcelMyTimesheet")
+	public HttpEntity<byte[]> createExcelMyTimesheet() throws Exception {
+		return service.createExcelMyTimesheet();
+	}
+
 }

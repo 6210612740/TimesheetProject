@@ -1,9 +1,11 @@
 package com.plusitsolution.timesheet.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,11 +34,15 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.plusitsolution.common.toolkit.PlusExcelUtils;
 import com.plusitsolution.common.toolkit.PlusHashUtils;
 import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
@@ -72,6 +78,8 @@ import com.plusitsolution.timesheet.repository.EmployeeRepository;
 import com.plusitsolution.timesheet.repository.HolidayRepository;
 import com.plusitsolution.timesheet.repository.MedicalRepository;
 import com.plusitsolution.timesheet.repository.OrganizeRepository;
+import com.plusitsolution.zeencommon.helper.ExcelBuilder;
+import com.plusitsolution.zeencommon.helper.ExcelUtils;
 
 @Service
 @EnableScheduling
@@ -331,6 +339,7 @@ public class AdminService {
     }
 	
 	public void disabelEmp(EmployeeIDWrapper wrapper) {
+		throwService.checkEmployee(wrapper.getEmpID());
 		
 		OrganizeEntity orgEntity = orgRepository.findById(employeeRepository.findById(wrapper.getEmpID()).get().getOrgID()).get();
 		EmpDetailDomain domain =  orgEntity.getEMP_MAP().get(wrapper.getEmpID());
@@ -626,226 +635,10 @@ public class AdminService {
 	}
 	
 	
-	public static void main(String[] args) {
-		
-//		private static final String[] REPORT_HEADER = new String[]{"timestamp", "appID", "userID", "user", "organization", "actionGroup", "action", "transactionID", "message", "locationID"};
-
-//		private HttpEntity<byte[]> generateReport(List<HIEntity> entityList, String date) throws Exception {
-//	        HIEntity entity;
-//	        PlusCSVBuilder builder = PlusCSVUtils.csv(new ByteArrayInputStream(new byte[128])).headers(REPORT_HEADER);
-//	        if (entityList.size() > 0) {
-//	            for (int i = 0; i < entityList.size(); i++) {
-//	                entity = entityList.get(i);
-//	                checkNull(entity);
-//	                builder.line(entity.getTimestamp()
-//	                        , entity.getAppID()
-//	                        , entity.getUserID()
-//	                        , entity.getUser()
-//	                        , entity.getOrg()
-//	                        , entity.getActionGroup()
-//	                        , entity.getAction()
-//	                        , entity.getTransactionID()
-//	                        , entity.getMessage()
-//	                        , entity.getLocationID()
-//	                );
-//	            }
-//	        }
-//	        byte[] content = builder.writeBytes();
-//	        HttpHeaders header = new HttpHeaders();
-//	        header.set("charset", "UTF-8");
-//	        header.set(HttpHeaders.CONTENT_ENCODING, "UTF-8");
-//	        header.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-//	        header.set(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8;");
-//	        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; charset=UTF-8; filename="+date+".csv");
-//	        header.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-//	        header.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
-//	        return new HttpEntity<byte[]>(content, header);
-//
-//	    }
-		
-		
-		
-		
-	}
-	
-	
-//	private static final String[] REPORT_HEADER = new String[]{"timestamp", "appID", "userID", "user", "organization", "actionGroup", "action", "transactionID", "message", "locationID"};
-//	
-//	private HttpEntity<byte[]> generateReport(List<HIEntity> entityList, String date) throws Exception {
-////        HIEntity entity;
-//        PlusCSVBuilder builder = PlusExcelUtils.createOrInitWorkbook(new ByteArrayInputStream(new byte[128])).headers(REPORT_HEADER);
-//        if (entityList.size() > 0) {
-//            for (int i = 0; i < entityList.size(); i++) {
-//                entity = entityList.get(i);
-//                checkNull(entity);
-//                builder.line(entity.getTimestamp()
-//                        , entity.getAppID()
-//                        , entity.getUserID()
-//                        , entity.getUser()
-//                        , entity.getOrg()
-//                        , entity.getActionGroup()
-//                        , entity.getAction()
-//                        , entity.getTransactionID()
-//                        , entity.getMessage()
-//                        , entity.getLocationID()
-//                );
-//            }
-//        }
-//        byte[] content = builder.writeBytes();
-//        HttpHeaders header = new HttpHeaders();
-//        header.set("charset", "UTF-8");
-//        header.set(HttpHeaders.CONTENT_ENCODING, "UTF-8");
-//        header.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-//        header.set(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8;");
-//        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; charset=UTF-8; filename="+date+".csv");
-//        header.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-//        header.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
-//        return new HttpEntity<byte[]>(content, header);
-//
-//    }
-	
-	//------------Create excel
-//	public void createMyExcel(String empID, String month, String year) throws Exception{
-//		throwService.checkEmployee(empID);
-//		throwService.checkMonth(Integer.parseInt(month));
-//		throwService.checkYear(Integer.parseInt(year) );		
-//		
-//		EmployeeEntity entity = employeeRepository.findById(empID).get();
-//		Map<String , TimesheetsDomain> TIMESHEETS_MAP = entity.getTIMESHEETS_MAP();
-//
-//		
-//		ExcelBuilder builder = ExcelUtils.excel(""+year+"TS"+month+""+entity.getEmpCode());
-////		builder.line("", "", "", "", "", ""+orgRepository.findById(employeeRepository.findById(empID).get().getOrgID()).get().getOrgNameEng());
-////		builder.line("", "", "", "", "", ""+orgRepository.findById(employeeRepository.findById(empID).get().getOrgID()).get().getOrgNameTh());
-//		builder.line("", "Employee Name", ""+entity.getFirstName()+" "+entity.getLastName(), "", "Ref No", year+"TS"+month+""+entity.getEmpCode(),"");
-//		builder.line("", "Employee Code", ""+entity.getEmpCode(), "", "", "");
-//		builder.line("", "", "", "", "", "");
-//		builder.line("Index", "Date", "TimeIn", "TimeOut", "Project", "Activity");
-//		
-//		int x = MONTH_MAP.get(month);
-//		if(Integer.parseInt(year)%4==0 && Integer.parseInt(month)==2) {
-//			x += 1;
-//		}
-//		
-//		for(int i=1; i<x+1; i++) {
-//
-//			if(TIMESHEETS_MAP.get(year+"-"+month+"-"+utilService.paddding(i)) == null) {
-////				int index, String date, String timeIn, String timeOut, String project,
-////				String activity
-//				MyTimesheetExcelDomain domain = new MyTimesheetExcelDomain(i,year+"-"+month+"-"+utilService.paddding(i), "", 
-//						"", "", "");
-//				builder.line(domain.getIndex(), domain.getDate(), domain.getTimeIn(), domain.getTimeOut(), domain.getProject(), domain.getActivity());
-//			}
-//			else {
-//			String key = year+"-"+month+"-"+utilService.paddding(i);
-//			
-//			MyTimesheetExcelDomain domain = new MyTimesheetExcelDomain(i, key, 
-//					TIMESHEETS_MAP.get(key).getTimeIn(), TIMESHEETS_MAP.get(key).getTimeOut(),
-//					TIMESHEETS_MAP.get(key).getProject(), TIMESHEETS_MAP.get(key).getActivity());
-//
-//			builder.line(domain.getIndex(), domain.getDate(), domain.getTimeIn(), domain.getTimeOut(), domain.getProject(), domain.getActivity());
-//			}
-//		}
-//		
-//	  byte[] content = builder.writeBytes();	
-//      File file = new File("/home/itim/Desktop/"+year+"TS"+month+""+entity.getEmpCode()+".xlsx");
-//      new FileOutputStream(file).write(content);
-//      System.out.println("completed");
-//	}
-//	
-//	public void createSummaryExcel(String orgID, String year) throws Exception{
-//		throwService.checkOrganize(orgID);
-//		throwService.checkYear(Integer.parseInt(year) );		
-//		
-//		
-//		
-//		OrganizeEntity entity = orgRepository.findById(orgID).get();
-//		Map<String , EmpDetailDomain> EMP_MAP = entity.getEMP_MAP();
-//		
-//		ExcelBuilder builder = ExcelUtils.excel(year+"SUMARY"+entity.getShortName());
-//		builder.line("EmpID", "Nickname", "Leave Limited", "Medical Fee Limited", "Total Leave", "Total Medical", "Remaining Leave",
-//				"Remaining Medical Fee", "End Contract");
-//		
-//		for (String i : EMP_MAP.keySet()) {
-//			String empCode = EMP_MAP.get(i).getEmpCode();
-//			OverviewDomain domain = new OverviewDomain(empCode, employeeRepository.findByEmpCode(empCode).getFirstName(), employeeRepository.findByEmpCode(empCode).getLastName(), 
-//					EMP_MAP.get(i).getLeaveLimit(), EMP_MAP.get(i).getMedFeeLimit(), 
-//					myLeaveDayThisYear(i, Integer.parseInt(year)), myMedfeeThisYear(i, Integer.parseInt(year)),
-//					EMP_MAP.get(i).getLeaveLimit()-myLeaveDayThisYear(i, Integer.parseInt(year)), EMP_MAP.get(i).getMedFeeLimit()-myMedfeeThisYear(i, Integer.parseInt(year)),
-//					EMP_MAP.get(i).getEndContract(), employeeRepository.findByEmpCode(empCode).getNickName());
-//			
-//			builder.line(domain.getEmpCode(), domain.getNickName(), domain.getLeaveLimit(), domain.getMedFeeLimit(), domain.getLeaveUse(), domain.getMedFeeUse(), domain.getLeaveRemain(),
-//					domain.getMedFeeRemain(), domain.getEndContract());
-//		}
-//		
-//		  byte[] content = builder.writeBytes();	
-//	      File file = new File("/home/itim/Desktop/"+year+"SUMARY"+entity.getShortName()+".xlsx");
-//	      new FileOutputStream(file).write(content);
-//	      System.out.println("completed");
-//	}
-//	
-//	public void createLeaveExcel(String orgID, String year) throws Exception{
-//		throwService.checkOrganize(orgID);
-//		throwService.checkYear(Integer.parseInt(year) );
-//		
-//		
-//		OrganizeEntity entity = orgRepository.findById(orgID).get();
-//		Map<String , EmpDetailDomain> EMP_MAP = entity.getEMP_MAP();
-//		
-//		ExcelBuilder builder = ExcelUtils.excel(year+"LEAVE"+entity.getShortName());
-//		builder.line("EmpID", "Nickname", "Total Leave", "Jan "+year, "Feb "+year, "Mar "+year, "Apr "+year,
-//				"May "+year, "Jun "+year, "Jul "+year, "Aug "+year, "Sep "+year, "Oct "+year, "Nov "+year, "Dec "+year);
-//		
-//		for (String i : EMP_MAP.keySet()) {
-//			SummaryByMonthValueDomain domain = new SummaryByMonthValueDomain(myLeaveDayThisMonth(i, 1, Integer.parseInt(year)), myLeaveDayThisMonth(i, 2, Integer.parseInt(year)), myLeaveDayThisMonth(i, 3, Integer.parseInt(year)),
-//					myLeaveDayThisMonth(i, 4, Integer.parseInt(year)), myLeaveDayThisMonth(i, 5,Integer.parseInt(year)), myLeaveDayThisMonth(i, 6, Integer.parseInt(year)),
-//					myLeaveDayThisMonth(i, 7, Integer.parseInt(year)), myLeaveDayThisMonth(i, 8, Integer.parseInt(year)), myLeaveDayThisMonth(i, 9, Integer.parseInt(year)),
-//					myLeaveDayThisMonth(i, 10, Integer.parseInt(year)), myLeaveDayThisMonth(i, 11, Integer.parseInt(year)), myLeaveDayThisMonth(i, 12, Integer.parseInt(year)));
-//			
-//			builder.line(EMP_MAP.get(i).getEmpCode(), employeeRepository.findById(i).get().getNickName(), myLeaveDayThisYear(i, Integer.parseInt(year)), domain.getJan(), domain.getFeb(), domain.getMar(), domain.getApr(),
-//					domain.getMay(), domain.getJun(), domain.getJul(), domain.getAug(), domain.getSep(), domain.getOct(), domain.getNov(), domain.getDec());
-//		}
-//		
-//		  byte[] content = builder.writeBytes();	
-//	      File file = new File("/home/itim/Desktop/"+year+"LEAVE"+entity.getShortName()+".xlsx");
-//	      new FileOutputStream(file).write(content);
-//	      System.out.println("completed");
-//		
-//	}
-//
-//	public void createMedExcel(String orgID, String year) throws Exception{
-//		throwService.checkOrganize(orgID);
-//		throwService.checkYear(Integer.parseInt(year) );
-//		
-//		
-//		OrganizeEntity entity = orgRepository.findById(orgID).get();
-//		Map<String , EmpDetailDomain> EMP_MAP = entity.getEMP_MAP();
-//		
-//		ExcelBuilder builder = ExcelUtils.excel(year+"MEDICAL"+entity.getShortName());
-//		builder.line("EmpID", "Nickname", "Total Leave", "Jan "+year, "Feb "+year, "Mar "+year, "Apr "+year,
-//				"May "+year, "Jun "+year, "Jul "+year, "Aug "+year, "Sep "+year, "Oct "+year, "Nov "+year, "Dec "+year);
-//		
-//		for (String i : EMP_MAP.keySet()) {
-//			SummaryByMonthValueDomain domain = new SummaryByMonthValueDomain(myMedfeeThisMonth(i, 1, Integer.parseInt(year)), myMedfeeThisMonth(i, 2, Integer.parseInt(year)), myMedfeeThisMonth(i, 3, Integer.parseInt(year)),
-//					myMedfeeThisMonth(i, 4, Integer.parseInt(year)), myMedfeeThisMonth(i, 5,Integer.parseInt(year)), myMedfeeThisMonth(i, 6, Integer.parseInt(year)),
-//					myMedfeeThisMonth(i, 7, Integer.parseInt(year)), myMedfeeThisMonth(i, 8, Integer.parseInt(year)), myMedfeeThisMonth(i, 9, Integer.parseInt(year)),
-//					myMedfeeThisMonth(i, 10, Integer.parseInt(year)), myMedfeeThisMonth(i, 11, Integer.parseInt(year)), myMedfeeThisMonth(i, 12, Integer.parseInt(year)));
-//			
-//			builder.line(EMP_MAP.get(i).getEmpCode(), employeeRepository.findById(i).get().getNickName(), myMedfeeThisYear(i, Integer.parseInt(year)), domain.getJan(), domain.getFeb(), domain.getMar(), domain.getApr(),
-//					domain.getMay(), domain.getJun(), domain.getJul(), domain.getAug(), domain.getSep(), domain.getOct(), domain.getNov(), domain.getDec());
-//		}
-//		
-//		  byte[] content = builder.writeBytes();	
-//	      File file = new File("/home/itim/Desktop/"+year+"MEDICAL"+entity.getShortName()+".xlsx");
-//	      new FileOutputStream(file).write(content);
-//	      System.out.println("completed");
-//	}
-	
 	//------------- New Excel ss2 create
-	
     public void createExcelAllSummary() throws IOException{
     	
-    	String orgID = "PHwbQ4IBa0CUUmxehAuY";
+    	String orgID = "IXyuSIIBa0CUUmxedhCX";
     	int year= 2022;
     	
     	Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(orgID).get().getEMP_MAP();
@@ -868,41 +661,96 @@ public class AdminService {
         Font font = workbook.createFont();  
         font.setFontHeightInPoints((short)12);
         font.setFontName("CordiaUPC");
-    	
-    	XSSFCellStyle style = workbook.createCellStyle();
-        style.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-//        style.setFillPattern(FillPatternType.BIG_SPOTS);
+        
+        XSSFCellStyle style = workbook.createCellStyle();
+        style.setFont(font);
         style.setAlignment(HorizontalAlignment.CENTER);
         style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setFont(font);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         
     	XSSFCellStyle style2 = workbook.createCellStyle();
-        style2.setFillBackgroundColor(IndexedColors.PALE_BLUE.getIndex());
-//        style2.setFillPattern(FillPatternType.BIG_SPOTS);
+        style2.setFont(font);  
         style2.setAlignment(HorizontalAlignment.RIGHT);
         style2.setVerticalAlignment(VerticalAlignment.CENTER);
-        style2.setFont(font);  
+        style2.setBorderTop(BorderStyle.THIN);
+        style2.setBorderRight(BorderStyle.THIN);
+        style2.setBorderBottom(BorderStyle.THIN);
+        style2.setBorderLeft(BorderStyle.THIN);
+    	style2.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+    	style2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         
        	XSSFCellStyle style3 = workbook.createCellStyle();
-        style3.setFillBackgroundColor(IndexedColors.CORAL.getIndex());
-//        style3.setFillPattern(FillPatternType.BIG_SPOTS);
+        style3.setFont(font);  
         style3.setAlignment(HorizontalAlignment.RIGHT);
         style3.setVerticalAlignment(VerticalAlignment.CENTER);
-        style3.setFont(font);  
+        style3.setBorderTop(BorderStyle.THIN);
+        style3.setBorderRight(BorderStyle.THIN);
+        style3.setBorderBottom(BorderStyle.THIN);
+        style3.setBorderLeft(BorderStyle.THIN);
+        style3.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+        style3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
         
        	XSSFCellStyle style4 = workbook.createCellStyle();
-        style4.setFillBackgroundColor(IndexedColors.LIGHT_GREEN.getIndex());
-//        style4.setFillPattern(FillPatternType.BIG_SPOTS);
+        style4.setFont(font);
         style4.setAlignment(HorizontalAlignment.RIGHT);
         style4.setVerticalAlignment(VerticalAlignment.CENTER);
-        style4.setFont(font);
+        style4.setBorderTop(BorderStyle.THIN);
+        style4.setBorderRight(BorderStyle.THIN);
+        style4.setBorderBottom(BorderStyle.THIN);
+        style4.setBorderLeft(BorderStyle.THIN);
+        style4.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+        style4.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         
         XSSFCellStyle style5 = workbook.createCellStyle();
-        style5.setFillBackgroundColor(IndexedColors.ORANGE.getIndex());
-        style5.setFillPattern(FillPatternType.BIG_SPOTS);
-        style5.setAlignment(HorizontalAlignment.RIGHT);
-        style5.setVerticalAlignment(VerticalAlignment.CENTER);
         style5.setFont(font);
+        style5.setAlignment(HorizontalAlignment.CENTER);
+        style5.setVerticalAlignment(VerticalAlignment.CENTER);
+        style5.setBorderTop(BorderStyle.THIN);
+        style5.setBorderRight(BorderStyle.THIN);
+        style5.setBorderBottom(BorderStyle.THIN);
+        style5.setBorderLeft(BorderStyle.THIN);
+        style5.setFillForegroundColor(IndexedColors.RED.getIndex());
+    	style5.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+    	
+        XSSFCellStyle style5R = workbook.createCellStyle();
+        style5R.setFont(font);
+        style5R.setAlignment(HorizontalAlignment.RIGHT);
+        style5R.setVerticalAlignment(VerticalAlignment.CENTER);
+        style5R.setBorderTop(BorderStyle.THIN);
+        style5R.setBorderRight(BorderStyle.THIN);
+        style5R.setBorderBottom(BorderStyle.THIN);
+        style5R.setBorderLeft(BorderStyle.NONE);
+        style5R.setFillForegroundColor(IndexedColors.RED.getIndex());
+        style5R.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+        XSSFCellStyle style6 = workbook.createCellStyle();
+        style6.setFont(font);
+        style6.setAlignment(HorizontalAlignment.CENTER);
+        style6.setVerticalAlignment(VerticalAlignment.CENTER);
+        style6.setBorderTop(BorderStyle.THIN);
+        style6.setBorderRight(BorderStyle.THIN);
+        style6.setBorderBottom(BorderStyle.THIN);
+        style6.setBorderLeft(BorderStyle.THIN);
+        style6.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style6.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+        XSSFCellStyle style6R = workbook.createCellStyle(); // <-----------------------------------------------
+        style6R.setFont(font);
+        style6R.setAlignment(HorizontalAlignment.RIGHT);
+        style6R.setVerticalAlignment(VerticalAlignment.CENTER);
+        style6R.setBorderTop(BorderStyle.THIN);
+        style6R.setBorderRight(BorderStyle.THIN);
+        style6R.setBorderBottom(BorderStyle.THIN);
+        style6R.setBorderLeft(BorderStyle.THIN);
+        style6R.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style6R.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
 
     	XSSFRow row = sheet.createRow(0);
     	row.setHeight((short)500);
@@ -919,10 +767,14 @@ public class AdminService {
 		cell=row.createCell(0);
 		cell.setCellValue("COUNT "+EMP_MAP.size()+" EMP");
 		cell.setCellStyle(style5);
-        for(int i=1; i<headerArray.length; i++) {
-        	cell=row.createCell(i);
-    		cell.setCellStyle(style5);
-        }
+		
+		sheet.addMergedRegion(new CellRangeAddress(1,1,1,8));
+        cell=row.createCell(1);
+    	cell.setCellStyle(style5);
+    	
+        cell=row.createCell(8);
+    	cell.setCellStyle(style5R);
+        
       //---row 2-end
 		int count=0;
 			
@@ -930,45 +782,87 @@ public class AdminService {
 			
         		row = sheet.createRow(count+2);
         		
-        		cell = row.createCell(0);
-        		cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
-        		cell.setCellStyle(style);
+        		if(EMP_MAP.get(i).getEmpStatus().equals(EmpStatus.INACTIVE)) {
+        			
+        			cell = row.createCell(0);
+            		cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
+            		cell.setCellStyle(style6);
+            		
+            		cell = row.createCell(1);
+            		cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
+            		cell.setCellStyle(style6);
+            		
+            		cell = row.createCell(2);
+            		cell.setCellValue(""+EMP_MAP.get(i).getLeaveLimit());
+            		cell.setCellStyle(style6R);
+            		
+            		cell = row.createCell(3);
+            		cell.setCellValue(""+EMP_MAP.get(i).getMedFeeLimit());
+            		cell.setCellStyle(style6R);
+            		
+            		cell = row.createCell(4);
+            		cell.setCellValue(""+myLeaveDayThisYear(i, year));
+            		cell.setCellStyle(style6R);
+            		
+            		cell = row.createCell(5);
+            		cell.setCellValue(""+myMedfeeThisYear(i, year));
+            		cell.setCellStyle(style6R);
+            		
+            		cell = row.createCell(6);
+            		cell.setCellValue(EMP_MAP.get(i).getLeaveLimit() - myLeaveDayThisYear(i, year) );
+            		cell.setCellStyle(style6R);
+            		
+            		cell = row.createCell(7);
+            		cell.setCellValue( EMP_MAP.get(i).getMedFeeLimit()-myMedfeeThisYear(i, year));
+            		cell.setCellStyle(style6R);
+            		
+            		cell = row.createCell(8);
+            		cell.setCellValue(""+EMP_MAP.get(i).getEndContract());
+            		cell.setCellStyle(style6R);
+        			
+        		} else {
+        			cell = row.createCell(0);
+        			cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
+        			cell.setCellStyle(style);
         		
-        		cell = row.createCell(1);
-        		cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
-        		cell.setCellStyle(style);
+        			cell = row.createCell(1);
+        			cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
+        			cell.setCellStyle(style);
         		
-        		cell = row.createCell(2);
-        		cell.setCellValue(""+EMP_MAP.get(i).getLeaveLimit());
-        		cell.setCellStyle(style2);
+        			cell = row.createCell(2);
+        			cell.setCellValue(""+EMP_MAP.get(i).getLeaveLimit());
+        			cell.setCellStyle(style2);
         		
-        		cell = row.createCell(3);
-        		cell.setCellValue(""+EMP_MAP.get(i).getMedFeeLimit());
-        		cell.setCellStyle(style2);
+        			cell = row.createCell(3);
+        			cell.setCellValue(""+EMP_MAP.get(i).getMedFeeLimit());
+        			cell.setCellStyle(style2);
         		
-        		cell = row.createCell(4);
-        		cell.setCellValue(""+myLeaveDayThisYear(i, year));
-        		cell.setCellStyle(style3);
+        			cell = row.createCell(4);
+        			cell.setCellValue(""+myLeaveDayThisYear(i, year));
+        			cell.setCellStyle(style3);
         		
-        		cell = row.createCell(5);
-        		cell.setCellValue(""+myMedfeeThisYear(i, year));
-        		cell.setCellStyle(style3);
+        			cell = row.createCell(5);
+        			cell.setCellValue(""+myMedfeeThisYear(i, year));
+        			cell.setCellStyle(style3);
         		
-        		cell = row.createCell(6);
-        		cell.setCellValue(EMP_MAP.get(i).getLeaveLimit() - myLeaveDayThisYear(i, year) );
-        		cell.setCellStyle(style4);
+        			cell = row.createCell(6);
+        			cell.setCellValue(EMP_MAP.get(i).getLeaveLimit() - myLeaveDayThisYear(i, year) );
+        			cell.setCellStyle(style4);
         		
-        		cell = row.createCell(7);
-        		cell.setCellValue( EMP_MAP.get(i).getMedFeeLimit()-myMedfeeThisYear(i, year));
-        		cell.setCellStyle(style4);
+        			cell = row.createCell(7);
+        			cell.setCellValue( EMP_MAP.get(i).getMedFeeLimit()-myMedfeeThisYear(i, year));
+        			cell.setCellStyle(style4);
         		
-        		cell = row.createCell(8);
-        		cell.setCellValue(""+EMP_MAP.get(i).getEndContract());
-        		cell.setCellStyle(style4);
+        			cell = row.createCell(8);
+        			cell.setCellValue(""+EMP_MAP.get(i).getEndContract());
+        		
+        			cell.setCellStyle(style4);
+        		}
         
         		count++;
         	
         }
+		
 		
 		leaveSummary(orgID, year, workbook);
 		medicalSummary(orgID, year, workbook);
@@ -1019,25 +913,62 @@ public class AdminService {
         font.setFontName("CordiaUPC");
     	
     	XSSFCellStyle style = workbook.createCellStyle();
-        style.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-//        style.setFillPattern(FillPatternType.BIG_SPOTS);
+        style.setFont(font);
         style.setAlignment(HorizontalAlignment.CENTER);
         style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setFont(font);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
         
        	XSSFCellStyle style2 = workbook.createCellStyle();
-        style2.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        style2.setFillPattern(FillPatternType.BIG_SPOTS);
+        style2.setFont(font);
         style2.setAlignment(HorizontalAlignment.CENTER);
         style2.setVerticalAlignment(VerticalAlignment.CENTER);
-        style2.setFont(font);
+        style2.setBorderTop(BorderStyle.THIN);
+        style2.setBorderRight(BorderStyle.THIN);
+        style2.setBorderBottom(BorderStyle.THIN);
+        style2.setBorderLeft(BorderStyle.THIN);
+        style2.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         
        	XSSFCellStyle style3 = workbook.createCellStyle();
-        style3.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-//        style3.setFillPattern(FillPatternType.BIG_SPOTS);
-        style3.setAlignment(HorizontalAlignment.RIGHT);
-        style3.setVerticalAlignment(VerticalAlignment.CENTER);
         style3.setFont(font);
+        style3.setAlignment(HorizontalAlignment.CENTER);
+        style3.setVerticalAlignment(VerticalAlignment.CENTER);
+        style3.setBorderTop(BorderStyle.THIN);
+        style3.setBorderRight(BorderStyle.THIN);
+        style3.setBorderBottom(BorderStyle.THIN);
+        style3.setBorderLeft(BorderStyle.THIN);
+        style3.setFillForegroundColor(IndexedColors.RED.getIndex());
+        style3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+       	XSSFCellStyle style4 = workbook.createCellStyle();
+       	style4.setFont(font);
+       	style4.setAlignment(HorizontalAlignment.RIGHT);
+       	style4.setVerticalAlignment(VerticalAlignment.CENTER);
+       	style4.setBorderTop(BorderStyle.THIN);
+       	style4.setBorderRight(BorderStyle.THIN);
+       	style4.setBorderBottom(BorderStyle.THIN);
+       	style4.setBorderLeft(BorderStyle.THIN);
+       	style4.setFillForegroundColor(IndexedColors.RED1.getIndex());
+       	style4.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+        XSSFCellStyle style6 = workbook.createCellStyle();
+        style6.setFont(font);
+        style6.setAlignment(HorizontalAlignment.CENTER);
+        style6.setVerticalAlignment(VerticalAlignment.CENTER);
+        style6.setBorderTop(BorderStyle.THIN);
+        style6.setBorderRight(BorderStyle.THIN);
+        style6.setBorderBottom(BorderStyle.THIN);
+        style6.setBorderLeft(BorderStyle.THIN);
+        style6.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style6.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+
     	
         //---row 0
         XSSFCell cell=row.createCell(0);
@@ -1052,47 +983,91 @@ public class AdminService {
   			//--- colume 0-2
   		for (String i : EMP_MAP.keySet()) {
   			
-  			row = sheet.createRow(count+2);
+  			if(EMP_MAP.get(i).getEmpStatus().equals(EmpStatus.INACTIVE)) {
+  				
+  				row = sheet.createRow(count+2);
+  	    		
+  				cell = row.createCell(0);
+  				cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
+  				cell.setCellStyle(style6);
     		
-    		cell = row.createCell(0);
-    		cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
-    		cell.setCellStyle(style);
-    		
-    		cell = row.createCell(1);
-    		cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
-    		cell.setCellStyle(style);
-    		
-    		cell = row.createCell(2);
-    		if(myLeaveDayThisYear(i, year) == 0) {
-    			cell.setCellValue("-");
-        		cell.setCellStyle(style);
-    		} else {
-    			cell.setCellValue(myLeaveDayThisYear(i, year));
-        		cell.setCellStyle(style);
-    		}
+    			cell = row.createCell(1);
+    			cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
+    			cell.setCellStyle(style6);
+    			
+    			cell = row.createCell(2);
+    			if(myLeaveDayThisYear(i, year) == 0) {
+    				cell.setCellValue("-");
+        			cell.setCellStyle(style6);
+    			} else {
+    				cell.setCellValue(myLeaveDayThisYear(i, year));
+        			cell.setCellStyle(style6);
+    			}
 
     			//--- colume 3-14
-    		for(int j=0 ; j<12; j++) {
-        		cell = row.createCell(j+3);
-        		cell.setCellStyle(style2);
+    			for(int j=0 ; j<12; j++) {
+        			cell = row.createCell(j+3);
+        			cell.setCellStyle(style6);
         		
-        		if(myLeaveDayThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
-        			cell.setCellValue("-");
-        			cell.setCellStyle(style);
-        		} 
-        		else if(LocalDate.now().getMonthValue() >= j+1){
-        			cell.setCellValue(myLeaveDayThisMonth(i, j+1, year));
-        			cell.setCellStyle(style);
-        			totalArray[0] += myLeaveDayThisMonth(i, j+1, year);
-        			totalArray[j+1] += myLeaveDayThisMonth(i, j+1, year);	
-        		} 
-        		else {
-        			cell.setCellValue("");
-        			cell.setCellStyle(style2);
-        		}
-    		}
+        			if(myLeaveDayThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
+        				cell.setCellValue("-");
+        				cell.setCellStyle(style6);
+        			} 
+        			else if(LocalDate.now().getMonthValue() >= j+1){
+        				cell.setCellValue(myLeaveDayThisMonth(i, j+1, year));
+        				cell.setCellStyle(style6);
+        				totalArray[0] += myLeaveDayThisMonth(i, j+1, year);
+        				totalArray[j+1] += myLeaveDayThisMonth(i, j+1, year);	
+        			} 
+        			else {
+        				cell.setCellValue("");
+        				cell.setCellStyle(style6);
+        			}
+    			}
+  				
+  			} else {
+  			
+  				row = sheet.createRow(count+2);
     		
-    		count++;
+  				cell = row.createCell(0);
+  				cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
+  				cell.setCellStyle(style);
+    		
+    			cell = row.createCell(1);
+    			cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
+    			cell.setCellStyle(style);
+    		
+    			cell = row.createCell(2);
+    			if(myLeaveDayThisYear(i, year) == 0) {
+    				cell.setCellValue("-");
+        			cell.setCellStyle(style);
+    			} else {
+    				cell.setCellValue(myLeaveDayThisYear(i, year));
+        			cell.setCellStyle(style);
+    			}
+
+    			//--- colume 3-14
+    			for(int j=0 ; j<12; j++) {
+        			cell = row.createCell(j+3);
+        			cell.setCellStyle(style2);
+        		
+        			if(myLeaveDayThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
+        				cell.setCellValue("-");
+        				cell.setCellStyle(style);
+        			} 
+        			else if(LocalDate.now().getMonthValue() >= j+1){
+        				cell.setCellValue(myLeaveDayThisMonth(i, j+1, year));
+        				cell.setCellStyle(style);
+        				totalArray[0] += myLeaveDayThisMonth(i, j+1, year);
+        				totalArray[j+1] += myLeaveDayThisMonth(i, j+1, year);	
+        			} 
+        			else {
+        				cell.setCellValue("");
+        				cell.setCellStyle(style2);
+        			}
+    			}
+  			}
+    			count++;
   		}
   		
         //---row 1
@@ -1100,31 +1075,32 @@ public class AdminService {
         
         row = sheet.createRow(1);
         cell=row.createCell(0);
-        cell.setCellValue("SUM");
-        cell.setCellStyle(style3);
+        cell.setCellValue("SUM ");
+        cell.setCellStyle(style4);
+
         
         cell=row.createCell(2);
         cell.setCellValue(totalArray[0]);
-        cell.setCellStyle(style);
+        cell.setCellStyle(style3);
         
         for(int i=1; i<totalArray.length; i++) {
 
         	if(LocalDate.now().getMonthValue() < i) {
         		cell=row.createCell(i+2);
         		cell.setCellValue("");
-        		cell.setCellStyle(style2);
+        		cell.setCellStyle(style3);
         	} 
         	else if(totalArray[i] == 0){
         		cell=row.createCell(i+2);
         		cell.setCellValue("-");
-        		cell.setCellStyle(style);
+        		cell.setCellStyle(style3);
         	} 
         	else{
         		cell=row.createCell(i+2);
         		cell.setCellValue(totalArray[i]);
-        		cell.setCellStyle(style);
+        		cell.setCellStyle(style3);
         		} 
-        	} 
+        	}
 
 		System.out.println("------------- create Leave sucess ----------");
 }
@@ -1167,25 +1143,60 @@ public class AdminService {
         font.setFontName("CordiaUPC");
        
     	XSSFCellStyle style = workbook.createCellStyle();
-        style.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-//        style.setFillPattern(FillPatternType.BIG_SPOTS);
+        style.setFont(font);
         style.setAlignment(HorizontalAlignment.CENTER);
         style.setVerticalAlignment(VerticalAlignment.CENTER);
-        style.setFont(font);
+        style.setBorderTop(BorderStyle.THIN);
+        style.setBorderRight(BorderStyle.THIN);
+        style.setBorderBottom(BorderStyle.THIN);
+        style.setBorderLeft(BorderStyle.THIN);
+        style.setFillForegroundColor(IndexedColors.WHITE.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
         
        	XSSFCellStyle style2 = workbook.createCellStyle();
-        style2.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        style2.setFillPattern(FillPatternType.BIG_SPOTS);
+        style2.setFont(font);
         style2.setAlignment(HorizontalAlignment.CENTER);
         style2.setVerticalAlignment(VerticalAlignment.CENTER);
-        style2.setFont(font);
+        style2.setBorderTop(BorderStyle.THIN);
+        style2.setBorderRight(BorderStyle.THIN);
+        style2.setBorderBottom(BorderStyle.THIN);
+        style2.setBorderLeft(BorderStyle.THIN);
+        style2.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         
        	XSSFCellStyle style3 = workbook.createCellStyle();
-        style3.setFillBackgroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-//        style3.setFillPattern(FillPatternType.BIG_SPOTS);
-        style3.setAlignment(HorizontalAlignment.RIGHT);
-        style3.setVerticalAlignment(VerticalAlignment.CENTER);
         style3.setFont(font);
+        style3.setAlignment(HorizontalAlignment.CENTER);
+        style3.setVerticalAlignment(VerticalAlignment.CENTER);
+        style3.setBorderTop(BorderStyle.THIN);
+        style3.setBorderRight(BorderStyle.THIN);
+        style3.setBorderBottom(BorderStyle.THIN);
+        style3.setBorderLeft(BorderStyle.THIN);
+        style3.setFillForegroundColor(IndexedColors.RED.getIndex());
+        style3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+       	XSSFCellStyle style4 = workbook.createCellStyle();
+       	style4.setFont(font);
+       	style4.setAlignment(HorizontalAlignment.RIGHT);
+       	style4.setVerticalAlignment(VerticalAlignment.CENTER);
+       	style4.setBorderTop(BorderStyle.THIN);
+       	style4.setBorderRight(BorderStyle.THIN);
+       	style4.setBorderBottom(BorderStyle.THIN);
+       	style4.setBorderLeft(BorderStyle.THIN);
+       	style4.setFillForegroundColor(IndexedColors.RED1.getIndex());
+       	style4.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        
+        XSSFCellStyle style6 = workbook.createCellStyle();
+        style6.setFont(font);
+        style6.setAlignment(HorizontalAlignment.CENTER);
+        style6.setVerticalAlignment(VerticalAlignment.CENTER);
+        style6.setBorderTop(BorderStyle.THIN);
+        style6.setBorderRight(BorderStyle.THIN);
+        style6.setBorderBottom(BorderStyle.THIN);
+        style6.setBorderLeft(BorderStyle.THIN);
+        style6.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
+        style6.setFillPattern(FillPatternType.SOLID_FOREGROUND);
     	
         //---row 0
         XSSFCell cell=row.createCell(0);
@@ -1200,45 +1211,90 @@ public class AdminService {
   			//--- colume 0-2
   		for (String i : EMP_MAP.keySet()) {
   			
-  			row = sheet.createRow(count+2);
+  			if(EMP_MAP.get(i).getEmpStatus().equals(EmpStatus.INACTIVE)) {
+  				
+  				row = sheet.createRow(count+2);
+  	    		
+  				cell = row.createCell(0);
+    			cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
+    			cell.setCellStyle(style6);
     		
-    		cell = row.createCell(0);
-    		cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
-    		cell.setCellStyle(style);
+    			cell = row.createCell(1);
+    			cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
+    			cell.setCellStyle(style6);
     		
-    		cell = row.createCell(1);
-    		cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
-    		cell.setCellStyle(style);
-    		
-    		cell = row.createCell(2);
-    		if(myMedfeeThisYear(i, year) == 0) {
-    			cell.setCellValue("-");
-        		cell.setCellStyle(style);
-    		} else {
-    			cell.setCellValue(myMedfeeThisYear(i, year));
-        		cell.setCellStyle(style);
-    		}
+    			cell = row.createCell(2);
+    			if(myMedfeeThisYear(i, year) == 0) {
+    				cell.setCellValue("-");
+    				cell.setCellStyle(style6);
+    			} else {
+    				cell.setCellValue(myMedfeeThisYear(i, year));
+        			cell.setCellStyle(style6);
+    			}
 
     			//--- colume 3-14
-    		for(int j=0 ; j<12; j++) {
-        		cell = row.createCell(j+3);
-        		cell.setCellStyle(style2);
+    			for(int j=0 ; j<12; j++) {
+        			cell = row.createCell(j+3);
+        			cell.setCellStyle(style6);
         		
-        		if(myMedfeeThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
-        			cell.setCellValue("-");
+        			if(myMedfeeThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
+        				cell.setCellValue("-");
+        				cell.setCellStyle(style6);
+        			} 
+        			else if(LocalDate.now().getMonthValue() >= j+1){
+        				cell.setCellValue(myMedfeeThisMonth(i, j+1, year));
+        				cell.setCellStyle(style6);
+        				totalArray[0] += myMedfeeThisMonth(i, j+1, year);
+        				totalArray[j+1] += myMedfeeThisMonth(i, j+1, year);	
+        			} 
+        			else {
+        				cell.setCellValue("");
+        				cell.setCellStyle(style6);
+        			}
+    			}
+  				
+  			} else {
+  			
+  				row = sheet.createRow(count+2);
+    		
+  				cell = row.createCell(0);
+    			cell.setCellValue(""+employeeRepository.findById(i).get().getEmpCode());
+    			cell.setCellStyle(style);
+    		
+    			cell = row.createCell(1);
+    			cell.setCellValue(""+employeeRepository.findById(i).get().getNickName());
+    			cell.setCellStyle(style);
+    		
+    			cell = row.createCell(2);
+    			if(myMedfeeThisYear(i, year) == 0) {
+    				cell.setCellValue("-");
+    				cell.setCellStyle(style);
+    			} else {
+    				cell.setCellValue(myMedfeeThisYear(i, year));
         			cell.setCellStyle(style);
-        		} 
-        		else if(LocalDate.now().getMonthValue() >= j+1){
-        			cell.setCellValue(myMedfeeThisMonth(i, j+1, year));
-        			cell.setCellStyle(style);
-        			totalArray[0] += myMedfeeThisMonth(i, j+1, year);
-        			totalArray[j+1] += myMedfeeThisMonth(i, j+1, year);	
-        		} 
-        		else {
-        			cell.setCellValue("");
+    			}
+
+    			//--- colume 3-14
+    			for(int j=0 ; j<12; j++) {
+        			cell = row.createCell(j+3);
         			cell.setCellStyle(style2);
-        		}
-    		}
+        		
+        			if(myMedfeeThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
+        				cell.setCellValue("-");
+        				cell.setCellStyle(style);
+        			} 
+        			else if(LocalDate.now().getMonthValue() >= j+1){
+        				cell.setCellValue(myMedfeeThisMonth(i, j+1, year));
+        				cell.setCellStyle(style);
+        				totalArray[0] += myMedfeeThisMonth(i, j+1, year);
+        				totalArray[j+1] += myMedfeeThisMonth(i, j+1, year);	
+        			} 
+        			else {
+        				cell.setCellValue("");
+        				cell.setCellStyle(style2);
+        			}
+    			}
+  			}
     		
     		count++;
   		}
@@ -1248,40 +1304,39 @@ public class AdminService {
         
         row = sheet.createRow(1);
         cell=row.createCell(0);
-        cell.setCellValue("SUM");
-        cell.setCellStyle(style3);
+        cell.setCellValue("SUM " );
+        cell.setCellStyle(style4);
         
         cell=row.createCell(2);
         cell.setCellValue(totalArray[0]);
-        cell.setCellStyle(style);
+        cell.setCellStyle(style3);
         
         for(int i=1; i<totalArray.length; i++) {
 
         	if(LocalDate.now().getMonthValue() < i) {
         		cell=row.createCell(i+2);
         		cell.setCellValue("");
-        		cell.setCellStyle(style2);
+        		cell.setCellStyle(style3);
         	} 
         	else if(totalArray[i] == 0){
         		cell=row.createCell(i+2);
         		cell.setCellValue("-");
-        		cell.setCellStyle(style);
+        		cell.setCellStyle(style3);
         	} 
         	else{
         		cell=row.createCell(i+2);
         		cell.setCellValue(totalArray[i]);
-        		cell.setCellStyle(style);
+        		cell.setCellStyle(style3);
         		}
         	}
 		
 		System.out.println("--------------create Medical sucess----------"); 
 	}
 	
-	@PostConstruct
-	 public void createExcelMyTimesheet() throws IOException{
+	 public HttpEntity<byte[]> createExcelMyTimesheet() throws IOException{
 			
-			String empID = "HXyuSIIBa0CUUmxeQRCS";
-			int month = 12;
+			String empID = "UHy-SIIBa0CUUmxeDRCp";
+			int month = 7;
 			int year = 2022;
 			
 			String[] headerArray = {"#","Date","Day", "Time In", "Time Out", "Project", "Activities"};
@@ -1301,22 +1356,8 @@ public class AdminService {
 	        sheet.setColumnWidth(5, 5000);
 	        sheet.setColumnWidth(6, 12000);  
 	        
-	      
-	        
 	        XSSFRow row = sheet.createRow(0);
-	    	
-	    	row = sheet.createRow(39);
-	    	row.setHeight((short) 500);
-	    	
-	    	row = sheet.createRow(43);
-	    	row.setHeight((short) 600);
-	    	
-	    	row = sheet.createRow(45);
-	    	row.setHeight((short) 600);
-	    	
-	    	row = sheet.createRow(47);
-	    	row.setHeight((short) 800);
-	        
+
 	        // font
 	        Font font12 = workbook.createFont();  
 	        font12.setFontHeightInPoints((short)12);
@@ -1372,7 +1413,7 @@ public class AdminService {
 	        styleR.setVerticalAlignment(VerticalAlignment.CENTER);
 	        styleR.setBorderTop(BorderStyle.NONE);
 	        styleR.setBorderRight(BorderStyle.THIN);
-	        styleR.setBorderBottom(BorderStyle.NONE);
+	        styleR.setBorderBottom(BorderStyle.THIN);
 	        styleR.setBorderLeft(BorderStyle.NONE);
 	        styleR.setFillForegroundColor(IndexedColors.WHITE .getIndex());
 	        styleR.setFillPattern(FillPatternType.SOLID_FOREGROUND);
@@ -1442,6 +1483,7 @@ public class AdminService {
 	        style4.setBorderLeft(BorderStyle.NONE);
 	        style4.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
 	        style4.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	
 	        
 	        XSSFCellStyle style5 = workbook.createCellStyle();
 	        style5.setFont(font12B);
@@ -1456,13 +1498,13 @@ public class AdminService {
 	        
 	        XSSFCellStyle style5C = workbook.createCellStyle();
 	        style5C.setFont(font12);
-	        style5C.setAlignment(HorizontalAlignment.RIGHT);
+	        style5C.setAlignment(HorizontalAlignment.LEFT);
 	        style5C.setVerticalAlignment(VerticalAlignment.CENTER);
 	        style5C.setBorderTop(BorderStyle.NONE);
 	        style5C.setBorderRight(BorderStyle.NONE);
 	        style5C.setBorderBottom(BorderStyle.NONE);
 	        style5C.setBorderLeft(BorderStyle.NONE);
-	        style5C.setFillForegroundColor(IndexedColors.WHITE .getIndex());
+	        style5C.setFillForegroundColor(IndexedColors.WHITE1.getIndex());  //  <----------------------------------------?
 	        style5C.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	        
 	        XSSFCellStyle style5G = workbook.createCellStyle();
@@ -1509,13 +1551,45 @@ public class AdminService {
 	        style44.setFillForegroundColor(IndexedColors.WHITE .getIndex());
 	        style44.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	        
+	        XSSFCellStyle style44G = workbook.createCellStyle();
+	        style44G.setFont(font14B);
+	        style44G.setAlignment(HorizontalAlignment.CENTER);
+	        style44G.setVerticalAlignment(VerticalAlignment.CENTER);
+	        style44G.setBorderTop(BorderStyle.NONE);
+	        style44G.setBorderRight(BorderStyle.THIN);
+	        style44G.setBorderBottom(BorderStyle.NONE);
+	        style44G.setBorderLeft(BorderStyle.NONE);
+	        style44G.setFillForegroundColor(IndexedColors.WHITE .getIndex());
+	        style44G.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	        
+	        XSSFCellStyle style46 = workbook.createCellStyle();
+	        style46.setFont(font14);
+	        style46.setAlignment(HorizontalAlignment.CENTER);
+	        style46.setVerticalAlignment(VerticalAlignment.CENTER);
+	        style46.setBorderTop(BorderStyle.THIN);
+	        style46.setBorderRight(BorderStyle.NONE);
+	        style46.setBorderBottom(BorderStyle.NONE);
+	        style46.setBorderLeft(BorderStyle.NONE);
+	        style46.setFillForegroundColor(IndexedColors.WHITE .getIndex());
+	        style46.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	        
+	        XSSFCellStyle style46G = workbook.createCellStyle();
+	        style46G.setFont(font14);
+	        style46G.setAlignment(HorizontalAlignment.CENTER);
+	        style46G.setVerticalAlignment(VerticalAlignment.CENTER);
+	        style46G.setBorderTop(BorderStyle.THIN);
+	        style46G.setBorderRight(BorderStyle.THIN);
+	        style46G.setBorderBottom(BorderStyle.NONE);
+	        style46G.setBorderLeft(BorderStyle.NONE);
+	        style46G.setFillForegroundColor(IndexedColors.WHITE .getIndex());
+	        style46G.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	        
 	        XSSFCellStyle style47 = workbook.createCellStyle();
-	        style47.setFont(font14);
 	        style47.setAlignment(HorizontalAlignment.CENTER);
 	        style47.setVerticalAlignment(VerticalAlignment.CENTER);
-	        style47.setBorderTop(BorderStyle.THIN);
-	        style47.setBorderRight(BorderStyle.NONE);
-	        style47.setBorderBottom(BorderStyle.NONE);
+	        style47.setBorderTop(BorderStyle.NONE);
+	        style47.setBorderRight(BorderStyle.THIN);
+	        style47.setBorderBottom(BorderStyle.THIN);
 	        style47.setBorderLeft(BorderStyle.NONE);
 	        style47.setFillForegroundColor(IndexedColors.WHITE .getIndex());
 	        style47.setFillPattern(FillPatternType.SOLID_FOREGROUND);
@@ -1603,6 +1677,9 @@ public class AdminService {
 	        cell=row.createCell(0);
 	        cell.setCellValue("ใบบันทึกเวลาทำงาน / TIME SHEET");
 	        cell.setCellStyle(style4);
+	        
+	        cell=row.createCell(6);
+	        cell.setCellStyle(styleR);
 	        
 	     // row 5
 	        row = sheet.createRow(5);
@@ -1711,7 +1788,8 @@ public class AdminService {
 	        
 	     // row 39
 	        row = sheet.createRow(39);
-	        cell=row.createCell(0);
+	    	row.setHeight((short) 500);
+	        cell=row.createCell(6);
 	        cell.setCellStyle(styleR);   		
 	        
 		 // row 40
@@ -1733,6 +1811,9 @@ public class AdminService {
        
 	        cell.setCellStyle(style40);
 	        
+	        cell=row.createCell(6);
+	        cell.setCellStyle(styleR);  
+	        
 	     // row 41
 	        row = sheet.createRow(41);
 	        
@@ -1752,6 +1833,9 @@ public class AdminService {
 	        
 	        cell.setCellStyle(style40);
 	        
+	        cell=row.createCell(6);
+	        cell.setCellStyle(styleR);   		
+	        
 		 // row 42
 	        row = sheet.createRow(42);
 	        
@@ -1763,13 +1847,24 @@ public class AdminService {
 	        cell.setCellStyle(style40);
 	        
 	        cell=row.createCell(3);
-	        if(myLeaveDayThisMonth(empID, month, year) == 0) {
+	        if(myWorkThisMonth(empID, month, year) == 0) {
 	        	cell.setCellValue("-");
 	        }else {
-	        	cell.setCellValue(myLeaveDayThisMonth(empID, month, year));
+//	        	String formula = "-D41+D42+21";
+	        	cell.setCellValue(myWorkThisMonth(empID, month, year));
+//	        	cell.setCellFormula(formula);
 	        }
 	        
 	        cell.setCellStyle(style40);
+	        
+	        cell=row.createCell(6);
+	        cell.setCellStyle(styleR);   	
+	        
+	    // row 43
+	        row = sheet.createRow(43);
+	    	row.setHeight((short) 600);
+	        cell=row.createCell(6);
+	        cell.setCellStyle(styleR);   
 
 		// row 44
 	        row = sheet.createRow(44);
@@ -1783,7 +1878,12 @@ public class AdminService {
 	        
 	        cell=row.createCell(6);
         	cell.setCellValue("พนักงาน / Employee");
-	        cell.setCellStyle(style44);
+	        cell.setCellStyle(style44G);
+	        
+		// row 45
+	        row = sheet.createRow(45);
+	        cell=row.createCell(6);
+	        cell.setCellStyle(styleR); 
 	        
 	    // row 46
 	        row = sheet.createRow(46);
@@ -1794,22 +1894,41 @@ public class AdminService {
 	        row.setHeight((short)400);
 	        cell=row.createCell(0);
 	        cell.setCellValue("(                                           )");
-	        cell.setCellStyle(style47);
+	        cell.setCellStyle(style46);
 	        
 	        cell=row.createCell(6);
 	        cell.setCellValue("(   "+empEntity.getFirstName()+" "+empEntity.getLastName()+"   )");
-	        cell.setCellStyle(style47);
+	        cell.setCellStyle(style46G);
 	      	        
+		// row 47
+	        row = sheet.createRow(47);
+	        row.setHeight((short) 800);
 	        
-
+	        cell=row.createCell(0);
+	        cell.setCellStyle(style47); 
 	        
-//	        pt.applyBorders(sheet);  
+	        cell=row.createCell(6);
+	        cell.setCellStyle(style47); 
 	        
-	    	FileOutputStream file = new FileOutputStream("/home/itim/Desktop/timesheet.xlsx");
-	    	workbook.write(file);
-	    	file.close();
-	    	
+	        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+	        workbook.write(bos);
+	        
+	        byte[] content = bos.toByteArray();
+	        HttpHeaders header = new HttpHeaders();
+	        header.set("charset", "UTF-8");
+	        header.set(HttpHeaders.CONTENT_ENCODING, "UTF-8");
+	        header.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+	        header.set(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8;");
+	        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; charset=UTF-8; filename="+ "test" +".xlsx");
+	        header.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+	        header.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
+	        
+//	    	FileOutputStream file = new FileOutputStream("/home/itim/Desktop/timesheet.xlsx");
+//	    	workbook.write(file);
+//	    	file.close();
+	        
 	    	System.out.println("--------------create Timesheet sucess----------"); 
+	        return new HttpEntity<byte[]>(content, header);
 	 }
 
 	
