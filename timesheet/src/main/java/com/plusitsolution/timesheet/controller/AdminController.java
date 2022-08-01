@@ -124,9 +124,14 @@ public class AdminController {
 	}
 	
 	//-----------------excel
+	@PostMapping("/createExcelAllSummary")
+	public HttpEntity<byte[]> createExcelAllSummary(@RequestBody OrgIDYearWrapper wrapper) throws Exception {
+		return service.createExcelAllSummary(wrapper);
+	}
+	
 	@PostMapping("/createExcelMyTimesheet")
-	public HttpEntity<byte[]> createExcelMyTimesheet() throws Exception {
-		return service.createExcelMyTimesheet();
+	public HttpEntity<byte[]> createExcelMyTimesheet(@RequestBody EmployeeIDMonthWrapper wrapper) throws Exception {
+		return service.createExcelMyTimesheet(wrapper);
 	}
 
 }

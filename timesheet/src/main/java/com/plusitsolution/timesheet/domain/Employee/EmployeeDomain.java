@@ -3,6 +3,7 @@ package com.plusitsolution.timesheet.domain.Employee;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 import com.plusitsolution.timesheet.entity.EmployeeEntity;
 import com.plusitsolution.timesheet.entity.OrganizeEntity;
@@ -19,6 +20,7 @@ public class EmployeeDomain {
 	private String password ;
 	private Map<String , String> MEDFEEUSE_MAP = new HashMap<>();
 	private String username;
+	private Map<String , TimesheetsStatus> timesheetStatus_MAP  = new HashMap<>();
 	
 	
 	public EmployeeDomain() {
@@ -27,7 +29,7 @@ public class EmployeeDomain {
 	
 	public EmployeeDomain(String orgID, String empCode, String firstName, String lastName,
 			String nickName, Map<String, TimesheetsDomain> TIMESHEETS_MAP, String password,
-			Map<String, String> MEDFEEUSE_MAP, String username) {
+			Map<String, String> MEDFEEUSE_MAP, String username, Map<String , TimesheetsStatus> timesheetStatus_MAP ) {
 		this.orgID = orgID;
 		this.empCode = empCode;
 		this.firstName = firstName;
@@ -37,6 +39,7 @@ public class EmployeeDomain {
 		this.password = password;
 		this.MEDFEEUSE_MAP = MEDFEEUSE_MAP;
 		this.username = username;
+		this.timesheetStatus_MAP = timesheetStatus_MAP;
 	}
 	
 	public EmployeeEntity toEntity() {
@@ -50,6 +53,7 @@ public class EmployeeDomain {
 		entity.setPassword(this.password);
 		entity.setMEDFEEUSE_MAP(this.MEDFEEUSE_MAP);
 		entity.setUsername(this.username);
+		entity.setTimesheetStatus_MAP(this.timesheetStatus_MAP);
 		return entity;
 	}
 
@@ -115,6 +119,15 @@ public class EmployeeDomain {
 	public void setUsername(String username) {
 		this.username = username;
 	}
+
+	public Map<String, TimesheetsStatus> getTimesheetStatus_MAP() {
+		return timesheetStatus_MAP;
+	}
+
+	public void setTimesheetStatus_MAP(Map<String, TimesheetsStatus> timesheetStatus_MAP) {
+		this.timesheetStatus_MAP = timesheetStatus_MAP;
+	}
+	
 	
 
 	

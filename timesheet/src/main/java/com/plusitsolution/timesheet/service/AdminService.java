@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,6 +45,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.plusitsolution.common.toolkit.PlusExcelUtils;
 import com.plusitsolution.common.toolkit.PlusHashUtils;
+import com.plusitsolution.common.toolkit.PlusJsonUtils;
 import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpStatus;
@@ -113,7 +115,7 @@ public class AdminService {
 		MONTH_MAP.put("09", 30);
 		MONTH_MAP.put("10", 31);
 		MONTH_MAP.put("11", 30);
-		MONTH_MAP.put("12", 31);	
+		MONTH_MAP.put("12", 31);
 	}
 	
 	//----------- Organization ----------------------
@@ -156,8 +158,8 @@ public class AdminService {
 			String empCode = EMP_MAP.get(i).getEmpCode();
 			OverviewDomain domain = new OverviewDomain(empCode, employeeRepository.findByEmpCode(empCode).getFirstName(), employeeRepository.findByEmpCode(empCode).getLastName(), 
 					EMP_MAP.get(i).getLeaveLimit(), EMP_MAP.get(i).getMedFeeLimit(), 
-					myLeaveDayThisYear(i, wrapper.getYear()), myMedfeeThisYear(i, wrapper.getYear()),
-					EMP_MAP.get(i).getLeaveLimit()-myLeaveDayThisYear(i, wrapper.getYear()), EMP_MAP.get(i).getMedFeeLimit()-myMedfeeThisYear(i, wrapper.getYear()),
+					utilService.myLeaveDayThisYear(i, wrapper.getYear()), utilService.myMedfeeThisYear(i, wrapper.getYear()),
+					EMP_MAP.get(i).getLeaveLimit()- utilService.myLeaveDayThisYear(i, wrapper.getYear()), EMP_MAP.get(i).getMedFeeLimit()- utilService.myMedfeeThisYear(i, wrapper.getYear()),
 					EMP_MAP.get(i).getEndContract(), employeeRepository.findByEmpCode(empCode).getNickName());
 			OVERVIEW_MAP.put(i, domain);
 		}
@@ -178,12 +180,10 @@ public class AdminService {
 		
 		for (String i : EMP_MAP.keySet()) {
 			EmployeeEntity entity = employeeRepository.findById(i).get() ;
-//			String empCode, String firstName, String lastName, TimesheetsStatus timesheetsStatus,
-//			double leaveUse, double totalOT, double totalWork
-			
-			TimesheetsStatus status = myTimesheetStatus(i, wrapper.getMonth(), wrapper.getYear());
+
+			TimesheetsStatus status = entity.getTimesheetStatus_MAP().get(wrapper.getYear()+"-"+utilService.paddding(wrapper.getMonth())+"-01");
 			TimesheetsSummaryDomain domain = new TimesheetsSummaryDomain(EMP_MAP.get(i).getEmpCode(), entity.getFirstName(), entity.getLastName(), status,
-					myLeaveDayThisMonth(i, wrapper.getMonth(), wrapper.getYear()), myOTThisMonth(i, wrapper.getMonth(), wrapper.getYear()), myWorkThisMonth(i, wrapper.getMonth(), wrapper.getYear()), 
+					utilService.myLeaveDayThisMonth(i, wrapper.getMonth(), wrapper.getYear()), utilService.myOTThisMonth(i, wrapper.getMonth(), wrapper.getYear()), utilService.myWorkThisMonth(i, wrapper.getMonth(), wrapper.getYear()), 
 					entity.getNickName() ,holidayRepository.findById(EMP_MAP.get(i).getHolidayID()).get().getHolidayName());
 			EveryOneTimesheetsSummary_MAP.put(i, domain);
 		}
@@ -202,11 +202,11 @@ public class AdminService {
 		Map<String , SummaryByMonthDomain> EveryOneSummaryDay_MAP = new HashMap<>();
 		
 		for (String i : EMP_MAP.keySet()) {
-			SummaryByMonthDomain domain = new SummaryByMonthDomain(employeeRepository.findById(i).get().getEmpCode(), employeeRepository.findById(i).get().getNickName(), myLeaveDayThisYear(i, wrapper.getYear()),
-					myLeaveDayThisMonth(i, 1, wrapper.getYear()), myLeaveDayThisMonth(i, 2, wrapper.getYear()), myLeaveDayThisMonth(i, 3, wrapper.getYear()),
-					myLeaveDayThisMonth(i, 4, wrapper.getYear()), myLeaveDayThisMonth(i, 5, wrapper.getYear()), myLeaveDayThisMonth(i, 6, wrapper.getYear()),
-					myLeaveDayThisMonth(i, 7, wrapper.getYear()), myLeaveDayThisMonth(i, 8, wrapper.getYear()), myLeaveDayThisMonth(i, 9, wrapper.getYear()),
-					myLeaveDayThisMonth(i, 10, wrapper.getYear()), myLeaveDayThisMonth(i, 11, wrapper.getYear()), myLeaveDayThisMonth(i, 12, wrapper.getYear()));
+			SummaryByMonthDomain domain = new SummaryByMonthDomain(employeeRepository.findById(i).get().getEmpCode(), employeeRepository.findById(i).get().getNickName(), utilService.myLeaveDayThisYear(i, wrapper.getYear()),
+					utilService.myLeaveDayThisMonth(i, 1, wrapper.getYear()), utilService.myLeaveDayThisMonth(i, 2, wrapper.getYear()), utilService.myLeaveDayThisMonth(i, 3, wrapper.getYear()),
+					utilService.myLeaveDayThisMonth(i, 4, wrapper.getYear()), utilService.myLeaveDayThisMonth(i, 5, wrapper.getYear()), utilService.myLeaveDayThisMonth(i, 6, wrapper.getYear()),
+					utilService.myLeaveDayThisMonth(i, 7, wrapper.getYear()), utilService.myLeaveDayThisMonth(i, 8, wrapper.getYear()), utilService.myLeaveDayThisMonth(i, 9, wrapper.getYear()),
+					utilService.myLeaveDayThisMonth(i, 10, wrapper.getYear()), utilService.myLeaveDayThisMonth(i, 11, wrapper.getYear()), utilService.myLeaveDayThisMonth(i, 12, wrapper.getYear()));
 			EveryOneSummaryDay_MAP.put(i, domain);
 		}
 		
@@ -224,11 +224,11 @@ public class AdminService {
 		Map<String , SummaryByMonthDomain> EveryOneSummaryDay_MAP = new HashMap<>();
 		
 		for (String i : EMP_MAP.keySet()) {
-			SummaryByMonthDomain domain = new SummaryByMonthDomain(employeeRepository.findById(i).get().getEmpCode(), employeeRepository.findById(i).get().getNickName(), myMedfeeThisYear(i, wrapper.getYear()),
-					myMedfeeThisMonth(i, 1, wrapper.getYear()), myMedfeeThisMonth(i, 2, wrapper.getYear()), myMedfeeThisMonth(i, 3, wrapper.getYear()),
-					myMedfeeThisMonth(i, 4, wrapper.getYear()), myMedfeeThisMonth(i, 5, wrapper.getYear()), myMedfeeThisMonth(i, 6, wrapper.getYear()),
-					myMedfeeThisMonth(i, 7, wrapper.getYear()), myMedfeeThisMonth(i, 8, wrapper.getYear()), myMedfeeThisMonth(i, 9, wrapper.getYear()),
-					myMedfeeThisMonth(i, 10, wrapper.getYear()), myMedfeeThisMonth(i, 11, wrapper.getYear()), myMedfeeThisMonth(i, 12, wrapper.getYear()));
+			SummaryByMonthDomain domain = new SummaryByMonthDomain(employeeRepository.findById(i).get().getEmpCode(), employeeRepository.findById(i).get().getNickName(), utilService.myMedfeeThisYear(i, wrapper.getYear()),
+					utilService.myMedfeeThisMonth(i, 1, wrapper.getYear()), utilService.myMedfeeThisMonth(i, 2, wrapper.getYear()), utilService.myMedfeeThisMonth(i, 3, wrapper.getYear()),
+					utilService.myMedfeeThisMonth(i, 4, wrapper.getYear()), utilService.myMedfeeThisMonth(i, 5, wrapper.getYear()), utilService.myMedfeeThisMonth(i, 6, wrapper.getYear()),
+					utilService.myMedfeeThisMonth(i, 7, wrapper.getYear()), utilService.myMedfeeThisMonth(i, 8, wrapper.getYear()), utilService.myMedfeeThisMonth(i, 9, wrapper.getYear()),
+					utilService.myMedfeeThisMonth(i, 10, wrapper.getYear()), utilService.myMedfeeThisMonth(i, 11, wrapper.getYear()), utilService.myMedfeeThisMonth(i, 12, wrapper.getYear()));
 			EveryOneSummaryDay_MAP.put(i, domain);
 		}
 		return EveryOneSummaryDay_MAP;
@@ -251,7 +251,7 @@ public class AdminService {
 
 				MedicalRequestDomain domain = new MedicalRequestDomain(employeeRepository.findById(medList.get(i).getEmpID()).get().getEmpCode(),
 						employeeRepository.findById(medList.get(i).getEmpID()).get().getNickName(), medList.get(i).getDate(), medList.get(i).getAmount(),
-						orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP().get(medList.get(i).getEmpID()).getLeaveLimit()- myMedfeeThisYear(medList.get(i).getEmpID(), wrapper.getYear()), medList.get(i).getMedStatus());
+						orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP().get(medList.get(i).getEmpID()).getLeaveLimit()- utilService.myMedfeeThisYear(medList.get(i).getEmpID(), wrapper.getYear()), medList.get(i).getMedStatus());
 				
 //				everyoneList.add(domain);
 				EveryOneSummary_MAP.put(medList.get(i).getMedID(), domain);
@@ -266,11 +266,11 @@ public class AdminService {
 		throwService.checkMonth(wrapper.getMonth());
 		throwService.checkYear(wrapper.getYear());
 
-		SumDomain domain = new SumDomain(myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
-				myHalfdayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
-				myWorkThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
-				myHolidayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
-				myOTThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()));
+		SumDomain domain = new SumDomain(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
+				utilService.myHalfdayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
+				utilService.myWorkThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
+				utilService.myHolidayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
+				utilService.myOTThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()));
 		
 		return domain;
 	
@@ -295,7 +295,7 @@ public class AdminService {
 		TIMESHEETS_MAP.putAll(holidayRepository.findById(wrapper.getHolidayID()).get().getHOLIDAY_MAP());
 		
 		EmployeeDomain empDomain = new EmployeeDomain(wrapper.getOrgID(), empCode, 
-				wrapper.getFirstName(), wrapper.getLastName(), wrapper.getNickName(), TIMESHEETS_MAP, hashPass,new HashMap<String , String>(), wrapper.getUsername());
+				wrapper.getFirstName(), wrapper.getLastName(), wrapper.getNickName(), TIMESHEETS_MAP, hashPass,new HashMap<String , String>(), wrapper.getUsername(), new HashMap<String , TimesheetsStatus>());
 		
 		employeeRepository.save(empDomain.toEntity());
 		
@@ -372,7 +372,7 @@ public class AdminService {
 		
 		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
 		for(int i=0; i<wrapper.getHolidayList().size(); i++) {
-			TimesheetsDomain domain = new TimesheetsDomain("", "", "", "Public Holiday", DateStatus.HOLIDAY);
+			TimesheetsDomain domain = new TimesheetsDomain("", "", "", "Public Holiday", DateStatus.HOLIDAY, 0.0);
 			TIMESHEETS_MAP.put(wrapper.getHolidayList().get(i), domain);		
 		}
 		
@@ -393,7 +393,7 @@ public class AdminService {
 			
 	
 			} else {
-					TimesheetsDomain domain = new TimesheetsDomain("", "", "", "Public Holiday", DateStatus.HOLIDAY);
+					TimesheetsDomain domain = new TimesheetsDomain("", "", "", "Public Holiday", DateStatus.HOLIDAY, 0.0);
 					TIMESHEETS_MAP.put(wrapper.getHolidayList().get(i), domain);
 			}	
 		}
@@ -460,191 +460,16 @@ public class AdminService {
 		return HOLIDAY_MAP;
 	}
 	
-//	public void updateEmpHoliday2(String empID, String holidayID) {
-//		
-//		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
-//		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP());
-//		
-//		for (String i : TIMESHEETS_MAP.keySet()) {
-//			if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.HOLIDAY)) {
-//				TIMESHEETS_MAP.remove(i);
-//			}
-//		}
-//		
-//		TIMESHEETS_MAP.putAll(holidayRepository.findById(holidayID).get().getHOLIDAY_MAP());
-//		
-//		EmployeeEntity entity = employeeRepository.findById(empID).get();
-//		entity.setTIMESHEETS_MAP(TIMESHEETS_MAP);
-//	}
-	
-	//-------- count leave medFee use
-	
-	public Double myLeaveDayThisMonth(String empID, int month, int year) {
-		
-		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
-		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
-		
-		Double totalLeaveThisMonth = 0.0;
-		for (String i : TIMESHEETS_MAP.keySet()) {
-			LocalDate date = LocalDate.parse(i);
-			if(date.getYear() == year && date.getMonthValue() == month) {
-				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.LEAVE)) {
-					totalLeaveThisMonth += 1;
-				}
-				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.HALFDAY)) {
-					totalLeaveThisMonth += 0.5;
-				}
-			}
-		}
-		
-		return totalLeaveThisMonth;
-	}
-	
-	public Double myLeaveDayThisYear(String empID, int year) {
-		
-		Double totalLeave = 0.0;
-		for(int i=1; i<13; i++) {
-			totalLeave += myLeaveDayThisMonth(empID, i, year);
-		}
-		
-		return totalLeave;
-	}
-	
-	public Double myHalfdayThisMonth(String empID, int month, int year) {
-		
-		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
-		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
-		
-		Double totalHalfdayThisMonth = 0.0;
-		for (String i : TIMESHEETS_MAP.keySet()) {
-			LocalDate date = LocalDate.parse(i);
-			if(date.getYear() == year && date.getMonthValue() == month) {
-				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.HALFDAY)) {
-					totalHalfdayThisMonth += 1;
-				}
-			}
-		}
-		
-		return totalHalfdayThisMonth;
-	}
-	
-	public Double myHolidayThisMonth(String empID, int month, int year) {
-		
-		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
-		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
-		
-		Double totalHolidayThisMonth = 0.0;
-		for (String i : TIMESHEETS_MAP.keySet()) {
-			LocalDate date = LocalDate.parse(i);
-			if(date.getYear() == year && date.getMonthValue() == month) {
-				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.HOLIDAY)) {
-					totalHolidayThisMonth += 1;
-				}
-			}
-		}
-		
-		return totalHolidayThisMonth;
-	}
-	
-	public Double myOTThisMonth(String empID, int month, int year) {
-		
-		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
-		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
-		
-		Double totalOTThisMonth = 0.0;
-		for (String i : TIMESHEETS_MAP.keySet()) {
-			LocalDate date = LocalDate.parse(i);
-			if(date.getYear() == year && date.getMonthValue() == month) {
-				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.OT)) {
-					totalOTThisMonth += 1;
-				}
-			}
-		}
-		
-		return totalOTThisMonth;
-	}
-	
-	public Double myWorkThisMonth(String empID, int month, int year) {
-		
-		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
-		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
-		
-		Double totalWorkThisMonth = 0.0;
-		for (String i : TIMESHEETS_MAP.keySet()) {
-			LocalDate date = LocalDate.parse(i);
-			if(date.getYear() == year && date.getMonthValue() == month) {
-				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.WORK)) {
-					totalWorkThisMonth += 1;
-				}
-			}
-		}
-		
-		return totalWorkThisMonth;
-	}
-	
-	public Double myMedfeeThisMonth(String empID, int month, int year) {
-		
-		Map<String , String> MEDFEEUSE_MAP = new HashMap<>();
-		MEDFEEUSE_MAP.putAll(employeeRepository.findById(empID).get().getMEDFEEUSE_MAP()); 
-		
-		Double totalMedfeeThisMonth = 0.00;
-		for (String i : MEDFEEUSE_MAP.keySet()) {
-			LocalDateTime date = LocalDateTime.parse(i);
-			if(date.getYear() == year && date.getMonthValue() == month) {
-				totalMedfeeThisMonth += medicalRepository.findById(MEDFEEUSE_MAP.get(i)).get().getAmount();
-			}
-		}
-		
-		return totalMedfeeThisMonth;
-	}
-	
-	public Double myMedfeeThisYear(String empID, int year) {
-		
-		Double totalMedfee = 0.00;
-		for(int i=1; i<13; i++) {
-			totalMedfee += myMedfeeThisMonth(empID, i, year);
-		}
-		
-		return totalMedfee;
-	}
-	
-	public TimesheetsStatus myTimesheetStatus(String empID, int month, int year) {
-		
-		Map<String , TimesheetsDomain> TIMESHEETS_MAP = employeeRepository.findById(empID).get().getTIMESHEETS_MAP();
-		
-		int count = 0;
-		for (String i : TIMESHEETS_MAP.keySet()) {
-			if(LocalDate.parse(i).getYear() == year && LocalDate.parse(i).getMonthValue() == month) {
-				count++;
-			}
-		}
-		
-		int montDate = MONTH_MAP.get(""+utilService.paddding(month));
-		System.out.println(count);
-		System.out.println(utilService.paddding(month));
-		if(year % 4 == 0 && month == 2) {
-			montDate += 1;
-		}
-		
-		if(count == montDate) {
-			return TimesheetsStatus.COMPLETED;
-		} else {
-			return TimesheetsStatus.INCOMPLETED;
-		}
-		
-	}
-	
-	
 	//------------- New Excel ss2 create
-    public void createExcelAllSummary() throws IOException{
+    public HttpEntity<byte[]> createExcelAllSummary(OrgIDYearWrapper wrapper) throws IOException{
     	
-    	String orgID = "IXyuSIIBa0CUUmxedhCX";
-    	int year= 2022;
+//    	String orgID = "IXyuSIIBa0CUUmxedhCX";
+//    	int year= 2022;
     	
-    	Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(orgID).get().getEMP_MAP();
+    	Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP();
     	
     	String[] headerArray = {"EmpID","Nickname","Leave Limited","Medical Fee Limited", "Total Leave", "Total Medical", 
-    	"Remaining Leave", "Remaining Medical Fee", "End Contract"};  
+    	"Remaining Leave", "Remaining Medical Fee", "End Contract"};
     	
     	XSSFWorkbook workbook = new XSSFWorkbook();
     	XSSFSheet sheet = workbook.createSheet("Summary");
@@ -801,19 +626,19 @@ public class AdminService {
             		cell.setCellStyle(style6R);
             		
             		cell = row.createCell(4);
-            		cell.setCellValue(""+myLeaveDayThisYear(i, year));
+            		cell.setCellValue(""+utilService.myLeaveDayThisYear(i, wrapper.getYear()));
             		cell.setCellStyle(style6R);
             		
             		cell = row.createCell(5);
-            		cell.setCellValue(""+myMedfeeThisYear(i, year));
+            		cell.setCellValue(""+utilService.myMedfeeThisYear(i, wrapper.getYear()));
             		cell.setCellStyle(style6R);
             		
             		cell = row.createCell(6);
-            		cell.setCellValue(EMP_MAP.get(i).getLeaveLimit() - myLeaveDayThisYear(i, year) );
+            		cell.setCellValue(EMP_MAP.get(i).getLeaveLimit() - utilService.myLeaveDayThisYear(i, wrapper.getYear()) );
             		cell.setCellStyle(style6R);
             		
             		cell = row.createCell(7);
-            		cell.setCellValue( EMP_MAP.get(i).getMedFeeLimit()-myMedfeeThisYear(i, year));
+            		cell.setCellValue( EMP_MAP.get(i).getMedFeeLimit()-utilService.myMedfeeThisYear(i, wrapper.getYear()));
             		cell.setCellStyle(style6R);
             		
             		cell = row.createCell(8);
@@ -838,19 +663,19 @@ public class AdminService {
         			cell.setCellStyle(style2);
         		
         			cell = row.createCell(4);
-        			cell.setCellValue(""+myLeaveDayThisYear(i, year));
+        			cell.setCellValue(""+utilService.myLeaveDayThisYear(i, wrapper.getYear()));
         			cell.setCellStyle(style3);
         		
         			cell = row.createCell(5);
-        			cell.setCellValue(""+myMedfeeThisYear(i, year));
+        			cell.setCellValue(""+utilService.myMedfeeThisYear(i, wrapper.getYear()));
         			cell.setCellStyle(style3);
         		
         			cell = row.createCell(6);
-        			cell.setCellValue(EMP_MAP.get(i).getLeaveLimit() - myLeaveDayThisYear(i, year) );
+        			cell.setCellValue(EMP_MAP.get(i).getLeaveLimit() - utilService.myLeaveDayThisYear(i, wrapper.getYear()) );
         			cell.setCellStyle(style4);
         		
         			cell = row.createCell(7);
-        			cell.setCellValue( EMP_MAP.get(i).getMedFeeLimit()-myMedfeeThisYear(i, year));
+        			cell.setCellValue( EMP_MAP.get(i).getMedFeeLimit()-utilService.myMedfeeThisYear(i, wrapper.getYear()));
         			cell.setCellStyle(style4);
         		
         			cell = row.createCell(8);
@@ -858,21 +683,37 @@ public class AdminService {
         		
         			cell.setCellStyle(style4);
         		}
-        
         		count++;
         	
         }
 		
+		leaveSummary(wrapper.getOrgID(), wrapper.getYear(), workbook);
+		medicalSummary(wrapper.getOrgID(), wrapper.getYear(), workbook);
 		
-		leaveSummary(orgID, year, workbook);
-		medicalSummary(orgID, year, workbook);
-
+    	String keyDate = wrapper.getYear()+"-"+utilService.paddding(1)+"-"+utilService.paddding(1);
+    	LocalDate date = LocalDate.parse(keyDate);
+    	String year = ""+date;
+		
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        workbook.write(bos);
+        
+        byte[] content = bos.toByteArray();
+        HttpHeaders header = new HttpHeaders();
+        header.set("charset", "UTF-8");
+        header.set(HttpHeaders.CONTENT_ENCODING, "UTF-8");
+        header.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        header.set(HttpHeaders.CONTENT_TYPE, "multipart/form-data; charset=UTF-8;");
+        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; charset=UTF-8; filename="+"EmployeeBenefit_"+orgRepository.findById(wrapper.getOrgID()).get().getShortName()+""
+        		+date.getMonth().toString().substring(0, 3)+year.substring(2, 4)+".xlsx");
+        header.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
+        header.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
               
-    	FileOutputStream file = new FileOutputStream("/home/itim/Desktop/wwww.xlsx");
-    	workbook.write(file);
-    	file.close();
+//    	FileOutputStream file = new FileOutputStream("/home/itim/Desktop/wwww.xlsx");
+//    	workbook.write(file);
+//    	file.close();
 
-    	System.out.println("--------------create Summary sucess----------"); 
+    	System.out.println("--------------create Summary sucess----------");
+    	return new HttpEntity<byte[]>(content, header);
                    
     }
 	
@@ -968,8 +809,6 @@ public class AdminService {
         style6.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
         style6.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 
-
-    	
         //---row 0
         XSSFCell cell=row.createCell(0);
         for(int i=0; i<headerArray.length; i++) {
@@ -996,11 +835,11 @@ public class AdminService {
     			cell.setCellStyle(style6);
     			
     			cell = row.createCell(2);
-    			if(myLeaveDayThisYear(i, year) == 0) {
+    			if(utilService.myLeaveDayThisYear(i, year) == 0) {
     				cell.setCellValue("-");
         			cell.setCellStyle(style6);
     			} else {
-    				cell.setCellValue(myLeaveDayThisYear(i, year));
+    				cell.setCellValue(utilService.myLeaveDayThisYear(i, year));
         			cell.setCellStyle(style6);
     			}
 
@@ -1009,15 +848,15 @@ public class AdminService {
         			cell = row.createCell(j+3);
         			cell.setCellStyle(style6);
         		
-        			if(myLeaveDayThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
+        			if(utilService.myLeaveDayThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
         				cell.setCellValue("-");
         				cell.setCellStyle(style6);
         			} 
         			else if(LocalDate.now().getMonthValue() >= j+1){
-        				cell.setCellValue(myLeaveDayThisMonth(i, j+1, year));
+        				cell.setCellValue(utilService.myLeaveDayThisMonth(i, j+1, year));
         				cell.setCellStyle(style6);
-        				totalArray[0] += myLeaveDayThisMonth(i, j+1, year);
-        				totalArray[j+1] += myLeaveDayThisMonth(i, j+1, year);	
+        				totalArray[0] += utilService.myLeaveDayThisMonth(i, j+1, year);
+        				totalArray[j+1] += utilService.myLeaveDayThisMonth(i, j+1, year);	
         			} 
         			else {
         				cell.setCellValue("");
@@ -1038,11 +877,11 @@ public class AdminService {
     			cell.setCellStyle(style);
     		
     			cell = row.createCell(2);
-    			if(myLeaveDayThisYear(i, year) == 0) {
+    			if(utilService.myLeaveDayThisYear(i, year) == 0) {
     				cell.setCellValue("-");
         			cell.setCellStyle(style);
     			} else {
-    				cell.setCellValue(myLeaveDayThisYear(i, year));
+    				cell.setCellValue(utilService.myLeaveDayThisYear(i, year));
         			cell.setCellStyle(style);
     			}
 
@@ -1051,15 +890,15 @@ public class AdminService {
         			cell = row.createCell(j+3);
         			cell.setCellStyle(style2);
         		
-        			if(myLeaveDayThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
+        			if(utilService.myLeaveDayThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
         				cell.setCellValue("-");
         				cell.setCellStyle(style);
         			} 
         			else if(LocalDate.now().getMonthValue() >= j+1){
-        				cell.setCellValue(myLeaveDayThisMonth(i, j+1, year));
+        				cell.setCellValue(utilService.myLeaveDayThisMonth(i, j+1, year));
         				cell.setCellStyle(style);
-        				totalArray[0] += myLeaveDayThisMonth(i, j+1, year);
-        				totalArray[j+1] += myLeaveDayThisMonth(i, j+1, year);	
+        				totalArray[0] += utilService.myLeaveDayThisMonth(i, j+1, year);
+        				totalArray[j+1] += utilService.myLeaveDayThisMonth(i, j+1, year);	
         			} 
         			else {
         				cell.setCellValue("");
@@ -1224,11 +1063,11 @@ public class AdminService {
     			cell.setCellStyle(style6);
     		
     			cell = row.createCell(2);
-    			if(myMedfeeThisYear(i, year) == 0) {
+    			if(utilService.myMedfeeThisYear(i, year) == 0) {
     				cell.setCellValue("-");
     				cell.setCellStyle(style6);
     			} else {
-    				cell.setCellValue(myMedfeeThisYear(i, year));
+    				cell.setCellValue(utilService.myMedfeeThisYear(i, year));
         			cell.setCellStyle(style6);
     			}
 
@@ -1237,15 +1076,15 @@ public class AdminService {
         			cell = row.createCell(j+3);
         			cell.setCellStyle(style6);
         		
-        			if(myMedfeeThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
+        			if(utilService.myMedfeeThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
         				cell.setCellValue("-");
         				cell.setCellStyle(style6);
         			} 
         			else if(LocalDate.now().getMonthValue() >= j+1){
-        				cell.setCellValue(myMedfeeThisMonth(i, j+1, year));
+        				cell.setCellValue(utilService.myMedfeeThisMonth(i, j+1, year));
         				cell.setCellStyle(style6);
-        				totalArray[0] += myMedfeeThisMonth(i, j+1, year);
-        				totalArray[j+1] += myMedfeeThisMonth(i, j+1, year);	
+        				totalArray[0] += utilService.myMedfeeThisMonth(i, j+1, year);
+        				totalArray[j+1] += utilService.myMedfeeThisMonth(i, j+1, year);	
         			} 
         			else {
         				cell.setCellValue("");
@@ -1266,11 +1105,11 @@ public class AdminService {
     			cell.setCellStyle(style);
     		
     			cell = row.createCell(2);
-    			if(myMedfeeThisYear(i, year) == 0) {
+    			if(utilService.myMedfeeThisYear(i, year) == 0) {
     				cell.setCellValue("-");
     				cell.setCellStyle(style);
     			} else {
-    				cell.setCellValue(myMedfeeThisYear(i, year));
+    				cell.setCellValue(utilService.myMedfeeThisYear(i, year));
         			cell.setCellStyle(style);
     			}
 
@@ -1279,15 +1118,15 @@ public class AdminService {
         			cell = row.createCell(j+3);
         			cell.setCellStyle(style2);
         		
-        			if(myMedfeeThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
+        			if(utilService.myMedfeeThisMonth(i, j+1, year) == 0 && LocalDate.now().getMonthValue() >= j+1) {
         				cell.setCellValue("-");
         				cell.setCellStyle(style);
         			} 
         			else if(LocalDate.now().getMonthValue() >= j+1){
-        				cell.setCellValue(myMedfeeThisMonth(i, j+1, year));
+        				cell.setCellValue(utilService.myMedfeeThisMonth(i, j+1, year));
         				cell.setCellStyle(style);
-        				totalArray[0] += myMedfeeThisMonth(i, j+1, year);
-        				totalArray[j+1] += myMedfeeThisMonth(i, j+1, year);	
+        				totalArray[0] += utilService.myMedfeeThisMonth(i, j+1, year);
+        				totalArray[j+1] += utilService.myMedfeeThisMonth(i, j+1, year);	
         			} 
         			else {
         				cell.setCellValue("");
@@ -1333,15 +1172,15 @@ public class AdminService {
 		System.out.println("--------------create Medical sucess----------"); 
 	}
 	
-	 public HttpEntity<byte[]> createExcelMyTimesheet() throws IOException{
+	 public HttpEntity<byte[]> createExcelMyTimesheet(EmployeeIDMonthWrapper wrapper) throws IOException{
 			
-			String empID = "UHy-SIIBa0CUUmxeDRCp";
-			int month = 7;
-			int year = 2022;
+//			String empID = "UHy-SIIBa0CUUmxeDRCp";
+//			int month = 7;
+//			int year = 2022;
 			
 			String[] headerArray = {"#","Date","Day", "Time In", "Time Out", "Project", "Activities"};
 			
-			EmployeeEntity empEntity = employeeRepository.findById(empID).get();
+			EmployeeEntity empEntity = employeeRepository.findById(wrapper.getEmpID()).get();
 			OrganizeEntity orgEntity = orgRepository.findById(empEntity.getOrgID()).get();
 			
 			Map<String , TimesheetsDomain> TIMESHEETS_MAP = empEntity.getTIMESHEETS_MAP();
@@ -1559,7 +1398,7 @@ public class AdminService {
 	        style44G.setBorderRight(BorderStyle.THIN);
 	        style44G.setBorderBottom(BorderStyle.NONE);
 	        style44G.setBorderLeft(BorderStyle.NONE);
-	        style44G.setFillForegroundColor(IndexedColors.WHITE .getIndex());
+	        style44G.setFillForegroundColor(IndexedColors.WHITE1.getIndex());
 	        style44G.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	        
 	        XSSFCellStyle style46 = workbook.createCellStyle();
@@ -1696,7 +1535,7 @@ public class AdminService {
 	        cell.setCellStyle(style5);
 	        
 	        cell=row.createCell(6);
-	        cell.setCellValue(year+"TS"+utilService.paddding(month)+""+empEntity.getEmpCode());
+	        cell.setCellValue(wrapper.getYear()+"TS"+utilService.paddding(wrapper.getMonth())+""+empEntity.getEmpCode());
 	        cell.setCellStyle(style5G);
 	        
 		// row 6
@@ -1723,9 +1562,9 @@ public class AdminService {
 	        }
 	        
 	     // row 8
-	        for(int i=0; i<MONTH_MAP.get(utilService.paddding(month)) ; i++) {
+	        for(int i=0; i<MONTH_MAP.get(utilService.paddding(wrapper.getMonth())) ; i++) {
 	        	 
-	        	String keyDate = year+"-"+utilService.paddding(month)+"-"+utilService.paddding(i+1);
+	        	String keyDate = wrapper.getYear()+"-"+utilService.paddding(wrapper.getMonth())+"-"+utilService.paddding(i+1);
 	        	LocalDate date = LocalDate.parse(keyDate);
 	        	
 	        	row = sheet.createRow(8+i);
@@ -1740,7 +1579,7 @@ public class AdminService {
                 		}
 	                	
 	                	if(j==1) {
-                			cell.setCellValue((i+1)+" "+date.getMonth().toString().substring(0, 3)+ " "+year);
+                			cell.setCellValue((i+1)+" "+date.getMonth().toString().substring(0, 3)+ " "+wrapper.getYear());
                 		}
         		
                 		if(j==2) {
@@ -1754,7 +1593,7 @@ public class AdminService {
 	                		}
 	        		
 	                		if(j==1) {
-	                			cell.setCellValue((i+1)+" "+date.getMonth().toString().substring(0, 3)+ " "+year);
+	                			cell.setCellValue((i+1)+" "+date.getMonth().toString().substring(0, 3)+ " "+wrapper.getYear());
 	                		}
 	        		
 	                		if(j==2) {
@@ -1803,10 +1642,10 @@ public class AdminService {
 	        cell.setCellStyle(style40);
 	        
 	        cell=row.createCell(3);
-	        if(myLeaveDayThisMonth(empID, month, year) == 0) {
+	        if(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()) == 0) {
 	        	cell.setCellValue("-");
 	        }else {
-	        	cell.setCellValue(myLeaveDayThisMonth(empID, month, year));
+	        	cell.setCellValue(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()));
 	        }
        
 	        cell.setCellStyle(style40);
@@ -1825,10 +1664,10 @@ public class AdminService {
 	        cell.setCellStyle(style40);
 	        
 	        cell=row.createCell(3);
-	        if(myLeaveDayThisMonth(empID, month, year) == 0) {
+	        if(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()) == 0) {
 	        	cell.setCellValue("-");
 	        }else {
-	        	cell.setCellValue(myLeaveDayThisMonth(empID, month, year));
+	        	cell.setCellValue(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()));
 	        }
 	        
 	        cell.setCellStyle(style40);
@@ -1847,11 +1686,11 @@ public class AdminService {
 	        cell.setCellStyle(style40);
 	        
 	        cell=row.createCell(3);
-	        if(myWorkThisMonth(empID, month, year) == 0) {
+	        if(utilService.myWorkThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()) == 0) {
 	        	cell.setCellValue("-");
 	        }else {
 //	        	String formula = "-D41+D42+21";
-	        	cell.setCellValue(myWorkThisMonth(empID, month, year));
+	        	cell.setCellValue(utilService.myWorkThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()));
 //	        	cell.setCellFormula(formula);
 	        }
 	        
@@ -1882,6 +1721,7 @@ public class AdminService {
 	        
 		// row 45
 	        row = sheet.createRow(45);
+	        row.setHeight((short) 800);
 	        cell=row.createCell(6);
 	        cell.setCellStyle(styleR); 
 	        
@@ -1910,6 +1750,10 @@ public class AdminService {
 	        cell=row.createCell(6);
 	        cell.setCellStyle(style47); 
 	        
+        	String keyDate = wrapper.getYear()+"-"+utilService.paddding(wrapper.getMonth())+"-"+utilService.paddding(1);
+        	LocalDate date = LocalDate.parse(keyDate);
+        	String year = ""+date;
+	        
 	        ByteArrayOutputStream bos = new ByteArrayOutputStream();
 	        workbook.write(bos);
 	        
@@ -1918,8 +1762,9 @@ public class AdminService {
 	        header.set("charset", "UTF-8");
 	        header.set(HttpHeaders.CONTENT_ENCODING, "UTF-8");
 	        header.setContentType(MediaType.APPLICATION_OCTET_STREAM);
-	        header.set(HttpHeaders.CONTENT_TYPE, "text/csv; charset=UTF-8;");
-	        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; charset=UTF-8; filename="+ "test" +".xlsx");
+	        header.set(HttpHeaders.CONTENT_TYPE, "multipart/form-data; charset=UTF-8;");
+	        header.set(HttpHeaders.CONTENT_DISPOSITION, "attachment; charset=UTF-8; filename="+empEntity.getEmpCode()+"_"
+	        		+date.getMonth().toString().substring(0, 3)+year.substring(2, 4)+".xlsx");
 	        header.add(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
 	        header.add(HttpHeaders.ACCEPT_CHARSET, StandardCharsets.UTF_8.name());
 	        

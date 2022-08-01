@@ -18,13 +18,14 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.plusitsolution.timesheet.domain.Employee.EmpDetailDomain;
 import com.plusitsolution.timesheet.domain.Employee.EmployeeDomain;
+import com.plusitsolution.timesheet.domain.Timesheet.MyTimesheetExcelDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
 import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
+import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
 import com.plusitsolution.common.toolkit.PlusExcelUtils;
 import com.plusitsolution.common.toolkit.PlusHashUtils;
-import com.plusitsolution.timesheet.domain.MyTimesheetExcelDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalMyRequestDomain;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
@@ -55,6 +56,27 @@ public class EmployeeService {
 	private UtilsService utilService;
 	@Autowired
 	private ThrowService throwService ;
+	
+	Map<String, Integer> MONTH_MAP = new HashMap<String, Integer>();
+	
+	@PostConstruct
+	public void monthMap() {
+		MONTH_MAP.put("01", 31);
+		MONTH_MAP.put("02", 28);
+		MONTH_MAP.put("03", 31);
+		MONTH_MAP.put("04", 30);
+		MONTH_MAP.put("05", 31);
+		MONTH_MAP.put("06", 30);
+		MONTH_MAP.put("07", 31);
+		MONTH_MAP.put("08", 31);
+		MONTH_MAP.put("09", 30);
+		MONTH_MAP.put("10", 31);
+		MONTH_MAP.put("11", 30);
+		MONTH_MAP.put("12", 31);
+	}
+	
+	//----------------------- emp
+	
 	public EmployeeProfileDomain loginEmp(EmployeeLoginWrapper wrapper) {
 		
 		EmployeeEntity employeeEntity = employeeRepository.findByUsername(wrapper.getUsername());
@@ -70,9 +92,9 @@ public class EmployeeService {
 		EmployeeProfileDomain domain = new EmployeeProfileDomain(employeeEntity.getEmpID(), employeeEntity.getOrgID(), employeeEntity.getEmpCode(), employeeEntity.getFirstName(),
 				employeeEntity.getLastName(), employeeEntity.getNickName(), employeeEntity.getUsername(),EMP_MAP.get(employeeEntity.getEmpID()).getHolidayID(), EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit(),
 				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit(), EMP_MAP.get(employeeEntity.getEmpID()).getEmpRole(), EMP_MAP.get(employeeEntity.getEmpID()).getEndContract(),
-				myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
-				EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit()-myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
-				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit()-myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), 
+				utilService.myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), utilService.myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
+				EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit()- utilService.myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
+				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit()- utilService.myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), 
 				orgRepository.findById(employeeEntity.getOrgID()).get().getOrgNameEng(), orgRepository.findById(employeeEntity.getOrgID()).get().getOrgNameTh());
 		
 		
@@ -92,9 +114,9 @@ public class EmployeeService {
 		EmployeeProfileDomain domain = new EmployeeProfileDomain(employeeEntity.getEmpID(), employeeEntity.getOrgID(), employeeEntity.getEmpCode(), employeeEntity.getFirstName(),
 				employeeEntity.getLastName(), employeeEntity.getNickName(), employeeEntity.getUsername(), EMP_MAP.get(employeeEntity.getEmpID()).getHolidayID(), EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit(),
 				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit(), EMP_MAP.get(employeeEntity.getEmpID()).getEmpRole(), EMP_MAP.get(employeeEntity.getEmpID()).getEndContract(),
-				myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
-				EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit()-myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
-				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit()-myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), 
+				utilService.myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), utilService.myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
+				EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit()- utilService.myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
+				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit()- utilService.myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), 
 				orgRepository.findById(employeeEntity.getOrgID()).get().getOrgNameEng(), orgRepository.findById(employeeEntity.getOrgID()).get().getOrgNameTh());
 
 		
@@ -168,6 +190,7 @@ public class EmployeeService {
         	 TimesheetsDomain domain = wrapper.getTIMESHEETS_MAP().get(i);
         	if(wrapper.getTIMESHEETS_MAP().get(i).getDateStatus().equals(DateStatus.RECORD)) {
         		domain.setDateStatus(checkdateStatus(domain.getTimeIn(), domain.getTimeOut()));
+        		domain.setWorkingTime((double)utilService.compareTime(domain.getTimeIn(), domain.getTimeOut()));
         	}
         	if(wrapper.getTIMESHEETS_MAP().get(i).getDateStatus().equals(DateStatus.LEAVE)) {
         		domain.setActivity("leave");
@@ -178,78 +201,70 @@ public class EmployeeService {
         	
         }
         
+        Map<String , TimesheetsStatus> timesheetStatus_MAP  = employeeEntity.getTimesheetStatus_MAP();
+        for(int i=0; i<12; i++) {
+        	if(myTimesheetStatus(wrapper.getEmpID(), i+1, LocalDate.now().getYear()) == null) {
+        		timesheetStatus_MAP.put(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01", 
+        				TimesheetsStatus.INCOMPLETED);
+        	} else {
+        		timesheetStatus_MAP.put(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01", 
+        				myTimesheetStatus(wrapper.getEmpID(), i+1, LocalDate.now().getYear()));
+        	}
+        }
+        
+        employeeEntity.setTimesheetStatus_MAP(timesheetStatus_MAP);
         employeeEntity.getTIMESHEETS_MAP().putAll(wrapper.getTIMESHEETS_MAP());
         employeeRepository.save(employeeEntity);
+        System.out.println("------------- update my timesheet ---------------------");
     }
+	
+	//------------- cal
 	
 	public DateStatus checkdateStatus(String timein, String timeout) {
 		
-		if( LocalTime.parse(timeout).getHour() - LocalTime.parse(timein).getHour() == 8) {
+		if( LocalTime.parse(timeout).getHour() - LocalTime.parse(timein).getHour() > 1) {
 			return DateStatus.WORK;
-		} else if(LocalTime.parse(timeout).getHour() - LocalTime.parse(timein).getHour() < 8 && LocalTime.parse(timeout).getHour() - LocalTime.parse(timein).getHour() > 4) {
-			return DateStatus.HALFDAY;
-		} else if(LocalTime.parse(timeout).getHour() - LocalTime.parse(timein).getHour() > 8) {
-			return DateStatus.OT;
+//		} else if(LocalTime.parse(timeout).getHour() - LocalTime.parse(timein).getHour() < 8 && LocalTime.parse(timeout).getHour() - LocalTime.parse(timein).getHour() > 4) {
+//			return DateStatus.HALFDAY;
+//		} else if(LocalTime.parse(timeout).getHour() - LocalTime.parse(timein).getHour() > 8) {
+//			return DateStatus.OT;
 		} else 
 			return DateStatus.LEAVE;
 
 	}
 	
-	public Double myLeaveDayThisMonth(String empID, int month, int year) {
-			
-		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
-		TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
+	
+	public TimesheetsStatus myTimesheetStatus(String empID, int month, int year) {
 		
-		Double totalLeaveThisMonth = 0.0;
-		for (String i : TIMESHEETS_MAP.keySet()) {
-			LocalDate date = LocalDate.parse(i);
-			if(date.getYear() == year && date.getMonthValue() == month) {
-				if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.LEAVE)) {
-					totalLeaveThisMonth += 1;
+		if( employeeRepository.findById(empID).get().getTimesheetStatus_MAP().get(year+"-"+month+"-01") != null && !(employeeRepository.findById(empID).get().getTimesheetStatus_MAP().get(year+"-"+month+"-01").equals(TimesheetsStatus.APPROVE)
+				|| employeeRepository.findById(empID).get().getTimesheetStatus_MAP().get(year+"-"+month+"-01").equals(TimesheetsStatus.NOTAPPROVE))) {
+		
+			Map<String , TimesheetsDomain> TIMESHEETS_MAP = employeeRepository.findById(empID).get().getTIMESHEETS_MAP();
+		
+			int count = 0;
+			for (String i : TIMESHEETS_MAP.keySet()) {
+				if(LocalDate.parse(i).getYear() == year && LocalDate.parse(i).getMonthValue() == month) {
+					count++;
 				}
 			}
-		}
-		
-		return totalLeaveThisMonth;
-	}
-	
-	public Double myLeaveDayThisYear(String empID, int year) {
-		
-		Double totalLeave = 0.0;
-		for(int i=1; i<13; i++) {
-			totalLeave += myLeaveDayThisMonth(empID, i, year);
-		}
-		
-		return totalLeave;
-	}
-	
-	public Double myMedfeeThisMonth(String empID, int month, int year) {
-		
-		Map<String , String> MEDFEEUSE_MAP = new HashMap<>();
-		MEDFEEUSE_MAP.putAll(employeeRepository.findById(empID).get().getMEDFEEUSE_MAP()); 
-		
-		Double totalMedfeeThisMonth = 0.00;
-		for (String i : MEDFEEUSE_MAP.keySet()) {
-			LocalDateTime date = LocalDateTime.parse(i);
-			if(date.getYear() == year && date.getMonthValue() == month) {
-				totalMedfeeThisMonth += medicalRepository.findById(MEDFEEUSE_MAP.get(i)).get().getAmount();
+			
+			int montDate = MONTH_MAP.get(""+utilService.paddding(month));
+			if(year % 4 == 0 && month == 2) {
+				montDate += 1;
 			}
+		
+			if(count == montDate) {
+				return TimesheetsStatus.COMPLETED;
+			} else {
+				return TimesheetsStatus.INCOMPLETED;
+			}
+		
+		} else {
+			
+			return employeeRepository.findById(empID).get().getTimesheetStatus_MAP().get(year+"-"+month+"-01");
 		}
 		
-		return totalMedfeeThisMonth;
 	}
-	
-	public Double myMedfeeThisYear(String empID, int year) {
-		
-		Double totalMedfee = 0.00;
-		for(int i=1; i<13; i++) {
-			totalMedfee += myMedfeeThisMonth(empID, i, year);
-		}
-		
-		return totalMedfee;
-	}
-	
-	//------------ Excel create
 	
 	
 	

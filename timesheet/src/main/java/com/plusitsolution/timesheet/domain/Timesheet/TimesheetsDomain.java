@@ -10,17 +10,19 @@ public class TimesheetsDomain {
 	private String project ;
 	private String activity ;
 	private DateStatus dateStatus ;
+	private Double workingTime;
 	
 	public TimesheetsDomain() {
 		
 	}
 	
-	public TimesheetsDomain(String timeIn, String timeOut, String project, String activity, DateStatus dateStatus) {
+	public TimesheetsDomain(String timeIn, String timeOut, String project, String activity, DateStatus dateStatus, Double workingTime) {
 		this.timeIn = timeIn;
 		this.timeOut = timeOut;
 		this.project = project;
 		this.activity = activity;
 		this.dateStatus = dateStatus;
+		this.workingTime = workingTime;
 	}
 	
 	public String getTimeIn() {
@@ -52,6 +54,14 @@ public class TimesheetsDomain {
 	}
 	public void setDateStatus(DateStatus dateStatus) {
 		this.dateStatus = dateStatus;
+	}
+
+	public Double getWorkingTime() {
+		return workingTime;
+	}
+
+	public void setWorkingTime(Double workingTime) {
+		this.workingTime = workingTime;
 	}
 	
 	

@@ -9,6 +9,7 @@ import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 @Document(indexName = "employee-index")
 
@@ -31,6 +32,7 @@ public class EmployeeEntity {
 	
 	private String password ;
 	private Map<String , String> MEDFEEUSE_MAP = new HashMap<>();
+	private Map<String , TimesheetsStatus> timesheetStatus_MAP  = new HashMap<>();
 	
 	
 	public String getEmpID() {
@@ -92,6 +94,12 @@ public class EmployeeEntity {
 	}
 	public void setMEDFEEUSE_MAP(Map<String, String> mEDFEEUSE_MAP) {
 		MEDFEEUSE_MAP = mEDFEEUSE_MAP;
+	}
+	public Map<String, TimesheetsStatus> getTimesheetStatus_MAP() {
+		return timesheetStatus_MAP;
+	}
+	public void setTimesheetStatus_MAP(Map<String, TimesheetsStatus> timesheetStatus_MAP) {
+		this.timesheetStatus_MAP = timesheetStatus_MAP;
 	}
 
 	

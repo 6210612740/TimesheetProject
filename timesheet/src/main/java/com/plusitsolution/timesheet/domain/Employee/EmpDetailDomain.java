@@ -1,10 +1,14 @@
 package com.plusitsolution.timesheet.domain.Employee;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.plusitsolution.timesheet.domain.EnumDomain;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpStatus;
+import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
+import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 
 public class EmpDetailDomain {
 	
@@ -16,6 +20,8 @@ public class EmpDetailDomain {
 	private String endContract ;
 	private String startContract;
 	private EmpStatus empStatus ;
+
+	
 	
 	public EmpDetailDomain() {
 		
@@ -85,6 +91,7 @@ public class EmpDetailDomain {
 	public void setEmpStatus(EmpStatus empStatus) {
 		this.empStatus = empStatus;
 	}
+
 	
 	
 
