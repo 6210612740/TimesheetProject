@@ -273,7 +273,6 @@ public class AdminService {
 		throwService.checkYear(wrapper.getYear());
 
 		SumDomain domain = new SumDomain(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
-				utilService.myHalfdayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
 				utilService.myWorkThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
 				utilService.myHolidayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
 				utilService.myOTThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()));
@@ -1655,7 +1654,7 @@ public class AdminService {
 	        cell.setCellStyle(styleW);
 	        
 	        cell=row.createCell(0);
-        	cell.setCellValue(" ลาหยุด / Leave");
+        	cell.setCellValue(" ลาหยุด / Leave (วัน)");
 	        cell.setCellStyle(style40);
 	        
 	        cell=row.createCell(3);
@@ -1677,14 +1676,14 @@ public class AdminService {
 	        cell.setCellStyle(styleW);
 	        
 	        cell=row.createCell(0);
-        	cell.setCellValue("ล่วงเวลา / OT");
+        	cell.setCellValue("ล่วงเวลา / OT (ชม.)");
 	        cell.setCellStyle(style40);
 	        
 	        cell=row.createCell(3);
 	        if(utilService.myOTThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()) == 0) {
 	        	cell.setCellValue("-");
 	        }else {
-	        	cell.setCellValue(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()));
+	        	cell.setCellValue(utilService.myOTThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()));
 	        }
 	        
 	        cell.setCellStyle(style40);
@@ -1699,7 +1698,7 @@ public class AdminService {
 	        cell.setCellStyle(styleW);
 	        
 	        cell=row.createCell(0);
-        	cell.setCellValue("ทำงาน / Working");
+        	cell.setCellValue("ทำงาน / Working (วัน)");
 	        cell.setCellStyle(style40);
 	        
 	        cell=row.createCell(3);

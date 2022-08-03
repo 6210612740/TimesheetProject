@@ -1,5 +1,6 @@
 package com.plusitsolution.timesheet.service;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
+import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 import com.plusitsolution.timesheet.entity.OrganizeEntity;
 import com.plusitsolution.timesheet.repository.EmployeeRepository;
@@ -152,15 +154,23 @@ public class UtilsService {
 		public Double myOTThisMonth(String empID, int month, int year) {
 			
 			Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
-			TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP()); 
-			
+			Map<String , TimesheetsStatus> timesheetStatus_MAP = new HashMap<>();
+			TIMESHEETS_MAP.putAll(employeeRepository.findById(empID).get().getTIMESHEETS_MAP());
+			timesheetStatus_MAP.putAll(employeeRepository.findById(empID).get().getTimesheetStatus_MAP());
+		
 			Double totalOTThisMonth = 0.0;
 			for (String i : TIMESHEETS_MAP.keySet()) {
 				LocalDate date = LocalDate.parse(i);
+				
 				if(date.getYear() == year && date.getMonthValue() == month) {
-					if(TIMESHEETS_MAP.get(i).getDateStatus().equals(DateStatus.OT)) {
-						totalOTThisMonth += 1;
+					if(LocalDate.parse(i).getDayOfWeek().equals(DayOfWeek.SATURDAY) || LocalDate.parse(i).getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+						totalOTThisMonth += TIMESHEETS_MAP.get(i).getWorkingTime();
 					}
+					if(TIMESHEETS_MAP.get(i).getWorkingTime() > 8 && !LocalDate.parse(i).getDayOfWeek().equals(DayOfWeek.SATURDAY) 
+							&& !LocalDate.parse(i).getDayOfWeek().equals(DayOfWeek.SUNDAY)) {
+						totalOTThisMonth += TIMESHEETS_MAP.get(i).getWorkingTime() - 8;
+					}
+					
 				}
 			}
 			

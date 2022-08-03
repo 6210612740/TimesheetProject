@@ -2,7 +2,6 @@ package com.plusitsolution.timesheet.domain;
 
 public class SumDomain {
 	private Double totalLeave;
-	private Double totalHalfday;
 	private Double totalWork;
 	private Double totalHoliday;
 	private Double totalOT;
@@ -11,9 +10,8 @@ public class SumDomain {
 		
 	}
 	
-	public SumDomain(Double totalLeave, Double totalHalfday, Double totalWork, Double totalHoliday, Double totalOT) {
+	public SumDomain(Double totalLeave, Double totalWork, Double totalHoliday, Double totalOT) {
 		this.totalLeave = totalLeave;
-		this.totalHalfday = totalHalfday;
 		this.totalWork = totalWork;
 		this.totalHoliday = totalHoliday;
 		this.totalOT = totalOT;
@@ -24,12 +22,6 @@ public class SumDomain {
 	}
 	public void setTotalLeave(Double totalLeave) {
 		this.totalLeave = totalLeave;
-	}
-	public Double getTotalHalfday() {
-		return totalHalfday;
-	}
-	public void setTotalHalfday(Double totalHalfday) {
-		this.totalHalfday = totalHalfday;
 	}
 	public Double getTotalWork() {
 		return totalWork;

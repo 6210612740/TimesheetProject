@@ -78,9 +78,9 @@ public class EmployeeService {
 	}
 	
 	//----------------------- emp ------------------
-	
 	public EmployeeProfileDomain loginEmp(EmployeeLoginWrapper wrapper) {
 		throwService.checkUsername(wrapper.getUsername());
+		
 		if (!PlusHashUtils.hash(wrapper.getPassword()).equals(employeeRepository.findByUsername(wrapper.getUsername()).getPassword()) ) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong password");
 		}
@@ -231,35 +231,34 @@ public class EmployeeService {
 //			return DateStatus.HALFDAY;
 //		} else if(LocalTime.parse(timeout).getHour() - LocalTime.parse(timein).getHour() > 8) {
 //			return DateStatus.OT;
-		} else 
+		} else {
 			return DateStatus.LEAVE;
+		}
 
 	}
 	
-	
 	public TimesheetsStatus myTimesheetStatus(String empID, int month, int year) {
-			
-					Map<String , TimesheetsDomain> TIMESHEETS_MAP = employeeRepository.findById(empID).get().getTIMESHEETS_MAP();
+		Map<String , TimesheetsDomain> TIMESHEETS_MAP = employeeRepository.findById(empID).get().getTIMESHEETS_MAP();
 		
-					int count = 0;
-					for (String i : TIMESHEETS_MAP.keySet()) {
+		int count = 0;
+		for (String i : TIMESHEETS_MAP.keySet()) {
 
-						if(LocalDate.parse(i).getYear() == year && LocalDate.parse(i).getMonthValue() == month) {
-							count++;
-						}
-					}
+			if(LocalDate.parse(i).getYear() == year && LocalDate.parse(i).getMonthValue() == month) {
+				count++;
+				}
+			}
 					
-					int montDate = MONTH_MAP.get(""+utilService.paddding(month));
-					if(year % 4 == 0 && month == 2) {
-						montDate += 1;
-					}
+		int montDate = MONTH_MAP.get(""+utilService.paddding(month));
+		if(year % 4 == 0 && month == 2) {
+			montDate += 1;
+			}
 
-					if(count == montDate) {
-						return TimesheetsStatus.COMPLETED;
-					} else {
-						return TimesheetsStatus.INCOMPLETED;
+		if(count == montDate) {
+			return TimesheetsStatus.COMPLETED;
+			
+			} else {
+				return TimesheetsStatus.INCOMPLETED;
 					}
-
 	}
 			
 	

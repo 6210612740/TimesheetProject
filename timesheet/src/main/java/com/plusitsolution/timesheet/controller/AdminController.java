@@ -38,7 +38,7 @@ import com.plusitsolution.timesheet.service.AdminService;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/secure/admin")
+@RequestMapping(value = "") //     /secure/admin
 public class AdminController {
 	
 	@Autowired
@@ -75,7 +75,7 @@ public class AdminController {
 	}
 	
 //------------------ Display -----------------	
-	@PostMapping("/secure/admin/getOverView")
+	@PostMapping("getOverView")
 	public Map<String, OverviewDomain> getOverView(@RequestBody OrgIDYearWrapper wrapper) {
 		return service.getOverView(wrapper);
 	}
