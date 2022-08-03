@@ -35,20 +35,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // Api Key Filter
                 .and().addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).authorizeRequests()
 //                REGISTRATOR
-                .antMatchers(HttpMethod.GET, "/secure/regis/**").hasRole("REGISTRATOR")
-                .antMatchers(HttpMethod.POST, "/secure/regis/**").hasRole("REGISTRATOR")
-                .antMatchers(HttpMethod.PUT, "/secure/regis/**").hasRole("REGISTRATOR")
-                .antMatchers(HttpMethod.DELETE, "/secure/regis/**").hasRole("REGISTRATOR")
-//                FINANCEOFFICER
-                .antMatchers(HttpMethod.GET, "/secure/fin/**").hasRole("FINANCEOFFICER")
-                .antMatchers(HttpMethod.POST, "/secure/fin/**").hasRole("FINANCEOFFICER")
-                .antMatchers(HttpMethod.PUT, "/secure/fin/**").hasRole("FINANCEOFFICER")
-                .antMatchers(HttpMethod.DELETE, "/secure/fin/**").hasRole("FINANCEOFFICER")
-//                DEBTCOLLECTOR
-                .antMatchers(HttpMethod.GET, "/secure/debt/**").hasRole("DEBTCOLLECTOR")
-                .antMatchers(HttpMethod.POST, "/secure/debt/**").hasRole("DEBTCOLLECTOR")
-                .antMatchers(HttpMethod.PUT, "/secure/debt/**").hasRole("DEBTCOLLECTOR")
-                .antMatchers(HttpMethod.DELETE, "/secure/debt/**").hasRole("DEBTCOLLECTOR")
+                .antMatchers(HttpMethod.GET, "/secure/admin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/secure/admin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.PUT, "/secure/admin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/secure/admin/**").hasRole("ADMIN")
+//                
+                .antMatchers(HttpMethod.GET, "/secure/employee/**").hasAnyRole("ADMIN", "EMPLOYEE")
+                .antMatchers(HttpMethod.POST, "/secure/employee/**").hasAnyRole("ADMIN", "EMPLOYEE")
+                .antMatchers(HttpMethod.PUT, "/secure/employee/**").hasAnyRole("ADMIN", "EMPLOYEE")
+                .antMatchers(HttpMethod.DELETE, "/secure/employee/**").hasAnyRole("ADMIN", "EMPLOYEE")
+
                 .anyRequest().authenticated();
 
     }

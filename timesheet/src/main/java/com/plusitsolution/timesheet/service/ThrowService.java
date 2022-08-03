@@ -110,6 +110,14 @@ public class ThrowService {
 	    }
 	}
 	
+	public void checkUsername(String username) {
+		if (employeeRepository.findByUsername(username) == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this medicalRequest is't exist"); 
+        }
+	}
+	
+
+	
 	
 	
 	

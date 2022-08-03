@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.poi.xddf.usermodel.SystemColor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -26,6 +27,7 @@ import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
 import com.plusitsolution.common.toolkit.PlusExcelUtils;
 import com.plusitsolution.common.toolkit.PlusHashUtils;
+import com.plusitsolution.common.toolkit.PlusJsonUtils;
 import com.plusitsolution.timesheet.domain.Medical.MedicalDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalMyRequestDomain;
 import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
@@ -75,18 +77,16 @@ public class EmployeeService {
 		MONTH_MAP.put("12", 31);
 	}
 	
-	//----------------------- emp
+	//----------------------- emp ------------------
 	
 	public EmployeeProfileDomain loginEmp(EmployeeLoginWrapper wrapper) {
+		throwService.checkUsername(wrapper.getUsername());
+		if (!PlusHashUtils.hash(wrapper.getPassword()).equals(employeeRepository.findByUsername(wrapper.getUsername()).getPassword()) ) {
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong password");
+		}
 		
 		EmployeeEntity employeeEntity = employeeRepository.findByUsername(wrapper.getUsername());
 		
-		if (employeeEntity == null ) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this username not have ");
-		}
-		if (!PlusHashUtils.hash(wrapper.getPassword()).equals(employeeEntity.getPassword()) ) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Wrong password");
-		}
 		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(employeeEntity.getOrgID()).get().getEMP_MAP();
 		
 		EmployeeProfileDomain domain = new EmployeeProfileDomain(employeeEntity.getEmpID(), employeeEntity.getOrgID(), employeeEntity.getEmpCode(), employeeEntity.getFirstName(),
@@ -102,11 +102,8 @@ public class EmployeeService {
 	}
 	
 	public EmployeeProfileDomain getUserProfile(EmployeeIDWrapper wrapper) {
-		
-//		String empID, String orgID, String empCode, String firstName, String lastName,
-//		String nickName, String holidayID, double leaveLimit, double medFeeLimit,
-//		EmpRole empRole, String endContract, Double leaveUse, Double medFeeUse, Double leaveRemain,
-//		Double medFeeRemain
+		throwService.checkEmployee(wrapper.getEmpID());
+
 		throwService.checkEmployee(wrapper.getEmpID());
 		EmployeeEntity employeeEntity = employeeRepository.findById(wrapper.getEmpID()).get();
 		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(employeeEntity.getOrgID()).get().getEMP_MAP();
@@ -202,13 +199,19 @@ public class EmployeeService {
         }
         
         Map<String , TimesheetsStatus> timesheetStatus_MAP  = employeeEntity.getTimesheetStatus_MAP();
+        
         for(int i=0; i<12; i++) {
-        	if(myTimesheetStatus(wrapper.getEmpID(), i+1, LocalDate.now().getYear()) == null) {
-        		timesheetStatus_MAP.put(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01", 
-        				TimesheetsStatus.INCOMPLETED);
-        	} else {
-        		timesheetStatus_MAP.put(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01", 
-        				myTimesheetStatus(wrapper.getEmpID(), i+1, LocalDate.now().getYear()));
+        	
+        	if(!(employeeEntity.getTimesheetStatus_MAP().get(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01").equals(TimesheetsStatus.APPROVE) || 
+        			employeeEntity.getTimesheetStatus_MAP().get(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01").equals(TimesheetsStatus.REJECT))) {
+        
+        		if(employeeEntity.getTimesheetStatus_MAP().get(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01").equals(null)) {
+        			timesheetStatus_MAP.put(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01", 
+        					TimesheetsStatus.INCOMPLETED);
+        		} else {
+        			timesheetStatus_MAP.put(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01",
+        					myTimesheetStatus(wrapper.getEmpID(), i+1, LocalDate.now().getYear()));
+        		}
         	}
         }
         
@@ -235,39 +238,30 @@ public class EmployeeService {
 	
 	
 	public TimesheetsStatus myTimesheetStatus(String empID, int month, int year) {
-		
-		if( employeeRepository.findById(empID).get().getTimesheetStatus_MAP().get(year+"-"+month+"-01") != null && !(employeeRepository.findById(empID).get().getTimesheetStatus_MAP().get(year+"-"+month+"-01").equals(TimesheetsStatus.APPROVE)
-				|| employeeRepository.findById(empID).get().getTimesheetStatus_MAP().get(year+"-"+month+"-01").equals(TimesheetsStatus.NOTAPPROVE))) {
-		
-			Map<String , TimesheetsDomain> TIMESHEETS_MAP = employeeRepository.findById(empID).get().getTIMESHEETS_MAP();
-		
-			int count = 0;
-			for (String i : TIMESHEETS_MAP.keySet()) {
-				if(LocalDate.parse(i).getYear() == year && LocalDate.parse(i).getMonthValue() == month) {
-					count++;
-				}
-			}
 			
-			int montDate = MONTH_MAP.get(""+utilService.paddding(month));
-			if(year % 4 == 0 && month == 2) {
-				montDate += 1;
-			}
+					Map<String , TimesheetsDomain> TIMESHEETS_MAP = employeeRepository.findById(empID).get().getTIMESHEETS_MAP();
 		
-			if(count == montDate) {
-				return TimesheetsStatus.COMPLETED;
-			} else {
-				return TimesheetsStatus.INCOMPLETED;
-			}
-		
-		} else {
-			
-			return employeeRepository.findById(empID).get().getTimesheetStatus_MAP().get(year+"-"+month+"-01");
-		}
-		
-	}
-	
-	
-	
+					int count = 0;
+					for (String i : TIMESHEETS_MAP.keySet()) {
 
+						if(LocalDate.parse(i).getYear() == year && LocalDate.parse(i).getMonthValue() == month) {
+							count++;
+						}
+					}
+					
+					int montDate = MONTH_MAP.get(""+utilService.paddding(month));
+					if(year % 4 == 0 && month == 2) {
+						montDate += 1;
+					}
+
+					if(count == montDate) {
+						return TimesheetsStatus.COMPLETED;
+					} else {
+						return TimesheetsStatus.INCOMPLETED;
+					}
+
+	}
+			
+	
 	
 }

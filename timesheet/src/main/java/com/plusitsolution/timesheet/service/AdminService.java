@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,6 +71,7 @@ import com.plusitsolution.timesheet.domain.wrapper.OrgIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgIDYearWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgRegisterWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.RegisterEmployeeWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.TimesheetSetTimesheetWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.UpdateMedicalRequestsStatusWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.UpdateUserProfileWrapper;
 import com.plusitsolution.timesheet.entity.EmployeeEntity;
@@ -182,6 +184,10 @@ public class AdminService {
 			EmployeeEntity entity = employeeRepository.findById(i).get() ;
 
 			TimesheetsStatus status = entity.getTimesheetStatus_MAP().get(wrapper.getYear()+"-"+utilService.paddding(wrapper.getMonth())+"-01");
+			if(status == null) {
+				status = TimesheetsStatus.INCOMPLETED;
+			}
+			
 			TimesheetsSummaryDomain domain = new TimesheetsSummaryDomain(EMP_MAP.get(i).getEmpCode(), entity.getFirstName(), entity.getLastName(), status,
 					utilService.myLeaveDayThisMonth(i, wrapper.getMonth(), wrapper.getYear()), utilService.myOTThisMonth(i, wrapper.getMonth(), wrapper.getYear()), utilService.myWorkThisMonth(i, wrapper.getMonth(), wrapper.getYear()), 
 					entity.getNickName() ,holidayRepository.findById(EMP_MAP.get(i).getHolidayID()).get().getHolidayName());
@@ -343,8 +349,26 @@ public class AdminService {
 		
 		OrganizeEntity orgEntity = orgRepository.findById(employeeRepository.findById(wrapper.getEmpID()).get().getOrgID()).get();
 		EmpDetailDomain domain =  orgEntity.getEMP_MAP().get(wrapper.getEmpID());
-		domain.setEmpStatus(EmpStatus.INACTIVE);
+		
+		if(domain.getEmpStatus().equals(EmpStatus.ACTIVE)) {
+			domain.setEmpStatus(EmpStatus.INACTIVE);
+		} else {
+			domain.setEmpStatus(EmpStatus.ACTIVE);
+		}
+		
 		orgRepository.save(orgEntity);
+	}
+	
+	public void approveTimesheet(TimesheetSetTimesheetWrapper wrapper) {
+		throwService.checkEmployee(wrapper.getEmpID());
+		
+		EmployeeEntity empEntity = employeeRepository.findById(wrapper.getEmpID()).get();
+		Map<String , TimesheetsStatus> timesheetStatus_MAP  = new HashMap<>();
+		timesheetStatus_MAP.putAll(empEntity.getTimesheetStatus_MAP());
+		timesheetStatus_MAP.put(wrapper.getYear()+"-"+utilService.paddding(wrapper.getMonth())+"-01", wrapper.getTimesheetStatus());
+		
+		empEntity.setTimesheetStatus_MAP(timesheetStatus_MAP);
+		employeeRepository.save(empEntity);
 	}
 	
 	//---------- medical --------------------
@@ -390,7 +414,6 @@ public class AdminService {
 				if(TIMESHEETS_MAP.get(wrapper.getHolidayList().get(i)).getDateStatus().equals(DateStatus.HOLIDAY)) {
 					TIMESHEETS_MAP.remove(wrapper.getHolidayList().get(i));
 				}
-			
 	
 			} else {
 					TimesheetsDomain domain = new TimesheetsDomain("", "", "", "Public Holiday", DateStatus.HOLIDAY, 0.0);
@@ -443,10 +466,7 @@ public class AdminService {
 	}
 	
 	public Map<String , HolidayDomain> getAllHoliday(OrgIDWrapper wrapper){
-		if (orgRepository.findById(wrapper.getOrgID()).get() == null ) {
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this organize is't exist"); 
-		}
-		
+		throwService.checkOrganize(wrapper.getOrgID());
 		
 		List<HolidayEntity> holidayList = holidayRepository.findByOrgID(wrapper.getOrgID());
 		Map<String , HolidayDomain> HOLIDAY_MAP = new HashMap<>();
@@ -519,7 +539,6 @@ public class AdminService {
         style3.setBorderLeft(BorderStyle.THIN);
         style3.setFillForegroundColor(IndexedColors.WHITE.getIndex());
         style3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
         
        	XSSFCellStyle style4 = workbook.createCellStyle();
         style4.setFont(font);
@@ -559,7 +578,7 @@ public class AdminService {
         style6.setAlignment(HorizontalAlignment.CENTER);
         style6.setVerticalAlignment(VerticalAlignment.CENTER);
         style6.setBorderTop(BorderStyle.THIN);
-        style6.setBorderRight(BorderStyle.THIN);
+        style6.setBorderRight(BorderStyle.NONE);
         style6.setBorderBottom(BorderStyle.THIN);
         style6.setBorderLeft(BorderStyle.THIN);
         style6.setFillForegroundColor(IndexedColors.GREY_50_PERCENT.getIndex());
@@ -1433,9 +1452,7 @@ public class AdminService {
 	        style47.setFillForegroundColor(IndexedColors.WHITE .getIndex());
 	        style47.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	        
-	       
-	        
-	        InputStream inputStream = new FileInputStream("/home/itim/Desktop/download.jpeg");
+	        InputStream inputStream = new URL("https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg").openStream();
 	        //Get the contents of an InputStream as a byte[].
 	        byte[] bytes = IOUtils.toByteArray(inputStream);
 	        //Adds a picture to the workbook
@@ -1664,7 +1681,7 @@ public class AdminService {
 	        cell.setCellStyle(style40);
 	        
 	        cell=row.createCell(3);
-	        if(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()) == 0) {
+	        if(utilService.myOTThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()) == 0) {
 	        	cell.setCellValue("-");
 	        }else {
 	        	cell.setCellValue(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(),  wrapper.getYear()));

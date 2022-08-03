@@ -26,7 +26,7 @@ import com.plusitsolution.timesheet.service.EmployeeService;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/api/v1/employee")
+@RequestMapping(value = "/secure/employee")
 public class EmployeeController {
 	
 	@Autowired

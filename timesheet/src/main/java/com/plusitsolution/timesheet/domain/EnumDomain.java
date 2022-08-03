@@ -19,6 +19,6 @@ public class EnumDomain {
 	}
 	
 	public enum TimesheetsStatus {
-		COMPLETED , INCOMPLETED , APPROVE , NOTAPPROVE
+		COMPLETED , INCOMPLETED , APPROVE , REJECT
 	}
 }

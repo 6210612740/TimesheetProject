@@ -30,6 +30,7 @@ import com.plusitsolution.timesheet.domain.wrapper.OrgIDWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgIDYearWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.OrgRegisterWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.RegisterEmployeeWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.TimesheetSetTimesheetWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.UpdateMedicalRequestsStatusWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.UpdateUserProfileWrapper;
 import com.plusitsolution.timesheet.entity.MedicalEntity;
@@ -37,11 +38,14 @@ import com.plusitsolution.timesheet.service.AdminService;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/api/v1/admin")
+@RequestMapping(value = "/secure/admin")
 public class AdminController {
 	
 	@Autowired
 	private AdminService service ;
+	
+//--------- Timesheet ---------------
+	
 	
 //---------- Employee ---------------	
 	@PostMapping("/registerEmployee")
@@ -52,6 +56,11 @@ public class AdminController {
 	@PostMapping("/updateUserProfile")
 	public void updateUserProfile(@RequestBody UpdateUserProfileWrapper wrapper) {
 		service.updateUserProfile(wrapper);
+	}
+	
+	@PostMapping("/approveTimesheet")
+	public void approveTimesheet(@RequestBody TimesheetSetTimesheetWrapper wrapper) {
+		service.approveTimesheet(wrapper);
 	}
 	
 	@PostMapping("/disabelEmp")
@@ -66,7 +75,7 @@ public class AdminController {
 	}
 	
 //------------------ Display -----------------	
-	@PostMapping("/getOverView")
+	@PostMapping("/secure/admin/getOverView")
 	public Map<String, OverviewDomain> getOverView(@RequestBody OrgIDYearWrapper wrapper) {
 		return service.getOverView(wrapper);
 	}
@@ -107,7 +116,7 @@ public class AdminController {
 		service.updateHolidayType(wrapper);
 	}
 	
-//-------- Medical
+//-------- Medical ------------------------
 	@PostMapping("/updateMedicalRequestsStatus")
 	public void updateMedicalRequestsStatus(@RequestBody UpdateMedicalRequestsStatusWrapper wrapper) {
 		service.updateMedicalRequestsStatus(wrapper);
@@ -123,7 +132,7 @@ public class AdminController {
 		return service.getAllHoliday(wrapper);
 	}
 	
-	//-----------------excel
+	//----------------- excel -----------------------------
 	@PostMapping("/createExcelAllSummary")
 	public HttpEntity<byte[]> createExcelAllSummary(@RequestBody OrgIDYearWrapper wrapper) throws Exception {
 		return service.createExcelAllSummary(wrapper);
