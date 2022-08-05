@@ -13,4 +13,6 @@ public interface OrganizeRepository extends ElasticsearchRepository<OrganizeEnti
 	public List<OrganizeEntity> findAll();
 	
 	public OrganizeEntity findByOrgNameTh(String orgNameTh);
+	
+	public OrganizeEntity findByShortName(String shortName);
 }

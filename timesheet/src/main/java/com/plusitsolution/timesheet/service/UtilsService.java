@@ -221,8 +221,6 @@ public class UtilsService {
 			return totalMedfee;
 		}
 		
-
-		
 		public int compareTime(String timeIn, String timeOut) {
 			
 			LocalTime in = LocalTime.parse(timeIn);

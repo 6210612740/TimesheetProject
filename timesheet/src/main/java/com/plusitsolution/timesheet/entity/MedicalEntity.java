@@ -22,7 +22,7 @@ public class MedicalEntity {
 	
 	@Field(type = FieldType.Keyword)
 	private String orgID;
-	;
+	
 	private String slipPic;
 	private Double amount;
 	private String note;

@@ -18,6 +18,14 @@ public class EnumDomain {
 		APPROVE , NOTAPPROVE , INPROCESS 
 	}
 	
+	public enum LeaveStatus {
+		APPROVE , NOTAPPROVE , INPROCESS 
+	}
+	
+	public enum LeaveType {
+		SICK , BUSINESS , VACATION 
+	}
+	
 	public enum TimesheetsStatus {
 		COMPLETED , INCOMPLETED , APPROVE , REJECT
 	}

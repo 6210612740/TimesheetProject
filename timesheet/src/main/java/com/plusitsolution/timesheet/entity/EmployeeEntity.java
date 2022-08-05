@@ -33,7 +33,7 @@ public class EmployeeEntity {
 	private String password ;
 	private Map<String , String> MEDFEEUSE_MAP = new HashMap<>();
 	private Map<String , TimesheetsStatus> timesheetStatus_MAP  = new HashMap<>();
-	
+	private Map<String , String> LEAVEREQ_MAP = new HashMap<>();
 	
 	public String getEmpID() {
 		return empID;
@@ -100,6 +100,12 @@ public class EmployeeEntity {
 	}
 	public void setTimesheetStatus_MAP(Map<String, TimesheetsStatus> timesheetStatus_MAP) {
 		this.timesheetStatus_MAP = timesheetStatus_MAP;
+	}
+	public Map<String, String> getLEAVEREQ_MAP() {
+		return LEAVEREQ_MAP;
+	}
+	public void setLEAVEREQ_MAP(Map<String, String> lEAVEREQ_MAP) {
+		LEAVEREQ_MAP = lEAVEREQ_MAP;
 	}
 
 	

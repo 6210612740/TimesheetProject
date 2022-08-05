@@ -11,10 +11,9 @@ import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 
-
-
 @Document(indexName = "holiday-index")
 public class HolidayEntity {
+	
 	@Id
 	@ReadOnlyProperty
 	private String holidayID ;

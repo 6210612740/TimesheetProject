@@ -1,6 +1,7 @@
 package com.plusitsolution.timesheet.service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -38,10 +39,14 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.lang.Nullable;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.plusitsolution.common.toolkit.PlusExcelUtils;
@@ -50,7 +55,9 @@ import com.plusitsolution.common.toolkit.PlusJsonUtils;
 import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpStatus;
+import com.plusitsolution.timesheet.domain.EnumDomain.LeaveStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
+import com.plusitsolution.timesheet.domain.LeaveRequest.LeaveRequestDomain;
 import com.plusitsolution.timesheet.domain.HolidayDomain;
 import com.plusitsolution.timesheet.domain.OrganizeDomain;
 import com.plusitsolution.timesheet.domain.SumDomain;
@@ -61,25 +68,29 @@ import com.plusitsolution.timesheet.domain.Employee.EmployeeDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalRequestDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsSummaryDomain;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.HolidayUpdateWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.MedicalIDWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.OrgIDMonthWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.OrgIDWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.OrgIDYearWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.OrgRegisterWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.RegisterEmployeeWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.TimesheetSetTimesheetWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.UpdateMedicalRequestsStatusWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.UpdateUserProfileWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeIDMonthWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.RegisterEmployeeWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.UpdateUserProfileWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper.HolidayUpdateWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper.HolidayWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.LeaveWrapper.LeaveIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.LeaveWrapper.UpdateLeaveRequestsStatusWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.MedicalWrapper.MedicalIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.MedicalWrapper.UpdateMedicalRequestsStatusWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.OrganizeWrapper.OrgIDMonthWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.OrganizeWrapper.OrgIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.OrganizeWrapper.OrgIDYearWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.OrganizeWrapper.OrgRegisterWrapper;
 import com.plusitsolution.timesheet.entity.EmployeeEntity;
 import com.plusitsolution.timesheet.entity.HolidayEntity;
+import com.plusitsolution.timesheet.entity.LeaveEntity;
 import com.plusitsolution.timesheet.entity.MedicalEntity;
 import com.plusitsolution.timesheet.entity.OrganizeEntity;
 import com.plusitsolution.timesheet.repository.EmployeeRepository;
 import com.plusitsolution.timesheet.repository.HolidayRepository;
+import com.plusitsolution.timesheet.repository.LeaveRepository;
 import com.plusitsolution.timesheet.repository.MedicalRepository;
 import com.plusitsolution.timesheet.repository.OrganizeRepository;
 import com.plusitsolution.zeencommon.helper.ExcelBuilder;
@@ -97,6 +108,8 @@ public class AdminService {
 	private HolidayRepository holidayRepository;
 	@Autowired
 	private MedicalRepository medicalRepository;
+	@Autowired
+	private LeaveRepository leaveRepository;
 	@Autowired
 	private UtilsService utilService;
 	@Autowired
@@ -120,6 +133,25 @@ public class AdminService {
 		MONTH_MAP.put("12", 31);
 	}
 	
+	//----------- save ------------------------------
+//	public void api(MultipartFile abc) {
+//		byte[] by;
+//		String toFilePath = "";
+//		String bucketName = "";
+//		
+////		MultipartFile result = new MockMultipartFile(bucketName, by);
+//
+//		
+//	    HttpHeaders headers = new HttpHeaders();
+//	    headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+//	        
+//	    HttpEntity<MultipartFile> entity = new HttpEntity<>(result, headers);
+////	        
+//	    new RestTemplate().exchange("http://api.beta.zeenapp.com/box/secure/local/uploadFile?isOverride=false", HttpMethod.POST, entity, MultipartFile.class).getBody();
+//	        
+//	        System.out.println("------------ succes -----------------");
+//	}
+	
 	//----------- Organization ----------------------
 
 	public void registerOrg(OrgRegisterWrapper wrapper) {
@@ -142,6 +174,7 @@ public class AdminService {
 				0, 0, holidayRepository.findByHolidayName("DEFAULT "+wrapper.getShortName()).getHolidayID(), EmpRole.ADMIN, wrapper.getUsername(), LocalDate.now().toString());
 		registerEmployee(domain);
 		
+		System.out.println("-------------- registerOrg -------------");
 	}
 	
 	//------------------ Display -----------------
@@ -248,7 +281,6 @@ public class AdminService {
 		List<MedicalEntity> medList = new ArrayList<MedicalEntity>();
 		medList.addAll(medicalRepository.findByOrgID(wrapper.getOrgID())) ;
 		
-//		List<MedicalRequestDomain> everyoneList = new ArrayList<MedicalRequestDomain>();
 		Map<String , MedicalRequestDomain> EveryOneSummary_MAP = new HashMap<>();
 		
 		for(int i=0 ; i<medList.size() ; i++) {
@@ -257,9 +289,8 @@ public class AdminService {
 
 				MedicalRequestDomain domain = new MedicalRequestDomain(employeeRepository.findById(medList.get(i).getEmpID()).get().getEmpCode(),
 						employeeRepository.findById(medList.get(i).getEmpID()).get().getNickName(), medList.get(i).getDate(), medList.get(i).getAmount(),
-						orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP().get(medList.get(i).getEmpID()).getLeaveLimit()- utilService.myMedfeeThisYear(medList.get(i).getEmpID(), wrapper.getYear()), medList.get(i).getMedStatus());
+						orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP().get(medList.get(i).getEmpID()).getMedFeeLimit()- utilService.myMedfeeThisYear(medList.get(i).getEmpID(), wrapper.getYear()), medList.get(i).getMedStatus());
 				
-//				everyoneList.add(domain);
 				EveryOneSummary_MAP.put(medList.get(i).getMedID(), domain);
 			}
 		}
@@ -267,18 +298,31 @@ public class AdminService {
 		
 	}
 	
-	public SumDomain getSumMyMonth(EmployeeIDMonthWrapper wrapper) {
-		throwService.checkEmployee(wrapper.getEmpID());
-		throwService.checkMonth(wrapper.getMonth());
+	public Map<String , LeaveRequestDomain> getEveryOneLeaveRequests(OrgIDYearWrapper wrapper) {
+		throwService.checkOrganize(wrapper.getOrgID());
 		throwService.checkYear(wrapper.getYear());
-
-		SumDomain domain = new SumDomain(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
-				utilService.myWorkThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
-				utilService.myHolidayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
-				utilService.myOTThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()));
 		
-		return domain;
-	
+		
+		List<LeaveEntity> leaveList = new ArrayList<LeaveEntity>();
+		leaveList.addAll(leaveRepository.findByOrgID(wrapper.getOrgID())) ;
+		
+		Map<String , LeaveRequestDomain> EveryOneSummary_MAP = new HashMap<>();
+		
+		for(int i=0 ; i<leaveList.size() ; i++) {
+			if(LocalDate.parse(leaveList.get(i).getDateReq()).getYear() == wrapper.getYear()) {
+				
+
+				LeaveRequestDomain domain = new LeaveRequestDomain(employeeRepository.findById(leaveList.get(i).getEmpID()).get().getEmpID(), employeeRepository.findById(leaveList.get(i).getEmpID()).get().getEmpCode(),
+						employeeRepository.findById(leaveList.get(i).getEmpID()).get().getNickName(), leaveList.get(i).getDateReq(), leaveList.get(i).getDateStart(), leaveList.get(i).getDateEnd(), (double)LocalDate.parse(leaveList.get(i).getDateEnd()).lengthOfYear() - LocalDate.parse(leaveList.get(i).getDateStart()).lengthOfYear()+1,
+						orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP().get(leaveList.get(i).getEmpID()).getLeaveLimit() - utilService.myLeaveDayThisYear(leaveList.get(i).getEmpID(), wrapper.getYear()), 
+								leaveList.get(i).getNote(), leaveList.get(i).getLeaveType(), leaveList.get(i).getLeaveStatus());
+				
+//				everyoneList.add(domain);
+				EveryOneSummary_MAP.put(leaveList.get(i).getLeaveID(), domain);
+			}
+		}
+		return EveryOneSummary_MAP;
+		
 	}
 	
 	//---------- Employee ---------------
@@ -301,18 +345,20 @@ public class AdminService {
 		
 		EmployeeDomain empDomain = new EmployeeDomain(wrapper.getOrgID(), empCode, 
 				wrapper.getFirstName(), wrapper.getLastName(), wrapper.getNickName(), TIMESHEETS_MAP, hashPass,new HashMap<String , String>(), wrapper.getUsername(), new HashMap<String , TimesheetsStatus>());
-		
-		employeeRepository.save(empDomain.toEntity());
+		EmployeeEntity empEntity = employeeRepository.save(empDomain.toEntity());
 		
 		// go to add employee to OrgDB EMP_MAP
 		OrganizeEntity entity = orgRepository.findById(wrapper.getOrgID()).get();
 		
-		Map<String, EmpDetailDomain> EMP_MAP =  orgRepository.findById(wrapper.getOrgID()).get().getEMP_MAP();
+		Map<String, EmpDetailDomain> EMP_MAP =  entity.getEMP_MAP();
+
 		EmpDetailDomain domain = new EmpDetailDomain(empCode, wrapper.getHolidayID(), wrapper.getLeaveLimit(), wrapper.getMedFeeLimit(), wrapper.getEmpRole(),
 				"9999-01-01", wrapper.getStartDate(), EmpStatus.ACTIVE);
-		EMP_MAP.put(employeeRepository.findByEmpCode(empCode).getEmpID(), domain);
+		EMP_MAP.put(empEntity.getEmpID(), domain);
 		entity.setEMP_MAP(EMP_MAP);
 		orgRepository.save(entity);
+		
+		System.out.println("-------------- registerEmployee -------------");
 
 	}
 	
@@ -387,11 +433,102 @@ public class AdminService {
 		return entity;
 	}
 	
+	//---------- leave request --------------------
+    public void updateLeaveRequestsStatus(UpdateLeaveRequestsStatusWrapper wrapper) {
+    	throwService.checkLeaveRequest(wrapper.getLeaveID());
+    	
+        LeaveEntity entity = leaveRepository.findById(wrapper.getLeaveID()).get();
+ 
+        entity.setLeaveStatus(wrapper.getLeaveStatus());
+        leaveRepository.save(entity);
+        
+        if(wrapper.getLeaveStatus().equals(LeaveStatus.APPROVE)) {
+        	EmployeeEntity empEntity = employeeRepository.findById(entity.getEmpID()).get();
+        	Map<String , TimesheetsDomain> TIMESHEETS_MAP = empEntity.getTIMESHEETS_MAP();
+        	TimesheetsDomain domain = new TimesheetsDomain("-", "-", "-", "Leave", DateStatus.LEAVE, 0.0);
+
+        	Double leaveDay ;
+        	int leaveMonth ;
+
+        	if(LocalDate.parse(entity.getDateEnd()).getYear() - LocalDate.parse(entity.getDateStart()).getYear() != 0) {
+        		int dayYear = 365;
+        		int monthYear = 12;
+        		
+        		if(LocalDate.parse(entity.getDateEnd()).getYear()%4 == 0 || LocalDate.parse(entity.getDateStart()).getYear()%4 == 0 ) {
+        			dayYear += 1;
+        		}
+        		
+        		leaveDay = (double) LocalDate.parse(entity.getDateEnd()).getDayOfYear() - LocalDate.parse(entity.getDateStart()).getDayOfYear() 
+        				+ dayYear*LocalDate.parse(entity.getDateEnd()).getYear() - LocalDate.parse(entity.getDateStart()).getYear() + 1;
+        		leaveMonth = LocalDate.parse(entity.getDateEnd()).getMonthValue() - LocalDate.parse(entity.getDateStart()).getMonthValue()
+        				+ monthYear*LocalDate.parse(entity.getDateEnd()).getYear() - LocalDate.parse(entity.getDateStart()).getYear() + 1;
+        		
+        	} else {
+        		leaveDay = (double) LocalDate.parse(entity.getDateEnd()).getDayOfYear() - LocalDate.parse(entity.getDateStart()).getDayOfYear() + 1;
+        		leaveMonth = LocalDate.parse(entity.getDateEnd()).getMonthValue() - LocalDate.parse(entity.getDateStart()).getMonthValue() + 1;
+        	}
+        	
+        	LocalDate startDate = LocalDate.parse(entity.getDateStart()) ;
+        	LocalDate endDate = LocalDate.parse(entity.getDateEnd()) ;
+        	int day = LocalDate.parse(entity.getDateStart()).getDayOfMonth() ;
+        	
+        	if(endDate.getMonthValue() == startDate.getMonthValue()) {
+     
+        		for(int i=0; i<leaveDay ; i++) {
+        			TIMESHEETS_MAP.put( startDate.getYear()+"-"+utilService.paddding(startDate.getMonthValue())+"-"+utilService.paddding(day) , domain);
+        			day++;
+        		}
+        		
+        	} else {
+        		
+        		ArrayList<Integer> monthDay = new ArrayList<Integer>();
+        		int count = 1;
+        	
+        		for(int i=0; i<leaveMonth; i++) {
+        			
+        			int febDay = 0;
+        			if(startDate.getMonthValue()+i == 2) {
+        				febDay += 1;
+        			}
+        			
+        			if(startDate.getMonthValue()+i <= 12) {
+        				monthDay.add(febDay + MONTH_MAP.get(utilService.paddding(startDate.getMonthValue()+ i))) ;
+        			} else {
+        				monthDay.add(febDay + MONTH_MAP.get(utilService.paddding(startDate.getMonthValue()+ i - 12)));
+        			}
+        		}
+        		System.out.println(leaveDay);
+        		for(int j=0; j<monthDay.size(); j++) {
+        			int maxday = monthDay.get(j);
+  
+        			for(int i=0; day+i <= maxday && count <= leaveDay; i++) {
+        					TIMESHEETS_MAP.put(startDate.getYear()+"-"+utilService.paddding(startDate.getMonthValue()+j)+"-"+utilService.paddding(day+i) , domain);
+        					count++;
+        					
+        				}
+        				day = 1;
+//        				empEntity.setTIMESHEETS_MAP(TIMESHEETS_MAP);
+//        	        	employeeRepository.save(empEntity);
+//        	        	TIMESHEETS_MAP.clear();
+        		}
+        		
+        	}
+        	empEntity.setTIMESHEETS_MAP(TIMESHEETS_MAP);
+        	employeeRepository.save(empEntity);
+        }
+    }
+    
+	public LeaveEntity getLeaveRequestsDetails(LeaveIDWrapper wrapper) {
+		throwService.checkLeaveRequest(wrapper.getLeaveID());
+		
+		LeaveEntity entity = leaveRepository.findById(wrapper.getLeaveID()).get();
+		return entity;
+	}
+	
 	//-------- holiday -------------------
 	
 	public void createHolidayType(HolidayWrapper wrapper) {
 		throwService.checkOrganize(wrapper.getOrgID());
-		
 		
 		Map<String , TimesheetsDomain> TIMESHEETS_MAP = new HashMap<>();
 		for(int i=0; i<wrapper.getHolidayList().size(); i++) {
@@ -1451,7 +1588,7 @@ public class AdminService {
 	        style47.setFillForegroundColor(IndexedColors.WHITE .getIndex());
 	        style47.setFillPattern(FillPatternType.SOLID_FOREGROUND);
 	        
-	        InputStream inputStream = new URL("https://www.planetware.com/wpimages/2020/02/france-in-pictures-beautiful-places-to-photograph-eiffel-tower.jpg").openStream();
+	        InputStream inputStream = new URL(""+orgRepository.findById(employeeRepository.findById(wrapper.getEmpID()).get().getOrgID()).get().getOrgPic()).openStream();
 	        //Get the contents of an InputStream as a byte[].
 	        byte[] bytes = IOUtils.toByteArray(inputStream);
 	        //Adds a picture to the workbook

@@ -9,6 +9,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.plusitsolution.timesheet.repository.EmployeeRepository;
 import com.plusitsolution.timesheet.repository.HolidayRepository;
+import com.plusitsolution.timesheet.repository.LeaveRepository;
 import com.plusitsolution.timesheet.repository.MedicalRepository;
 import com.plusitsolution.timesheet.repository.OrganizeRepository;
 
@@ -23,6 +24,8 @@ public class ThrowService {
 	private HolidayRepository holidayRepository;
 	@Autowired
 	private MedicalRepository medicalRepository;
+	@Autowired
+	private LeaveRepository leaveRepository;
 
 	public void checkUsernameAlreadyuse(String username) {
 		if (employeeRepository.findByUsername(username) != null ) {
@@ -93,6 +96,12 @@ public class ThrowService {
         }
 	}
 	
+	public void checkLeaveRequest(String leaveID) {
+		if (leaveRepository.findById(leaveID).isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this leaveRequest is't exist"); 
+        }
+	}
+	
 	
 	
 	 public void checkName(String firstName , String lastName) {
@@ -108,14 +117,19 @@ public class ThrowService {
 		if(!(Pattern.matches("[A-Za-z0-9]{1,6}", shortName))) {
 	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Your OrgShortName have only character."); 
 	    }
+		
+		if(orgRepository.findByShortName(shortName) != null) {
+	        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this ShortName is already use "); 
+	    }
 	}
 	
 	public void checkUsername(String username) {
 		if (employeeRepository.findByUsername(username) == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this medicalRequest is't exist"); 
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "this username is't exist"); 
         }
 	}
 	
+
 
 	
 	

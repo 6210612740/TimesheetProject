@@ -11,22 +11,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.plusitsolution.timesheet.domain.SumDomain;
+import com.plusitsolution.timesheet.domain.LeaveRequest.LeaveMyRequestDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalMyRequestDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeLoginWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeProfileDomain;
-import com.plusitsolution.timesheet.domain.wrapper.HolidayUpdateWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.MedicalRequestWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.UpdateMyTimesheetsWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeIDMonthWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeLoginWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeProfileDomain;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.UpdateMyTimesheetsWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper.HolidayUpdateWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.LeaveWrapper.LeaveRequestWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.MedicalWrapper.MedicalRequestWrapper;
 import com.plusitsolution.timesheet.entity.MedicalEntity;
 import com.plusitsolution.timesheet.service.AdminService;
 import com.plusitsolution.timesheet.service.EmployeeService;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "") //    /secure/employee
+@RequestMapping(value = "/secure/employee") //    /secure/employee
 public class EmployeeController {
 	
 	@Autowired
@@ -45,6 +48,10 @@ public class EmployeeController {
 		return empService.loginEmp(wrapper);
 	}
 	
+	@PostMapping("/getSumMyMonth")
+	public SumDomain getSumMyMonth(@RequestBody EmployeeIDMonthWrapper wrapper) {
+		return empService.getSumMyMonth(wrapper);
+	}
 	
 	//---------------- timesheet
 	@PostMapping("/updateMyTimesheets")
@@ -68,7 +75,16 @@ public class EmployeeController {
 		return empService.geMyMedRequests(wrapper);
 	}
 	
-	//------------ Excel
+	//------------ Leave Request
+
+	@PostMapping("/addLeaveRequests")
+	public void addLeaveRequests(@RequestBody LeaveRequestWrapper wrapper) {
+		empService.addLeaveRequests(wrapper);
+	}
 	
+	@PostMapping("/geMyLeaveRequests")
+	public Map<String, LeaveMyRequestDomain> geMyLeaveRequests(@RequestBody EmployeeIDWrapper wrapper) {
+		return empService.geMyLeaveRequests(wrapper);
+	}
 
 }

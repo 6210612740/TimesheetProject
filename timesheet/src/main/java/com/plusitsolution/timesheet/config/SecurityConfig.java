@@ -36,10 +36,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // Api Key Filter
                 .and().addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class).authorizeRequests()
 //                REGISTRATOR
-                .antMatchers(HttpMethod.GET, "/secure/admin/**").hasRole("ADMIN")
-                .antMatchers(HttpMethod.POST, "/secure/admin/**").hasRole("ADMIN")
-                .antMatchers(HttpMethod.PUT, "/secure/admin/**").hasRole("ADMIN")
-                .antMatchers(HttpMethod.DELETE, "/secure/admin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/secure/admin/**").hasAnyRole("ADMIN")
+                .antMatchers(HttpMethod.POST, "/secure/admin/**").hasAnyRole("ADMIN")
+                .antMatchers(HttpMethod.PUT, "/secure/admin/**").hasAnyRole("ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/secure/admin/**").hasAnyRole("ADMIN")
 //                
                 .antMatchers(HttpMethod.GET, "/secure/employee/**").hasAnyRole("ADMIN", "EMPLOYEE")
                 .antMatchers(HttpMethod.POST, "/secure/employee/**").hasAnyRole("ADMIN", "EMPLOYEE")

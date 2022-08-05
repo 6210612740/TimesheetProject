@@ -8,7 +8,6 @@ import com.plusitsolution.timesheet.entity.MedicalEntity;
 
 public class MedicalDomain {
 	
-	
 	private String empID;
 	private String orgID;
 	private String slipPic;
@@ -17,8 +16,9 @@ public class MedicalDomain {
 	private String date;
 	private MedStatus medStatus ;
 	
-	
-	
+	public MedicalDomain() {
+		
+	}
 	
 	public MedicalDomain(String empID, String orgID, String slipPic, Double amount, String note,
 			String date,MedStatus medStatus ) {

@@ -18,27 +18,29 @@ import com.plusitsolution.timesheet.domain.SumDomain;
 import com.plusitsolution.timesheet.domain.Display.OverviewDomain;
 import com.plusitsolution.timesheet.domain.Display.SummaryByMonthDomain;
 import com.plusitsolution.timesheet.domain.Display.SummaryByMonthValueDomain;
+import com.plusitsolution.timesheet.domain.LeaveRequest.LeaveRequestDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalRequestDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsSummaryDomain;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.HolidayUpdateWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.MedicalIDWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.OrgIDMonthWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.OrgIDWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.OrgIDYearWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.OrgRegisterWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.RegisterEmployeeWrapper;
 import com.plusitsolution.timesheet.domain.wrapper.TimesheetSetTimesheetWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.UpdateMedicalRequestsStatusWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.UpdateUserProfileWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeIDMonthWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.RegisterEmployeeWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.UpdateUserProfileWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper.HolidayUpdateWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.HolidayWrapper.HolidayWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.LeaveWrapper.UpdateLeaveRequestsStatusWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.MedicalWrapper.MedicalIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.MedicalWrapper.UpdateMedicalRequestsStatusWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.OrganizeWrapper.OrgIDMonthWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.OrganizeWrapper.OrgIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.OrganizeWrapper.OrgIDYearWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.OrganizeWrapper.OrgRegisterWrapper;
 import com.plusitsolution.timesheet.entity.MedicalEntity;
 import com.plusitsolution.timesheet.service.AdminService;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "") //     /secure/admin
+@RequestMapping(value = "/secure/admin") //     /secure/admin
 public class AdminController {
 	
 	@Autowired
@@ -100,10 +102,11 @@ public class AdminController {
 		return service.getEveryOneMedicalFeesRequests(wrapper);
 	}
 	
-	@PostMapping("/getSumMyMonth")
-	public SumDomain getSumMyMonth(@RequestBody EmployeeIDMonthWrapper wrapper) {
-		return service.getSumMyMonth(wrapper);
+	@PostMapping("/getEveryOneLeaveRequests")
+	public Map<String , LeaveRequestDomain> getEveryOneLeaveRequests(@RequestBody OrgIDYearWrapper wrapper) {
+		return service.getEveryOneLeaveRequests(wrapper);
 	}
+
 	
 //-------- holiday -------------------
 	@PostMapping("/createHolidayType")
@@ -130,6 +133,12 @@ public class AdminController {
 	@PostMapping("/getAllHoliday")
 	public Map<String , HolidayDomain> getAllHoliday(@RequestBody OrgIDWrapper wrapper) {
 		return service.getAllHoliday(wrapper);
+	}
+	
+	//---------------- Leave -------------------------
+	@PostMapping("/updateLeaveRequestsStatus")
+	public void updateLeaveRequestsStatus(@RequestBody UpdateLeaveRequestsStatusWrapper wrapper) {
+		service.updateLeaveRequestsStatus(wrapper);
 	}
 	
 	//----------------- excel -----------------------------

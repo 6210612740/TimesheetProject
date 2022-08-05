@@ -17,28 +17,35 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.plusitsolution.timesheet.domain.SumDomain;
 import com.plusitsolution.timesheet.domain.Employee.EmpDetailDomain;
 import com.plusitsolution.timesheet.domain.Employee.EmployeeDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.MyTimesheetExcelDomain;
 import com.plusitsolution.timesheet.domain.Timesheet.TimesheetsDomain;
 import com.plusitsolution.timesheet.domain.EnumDomain.DateStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.EmpRole;
+import com.plusitsolution.timesheet.domain.EnumDomain.LeaveStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.MedStatus;
 import com.plusitsolution.timesheet.domain.EnumDomain.TimesheetsStatus;
+import com.plusitsolution.timesheet.domain.LeaveRequest.LeaveDomain;
+import com.plusitsolution.timesheet.domain.LeaveRequest.LeaveMyRequestDomain;
 import com.plusitsolution.common.toolkit.PlusExcelUtils;
 import com.plusitsolution.common.toolkit.PlusHashUtils;
 import com.plusitsolution.common.toolkit.PlusJsonUtils;
 import com.plusitsolution.timesheet.domain.Medical.MedicalDomain;
 import com.plusitsolution.timesheet.domain.Medical.MedicalMyRequestDomain;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDMonthWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeIDWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeLoginWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.EmployeeProfileDomain;
-import com.plusitsolution.timesheet.domain.wrapper.MedicalRequestWrapper;
-import com.plusitsolution.timesheet.domain.wrapper.UpdateMyTimesheetsWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeIDMonthWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeIDWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeLoginWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.EmployeeProfileDomain;
+import com.plusitsolution.timesheet.domain.wrapper.EmployeeWrapper.UpdateMyTimesheetsWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.LeaveWrapper.LeaveRequestWrapper;
+import com.plusitsolution.timesheet.domain.wrapper.MedicalWrapper.MedicalRequestWrapper;
 import com.plusitsolution.timesheet.entity.EmployeeEntity;
+import com.plusitsolution.timesheet.entity.LeaveEntity;
 import com.plusitsolution.timesheet.entity.MedicalEntity;
 import com.plusitsolution.timesheet.repository.EmployeeRepository;
+import com.plusitsolution.timesheet.repository.LeaveRepository;
 import com.plusitsolution.timesheet.repository.MedicalRepository;
 import com.plusitsolution.timesheet.repository.OrganizeRepository;
 import com.plusitsolution.zeencommon.helper.ExcelBuilder;
@@ -54,6 +61,8 @@ public class EmployeeService {
 	private EmployeeRepository employeeRepository;
 	@Autowired
 	private MedicalRepository medicalRepository ;
+	@Autowired
+	private LeaveRepository leaveRepository ;
 	@Autowired
 	private UtilsService utilService;
 	@Autowired
@@ -88,9 +97,9 @@ public class EmployeeService {
 		EmployeeEntity employeeEntity = employeeRepository.findByUsername(wrapper.getUsername());
 		
 		Map<String , EmpDetailDomain> EMP_MAP = orgRepository.findById(employeeEntity.getOrgID()).get().getEMP_MAP();
-		
+
 		EmployeeProfileDomain domain = new EmployeeProfileDomain(employeeEntity.getEmpID(), employeeEntity.getOrgID(), employeeEntity.getEmpCode(), employeeEntity.getFirstName(),
-				employeeEntity.getLastName(), employeeEntity.getNickName(), employeeEntity.getUsername(),EMP_MAP.get(employeeEntity.getEmpID()).getHolidayID(), EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit(),
+				employeeEntity.getLastName(), employeeEntity.getNickName(), employeeEntity.getUsername(), EMP_MAP.get(employeeEntity.getEmpID()).getHolidayID(), EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit(),
 				EMP_MAP.get(employeeEntity.getEmpID()).getMedFeeLimit(), EMP_MAP.get(employeeEntity.getEmpID()).getEmpRole(), EMP_MAP.get(employeeEntity.getEmpID()).getEndContract(),
 				utilService.myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()), utilService.myMedfeeThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
 				EMP_MAP.get(employeeEntity.getEmpID()).getLeaveLimit()- utilService.myLeaveDayThisYear(employeeEntity.getEmpID(), LocalDate.now().getYear()),
@@ -158,6 +167,39 @@ public class EmployeeService {
 		return MYMEDFEE_MAP;
 	}
 	
+	public Map<String, LeaveMyRequestDomain> geMyLeaveRequests(EmployeeIDWrapper wrapper) {
+		throwService.checkEmployee(wrapper.getEmpID());
+		
+		EmployeeEntity employeeEntity = employeeRepository.findById(wrapper.getEmpID()).get();
+		
+		Map<String, LeaveMyRequestDomain> MYLEAVE_MAP = new HashMap<>();
+		for (String i : employeeEntity.getLEAVEREQ_MAP().keySet()) {
+			
+			LeaveEntity entity = leaveRepository.findById(employeeEntity.getLEAVEREQ_MAP().get(i)).get();
+
+			LeaveMyRequestDomain domain = new LeaveMyRequestDomain(employeeEntity.getLEAVEREQ_MAP().get(i), entity.getEmpID(), entity.getOrgID(), entity.getDateReq(),
+					entity.getDateStart(), entity.getDateEnd(), entity.getNote(), entity.getLeaveType(), entity.getLeaveStatus(),employeeRepository.findById(entity.getEmpID()).get().getEmpCode(), employeeRepository.findById(entity.getEmpID()).get().getNickName());
+			
+			MYLEAVE_MAP.put(i, domain);
+		}
+		
+		return MYLEAVE_MAP;
+	}
+	
+	public SumDomain getSumMyMonth(EmployeeIDMonthWrapper wrapper) {
+		throwService.checkEmployee(wrapper.getEmpID());
+		throwService.checkMonth(wrapper.getMonth());
+		throwService.checkYear(wrapper.getYear());
+
+		SumDomain domain = new SumDomain(utilService.myLeaveDayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
+				utilService.myWorkThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
+				utilService.myHolidayThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()),
+				utilService.myOTThisMonth(wrapper.getEmpID(), wrapper.getMonth(), wrapper.getYear()));
+		
+		return domain;
+	
+	}
+	
 	//-------------- Medical
 	
 	public void addMedRequests(MedicalRequestWrapper wrapper) {
@@ -172,6 +214,23 @@ public class EmployeeService {
 		MedicalEntity medicalEntity = medicalRepository.save(medicalDomain.toEntity()) ;
 		
 		employeeEntity.getMEDFEEUSE_MAP().put(LocalDateTime.now().toString(), medicalEntity.getMedID());
+		employeeRepository.save(employeeEntity);
+		
+	}
+	
+	//-------------- Leave Request
+	
+	public void addLeaveRequests(LeaveRequestWrapper wrapper) {
+		throwService.checkEmployeeByEmpCode(wrapper.getEmpCode());
+		
+		
+		EmployeeEntity employeeEntity = employeeRepository.findByEmpCode(wrapper.getEmpCode());
+		LeaveDomain domain = new LeaveDomain(employeeEntity.getEmpID(), employeeEntity.getOrgID(), LocalDate.now().toString(), wrapper.getDateStart(), 
+				wrapper.getDateEnd(), wrapper.getNote(), wrapper.getLeaveType(), LeaveStatus.INPROCESS);
+		
+		LeaveEntity leaveEntity = leaveRepository.save(domain.toEntity()) ;
+		
+		employeeEntity.getLEAVEREQ_MAP().put(LocalDateTime.now().toString(), leaveEntity.getLeaveID());
 		employeeRepository.save(employeeEntity);
 		
 	}
@@ -194,6 +253,10 @@ public class EmployeeService {
         		domain.setTimeIn("-");
         		domain.setTimeOut("-");
         		domain.setProject("-");
+        		domain.setWorkingTime(0.0);
+        	}
+        	if(wrapper.getTIMESHEETS_MAP().get(i).getDateStatus().equals(DateStatus.HOLIDAY)) {
+        		domain.setWorkingTime(0.0);
         	}
         	
         }
@@ -202,17 +265,20 @@ public class EmployeeService {
         
         for(int i=0; i<12; i++) {
         	
-        	if(!(employeeEntity.getTimesheetStatus_MAP().get(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01").equals(TimesheetsStatus.APPROVE) || 
-        			employeeEntity.getTimesheetStatus_MAP().get(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01").equals(TimesheetsStatus.REJECT))) {
+        	if(employeeEntity.getTimesheetStatus_MAP().get(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01") == null ) {
+        		timesheetStatus_MAP.put(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01", 
+        				myTimesheetStatus(wrapper.getEmpID(), i+1, LocalDate.now().getYear()));
+        	} else {
+  
+        		if((!(employeeEntity.getTimesheetStatus_MAP().get(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01").equals(TimesheetsStatus.APPROVE) || 
+        				employeeEntity.getTimesheetStatus_MAP().get(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01").equals(TimesheetsStatus.REJECT))) ) {
         
-        		if(employeeEntity.getTimesheetStatus_MAP().get(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01").equals(null)) {
-        			timesheetStatus_MAP.put(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01", 
-        					TimesheetsStatus.INCOMPLETED);
-        		} else {
-        			timesheetStatus_MAP.put(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01",
-        					myTimesheetStatus(wrapper.getEmpID(), i+1, LocalDate.now().getYear()));
-        		}
+        				timesheetStatus_MAP.put(LocalDate.now().getYear()+"-"+utilService.paddding(i+1)+"-01",
+        						myTimesheetStatus(wrapper.getEmpID(), i+1, LocalDate.now().getYear()));
+        			}
+        	
         	}
+        	
         }
         
         employeeEntity.setTimesheetStatus_MAP(timesheetStatus_MAP);
