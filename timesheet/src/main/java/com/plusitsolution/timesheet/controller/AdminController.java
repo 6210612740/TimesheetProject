@@ -143,7 +143,7 @@ public class AdminController {
 	
 	//----------------- excel -----------------------------
 	@PostMapping("/createExcelAllSummary")
-	public HttpEntity<byte[]> createExcelAllSummary(@RequestBody OrgIDYearWrapper wrapper) throws Exception {
+public HttpEntity<byte[]> createExcelAllSummary(@RequestBody OrgIDYearWrapper wrapper) throws Exception {
 		return service.createExcelAllSummary(wrapper);
 	}
 	

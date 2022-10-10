@@ -3,6 +3,7 @@ package com.plusitsolution.timesheet.controller;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -85,6 +86,12 @@ public class EmployeeController {
 	@PostMapping("/geMyLeaveRequests")
 	public Map<String, LeaveMyRequestDomain> geMyLeaveRequests(@RequestBody EmployeeIDWrapper wrapper) {
 		return empService.geMyLeaveRequests(wrapper);
+	}
+	
+	//create excel
+	@PostMapping("/createExcelMyTimesheet")
+	public HttpEntity<byte[]> createExcelMyTimesheet(@RequestBody EmployeeIDMonthWrapper wrapper) throws Exception {
+		return service.createExcelMyTimesheet(wrapper);
 	}
 
 }
